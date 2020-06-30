@@ -1,0 +1,32 @@
+{
+    "name": "nantaburi/mongodb-sqlquery",
+    "type": "library",
+    "description": "Mongodb using SQL style",
+    "keywords": ["laravel",
+        "eloquent",
+        "mongodb",
+        "mongo",
+        "database",
+        "model",
+        "moloquent",
+	"sql"],
+    "homepage": "https://github.com/nutter-nut/mongodb-sqlquery",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Suphachai Wongnaphawiset",
+            "email": "wongnaph1234@gmail.com",
+            "homepage": "https://github.com/nutter-nut/mongodb-sqlquery",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.2.0",
+	"mongodb/mongodb": "^1.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nantaburi\\Mongodb": "src"
+        }
+    }
+}
