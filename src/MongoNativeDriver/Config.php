@@ -8,7 +8,7 @@
  */
 
 
-namespace Nantaburi\Mongodb\MongoNativeDriver;
+namespace  Nantaburi\Mongodb\MongoNativeDriver;
 
 class Config {  
 

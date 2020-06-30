@@ -147,7 +147,6 @@ class BuildConnect {
          unset($client) ;
          unset($connection) ;
         
-         dd ( $reaction ) ; 
          return $reaction ; 
     }
 

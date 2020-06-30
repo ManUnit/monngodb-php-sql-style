@@ -10,7 +10,7 @@
  *  revision 1.1
  */
 
-namespace Nantaburi\Mongodb\MongoNativeDriver;
+namespace Nantaburi\Mongodb\MongoNativeDriver ;
 use Nantaburi\Mongodb\MongoNativeDriver\Config ;
 use Nantaburi\Mongodb\MongoNativeDriver\BuildConnect ;
 use MongoDB\BSON\Regex; 
