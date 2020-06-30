@@ -8,7 +8,7 @@
  */
 
 
-namespace Nantaburi\Mongodb\MogoNativeDriver;
+namespace Nantaburi\Mongodb\MongoNativeDriver;
 
 use Nantaburi\Mongodb\MongoNativeDriver\Config;
 use Nantaburi\Mongodb\MongoNativeDriver\Connection;  
