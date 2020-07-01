@@ -20,6 +20,7 @@ class Connection {  //defind the Class to be  master class
     // Public , Protected  non-static properties  of values $this 
     protected  $collection  ;  // use for end of Override
     protected  $database  ;    // use for end of Override\
+    protected  $fillable = array() ; 
     
     /*  Static properties of self::$values 
      *
@@ -142,12 +143,18 @@ class Connection {  //defind the Class to be  master class
     } 
 
     public static function insert( array $arrVals ) {    // non static method  display output  using after where,orwhere operation
-        //dd( self::$whereQuery  ) ;
+ 
+         foreach ( array_keys($arrVals) as $key  ) {
+           
+            if (  !in_array( $key , (new static)->fillable ) ) { return  [  0 , "Error ! insert fail-> ".$key. " out of fillable" ]; } 
+ 
+          }
          $config = new Config ;
          $config->setDb((new static)->getDbNonstatic()) ;
          $conclude = new BuildConnect ; 
          $reactionInsert = $conclude->insertDoc($config ,(new static)->getCollectNonstatic() , $arrVals ) ; 
-         return $conclude->result ; 
+         dd ( $reactionInsert ) ;
+         return  [ 1 ,$reactionInsert ] ; 
      }
 
 

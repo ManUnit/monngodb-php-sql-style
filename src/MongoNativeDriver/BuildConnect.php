@@ -3,7 +3,7 @@
 /*
  *
  *  Nandev :
- *  Create by : Anan Paenthongkham
+ *  Create by : Anan Paenthongkham , Supachai ,Tanapat
  *  Update : 2020-6-7
  *  Class Connection 
  */
@@ -27,12 +27,19 @@ class BuildConnect {
           // plan for more advance later
        }
 
-    public function  findDoc($config ,$reqCollection , $query ) {
-  
+    private function preparecons ($config) {
         $connection =  'mongodb://'.$config->getUser() 
                                    .":".$config->getPassword()
                                    .'@'.$config->getHost()
                                    .':'.$config->getPort() ;
+        return $connection ; 
+    
+    } 
+
+    public function  findDoc($config ,$reqCollection , $query ) {
+  
+        $connection = $this->preparecons($config) ;  
+
         try {
         $client = new Client($connection);
         $db = $client->selectDatabase($config->getDb() );
