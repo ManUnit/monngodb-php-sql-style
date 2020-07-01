@@ -114,7 +114,7 @@ class UserModel extends NanModel
 
       $users =  UserModel::all()  ; 
       
-        return view('usermanage')->compact($users) ; 
+        return view('usermanage')->compact('users') ; 
     } 
 
 ````
