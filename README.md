@@ -82,7 +82,9 @@ class UserModel extends NanModel
 
   ````
 
- - Controller
+ - Controller 
+     - insert prepare code example below 
+     - once filde data isn't in fillable member insert will reject and has error 
 
   ````
 
@@ -94,9 +96,12 @@ class UserModel extends NanModel
         $prepairinsertServices["plan"] =  $request->input('radioplan') ;
         $prepairinsertServices["services"] = [   ] ;
          // Get data from Check box 
-         if ( null != $request->input('service-ecom') ) array_push ( $prepairinsertServices["services"] ,[ "service-ecom" ,  $request->input('service-ecom') ])  ; 
-         if (  null != $request->input('service-chat') ) array_push ( $prepairinsertServices['services'], ["service-chat", $request->input('service-chat')]);
-         if (  null != $request->input('service-email') ) array_push ( $prepairinsertServices['services'],["service-email" , $request->input('service-emai)') ]);
+         if ( null != $request->input('service-ecom') ) 
+           array_push ( $prepairinsertServices["services"] ,[ "service-ecom" ,  $request->input('service-ecom') ])  ; 
+         if (  null != $request->input('service-chat') )
+            array_push ( $prepairinsertServices['services'], ["service-chat", $request->input('service-chat')]);
+         if (  null != $request->input('service-email') )
+            array_push ( $prepairinsertServices['services'],["service-email" , $request->input('service-emai)') ]);
   
        $prepairinsertServices["server-reference"] = $_SERVER['HTTP_REFERER'] ;
        $prepairinsertServices["client-address"] = $_SERVER['REMOTE_ADDR'] ;
