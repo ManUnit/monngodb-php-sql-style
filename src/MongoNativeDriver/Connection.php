@@ -153,7 +153,7 @@ class Connection {  //defind the Class to be  master class
          $config->setDb((new static)->getDbNonstatic()) ;
          $conclude = new BuildConnect ; 
          $reactionInsert = $conclude->insertDoc($config ,(new static)->getCollectNonstatic() , $arrVals ) ; 
-         dd ( $reactionInsert ) ;
+        // dd ( $reactionInsert ) ;
          return  [ 1 ,$reactionInsert ] ; 
      }
 
