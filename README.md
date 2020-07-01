@@ -53,9 +53,9 @@ class UserDbModel  extends Model {
                           
  
  ````
- - insert Data to collection 
-  - Model  file in app/UserModel.php
-  ````
+- insert Data to collection 
+ - Model  file in app/UserModel.php
+````
   <?php
 
 namespace App;
@@ -78,7 +78,6 @@ class UserModel extends NanModel
 
  
 }
-
 
 ````
 
@@ -119,8 +118,8 @@ class UserModel extends NanModel
     } 
 
 ````
-    - Handle insert error in view
-      -  add script below into your view file.blade.php
+- Handle insert error in view
+ -  add script below into your view file.blade.php
 
 ````
    <script>
