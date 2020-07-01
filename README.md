@@ -119,7 +119,7 @@ class UserModel extends NanModel
 
 ````
 - Handle insert error in view
- -  add script below into your view file.blade.php
+  -  add script below into your view file.blade.php
 
 ````
    <script>
