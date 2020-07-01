@@ -1,4 +1,4 @@
-# mongodb-sqlquery
+# mongodb-sql-style 
 Mongodb using SQL style 
 - Configuraton  add setting in config/database.php of laravel
 ````
