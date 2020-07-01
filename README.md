@@ -80,13 +80,13 @@ class UserModel extends NanModel
 }
 
 
-  ````
+````
 
  - Controller 
      - insert prepare code example below 
      - once field data isn't in fillable member insert will reject and has error 
 
-  ````
+````
 
         $prepairinsertServices["username"] =  $request->input('username') ;
         $prepairinsertServices["email"] =  $request->input('email') ;
@@ -118,11 +118,11 @@ class UserModel extends NanModel
         return view('usermanage')->compact($users) ; 
     } 
 
-    ````
+````
     - Handle insert error in view
       -  add script below into your view file.blade.php
 
-    ````
+````
    <script>
         var msg = '{{Session::get('alert')}}';
         var exist = '{{Session::has('alert')}}';
@@ -131,6 +131,6 @@ class UserModel extends NanModel
         }
    </script>
      
-    ````
+````
     
  
