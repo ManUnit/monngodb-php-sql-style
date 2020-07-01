@@ -1,4 +1,4 @@
-# mongodb-sqlquery
+# mongodb-sql-style 
 Mongodb using SQL style 
 - Configuraton  add setting in config/database.php of laravel
 ````
@@ -53,9 +53,9 @@ class UserDbModel  extends Model {
                           
  
  ````
- - insert Data to collection 
-  - Model  file in app/UserModel.php
-  ````
+- insert Data to collection 
+ - Model  file in app/UserModel.php
+````
   <?php
 
 namespace App;
@@ -69,7 +69,7 @@ class UserModel extends NanModel
    * 
    */ 
    protected  $collection = "users" ;  
-   protected  $database = "gtradeadmin" ;  
+   protected  $database = "customer" ;  
    protected  $fillable = [ "username","email","first_name","last_name","password",
                             "plan","services","server-reference","client-address",
                             "server-req-time"
@@ -79,12 +79,13 @@ class UserModel extends NanModel
  
 }
 
+````
 
-  ````
+ - Controller 
+     - insert prepare code example below 
+     - once field data isn't in fillable member insert will reject and has error 
 
- - Controller
-
-  ````
+````
 
         $prepairinsertServices["username"] =  $request->input('username') ;
         $prepairinsertServices["email"] =  $request->input('email') ;
@@ -94,9 +95,12 @@ class UserModel extends NanModel
         $prepairinsertServices["plan"] =  $request->input('radioplan') ;
         $prepairinsertServices["services"] = [   ] ;
          // Get data from Check box 
-         if ( null != $request->input('service-ecom') ) array_push ( $prepairinsertServices["services"] ,[ "service-ecom" ,  $request->input('service-ecom') ])  ; 
-         if (  null != $request->input('service-chat') ) array_push ( $prepairinsertServices['services'], ["service-chat", $request->input('service-chat')]);
-         if (  null != $request->input('service-email') ) array_push ( $prepairinsertServices['services'],["service-email" , $request->input('service-emai)') ]);
+         if ( null != $request->input('service-ecom') ) 
+           array_push ( $prepairinsertServices["services"] ,[ "service-ecom" ,  $request->input('service-ecom') ])  ; 
+         if (  null != $request->input('service-chat') )
+            array_push ( $prepairinsertServices['services'], ["service-chat", $request->input('service-chat')]);
+         if (  null != $request->input('service-email') )
+            array_push ( $prepairinsertServices['services'],["service-email" , $request->input('service-emai)') ]);
   
        $prepairinsertServices["server-reference"] = $_SERVER['HTTP_REFERER'] ;
        $prepairinsertServices["client-address"] = $_SERVER['REMOTE_ADDR'] ;
@@ -113,11 +117,11 @@ class UserModel extends NanModel
         return view('usermanage')->compact($users) ; 
     } 
 
-    ````
-    - Handle insert error in view
-      -  add script below into your view file.blade.php
+````
+- Handle insert error in view
+  -  add script below into your view file.blade.php
 
-    ````
+````
    <script>
         var msg = '{{Session::get('alert')}}';
         var exist = '{{Session::has('alert')}}';
@@ -126,6 +130,6 @@ class UserModel extends NanModel
         }
    </script>
      
-    ````
+````
     
  
