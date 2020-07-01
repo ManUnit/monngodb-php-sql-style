@@ -69,7 +69,7 @@ class UserModel extends NanModel
    * 
    */ 
    protected  $collection = "users" ;  
-   protected  $database = "gtradeadmin" ;  
+   protected  $database = "customer" ;  
    protected  $fillable = [ "username","email","first_name","last_name","password",
                             "plan","services","server-reference","client-address",
                             "server-req-time"
