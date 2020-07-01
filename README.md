@@ -84,7 +84,7 @@ class UserModel extends NanModel
 
  - Controller 
      - insert prepare code example below 
-     - once filde data isn't in fillable member insert will reject and has error 
+     - once field data isn't in fillable member insert will reject and has error 
 
   ````
 
