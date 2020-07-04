@@ -21,43 +21,7 @@ __________
     - Create Model - using command `  php artisan make:model UserDbModel ` at laravel root project 
       and insert ` use Nantaburi\Mongodb\MongoNativeDriver\Model   ` on top
 ````
-
-use Nantaburi\Mongodb\MongoNativeDriver\Model 
-
-class UserDbModel  extends Model {
-
-    protected $collection = "users" ;
-    protected $database = "marcompany" ;
-
-
-}
-
-
-````
-- Create Laravel controller 
-   - using command `  php artisan make:controller --model=UserDbModel  ` at laravel root project 
-   - then edit and insert basic SQL  example :
-      ` select * from user where  username like 'suphacha%' and age > 18 or mooban = 'Pangpoi' ; `
-   - using SQL transform showing  below : 
- ````
- use App\UserDbModel ; 
- 
-    $users= UserDbModel::query()
-                          ->where("username" , "like" , "suphacha%" )
-                          ->andwhere("age" ,">", 18)
-                          ->orwhere("mooban" ,"=" ,"Pangpoi" )
-                          ->get() ;
-                          
-    return view('userlist')->with("users",$users) ; 
-
-
- ````
-
- - insert Data to collection 
-   - Model  file in app/UserModel.php
-   - $schema is array the keys are fillable of collection and value are fillable of each field
-````
-  <?php
+ <?php
 
 namespace App;
 
@@ -100,7 +64,27 @@ class UserModel extends NanModel
  
 }
 
+
 ````
+- Create Laravel controller 
+   - using command `  php artisan make:controller --model=UserDbModel  ` at laravel root project 
+   - then edit and insert basic SQL  example :
+      ` select * from user where  username like 'suphacha%' and age > 18 or mooban = 'Pangpoi' ; `
+   - using SQL transform showing  below : 
+ ````
+ use App\UserDbModel ; 
+ 
+    $users= UserDbModel::query()
+                          ->where("username" , "like" , "suphacha%" )
+                          ->andwhere("age" ,">", 18)
+                          ->orwhere("mooban" ,"=" ,"Pangpoi" )
+                          ->get() ;
+                          
+    return view('userlist')->with("users",$users) ; 
+
+
+ ````
+
 -  switch collection  no need to re create new other Model file
    - put begin with  DB()->collection('[Collction Name]')  see example below
       - ex-fillable use to use `protected $fillable = ["useid","username","lastname","password"] ` will replace with $schema as example below
