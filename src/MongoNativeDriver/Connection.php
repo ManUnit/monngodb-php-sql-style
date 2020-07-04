@@ -13,15 +13,12 @@
 namespace Nantaburi\Mongodb\MongoNativeDriver ;
 use Nantaburi\Mongodb\MongoNativeDriver\Config ;
 use Nantaburi\Mongodb\MongoNativeDriver\BuildConnect ;
+use Nantaburi\Mongodb\MongoNativeDriver\Compatible ;
 use MongoDB\BSON\Regex; 
 
 
-class Connection {  //defind the Class to be  master class
+class Connection extends Compatible {  //defind the Class to be  master class
     // Public , Protected  non-static properties  of values $this 
-    protected  $collection  ;  // use for end of Override
-    protected  $database  ;    // use for end of Override\
-    protected  $fillable = array() ; 
-    
     /*  Static properties of self::$values 
      *
      */
@@ -29,17 +26,29 @@ class Connection {  //defind the Class to be  master class
     // protected static $collectStatic ;   // transform non-static $this->database to static self::$dataBaseStatic  
     
     // Private properties 
+
+    protected $collection = 'dummyString';
+    protected $database = 'dummyString' ;
+    protected $fillable = array();
     
     private static $whereQuery = array() ;
 
     public  function __construct() { 
-
         // no use self::$dataBaseStatic = $this->database ;   //replicate  non-static to static zone  //  use ( new static) instead 
         // no use self::$collectStatic = $this->collection ;   //replicate non-static to static zone  //  use ( new static) instead 
     }
 
-
-
+    public function join(){}
+    public function jeftjoin(){}
+    public function select(){}
+    public function paginate(){}
+    public function links(){}
+    public function orderby(){}
+    public function groupby(){}
+    public static function update(){}
+    
+    //End with display 
+    public function first(){}
     private function whereConversion(String $Key ,String $Operation ,String $Value) {
         //  dd( $Key , $Operation , $Value  ) ;
         //  for where (or,and)  operations
@@ -68,10 +77,17 @@ class Connection {  //defind the Class to be  master class
           }
       }
   
+    public static function DB(){
+        return  (new static)->newQuery(); 
+    } 
+    public function collection(String $collection){
+        $this->collection = $collection ;
+        return  $this ;
+    } 
 
     public static function  query() {
         $config = new Config ; 
-        $config->setDb( (new static)->getDbNonstatic() ) ;  // individual get non static properties inside static method 
+        $config->setDb((String)(new static)->getDbNonstatic());  // individual get non static properties inside static method 
         return  (new static)->newQuery();  // same as return $this ; 
 
          // fixed PHP limitation of using return $this  using "(new static)" and pass with non static method
@@ -89,7 +105,9 @@ class Connection {  //defind the Class to be  master class
         return $this ;
     }
 
-    public function where( String $Key ,String $Operation ,String $Value ) {
+    public function where( String $Key ,String $Operation ,String $Value ) { 
+
+    //dd ( " WHERE : collection " .$this->collection ." Data base : ".$this->database  );
     
         self::$whereQuery = $this->whereConversion( $Key ,$Operation ,$Value ) ;
        return $this ;

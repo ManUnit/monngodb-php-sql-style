@@ -50,8 +50,32 @@ class UserDbModel  extends Model {
                           
     return view('userlist')->with("users",$users) ; 
                           
-                          
+ ````
+-  switch collection  no need to re create new other Model file
+  - put begin with  DB()->collection('[Collction Name]')  see example below
+
+````
+<?php
+
+namespace App\Http\Controllers;
+use App\CompanyModel;
  
+          $users =  CompanyModel::DB() 
+                                ->collection("users")
+                                ->where( "username" ,"=" , "shppachai")
+                                ->get() ;
+
+          $products = CompanyModel::DB() 
+                                ->collection("products")
+                                ->where( "pid" ,"=" , "101")
+                                ->get() ;
+
+
+          return view("usermanage" )->with('users',$users)
+                                    ->with('products',$products); 
+               
+    }
+
  ````
 - insert Data to collection 
  - Model  file in app/UserModel.php
@@ -131,5 +155,7 @@ class UserModel extends NanModel
    </script>
      
 ````
+
+
     
  

@@ -17,21 +17,24 @@ class Config {
   public function __construct() {
        $reflection = new \ReflectionClass(\Composer\Autoload\ClassLoader::class);
        $venderDir = dirname(dirname($reflection->getFileName())); 
-       $databaseConfig = include $venderDir. "/../config/database.php"   ; 
-       self::$connection['config']['database'] = $databaseConfig['connections']['mongodb']['database']  ;
+       $databaseConfig = include $venderDir. "/../config/database.php"   ;
+       //dd( $databaseConfig ) ;
+       
        self::$connection['config']['host'] = $databaseConfig['connections']['mongodb']['host']  ;
        self::$connection['config']['port'] = $databaseConfig['connections']['mongodb']['port']  ;
        self::$connection['config']['username'] = $databaseConfig['connections']['mongodb']['username']  ;
        self::$connection['config']['password'] = $databaseConfig['connections']['mongodb']['password']  ;
+       self::$connection['config']['database'] = $databaseConfig['connections']['mongodb']['database']  ;
   }
    
   public static function getDb(){
-   return self::$connection['config']['database']  ;
+    return self::$connection['config']['database']  ;
   }  
 
-  public static function setDb(String $dbname){
-     // print "newdb is set -> $dbname <- <br>" ;
-      self::$connection['config']['database'] =  $dbname  ;
+  public static function setDb($dbname){
+    // print "newdb is set -> $dbname <- <br>" ;
+    // dd($dbname) ;
+      self::$connection['config']['database'] = (String) $dbname  ;
    }  
 
   public static  function getHost(){

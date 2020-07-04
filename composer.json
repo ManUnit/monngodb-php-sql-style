@@ -1,5 +1,5 @@
 {
-    "name": "nantaburi/mongodb-sqlquery",
+    "name": "nantaburi/mongodb-sql-model",
     "type": "library",
     "description": "Mongodb using SQL style",
     "keywords": ["laravel",
@@ -14,9 +14,9 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Suphachai Wongnaphawiset",
-            "email": "wongnaph1234@gmail.com",
-            "homepage": "https://github.com/nutter-nut/mongodb-sqlquery",
+            "name": "Anan P.",
+            "email": "sciantman@gmail.com",
+            "homepage": "https://github.com/manunit/mongodb-sql-model",
             "role": "Developer"
         }
     ],

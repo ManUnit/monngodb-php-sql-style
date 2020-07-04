@@ -11,8 +11,8 @@
 namespace Nantaburi\Mongodb\MongoNativeDriver;
 
 use Nantaburi\Mongodb\MongoNativeDriver\Config;
-use Nantaburi\Mongodb\MongoNativeDriver\Connection;  
-class Model extends Connection {  //   defind class for repeater 
+use Nantaburi\Mongodb\MongoNativeDriver\DB;  
+class Model extends DB {  //   defind class for repeater 
    public function __construct()  // Override all extends class __construct()
     { 
       parent::__construct() ; // cascade method  __construct() on super class again 
