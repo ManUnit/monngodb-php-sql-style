@@ -19,7 +19,10 @@ __________
 
 - Using Laravel for SQL query style  example below 
     - Create Model - using command `  php artisan make:model UserDbModel ` at laravel root project 
-      and insert ` use Nantaburi\Mongodb\MongoNativeDriver\Model   ` on top
+      and insert ` use Nantaburi\Mongodb\MongoNativeDriver\Model   ` on top 
+      - ex-fillable use to use `protected $fillable = ["useid","username","lastname","password"] ` will replace with $schema as example below
+      - Example : `protected $schema [ "userscollection" , ["useid","username","lastname","password"] ] `
+
 ````
  <?php
 
@@ -87,9 +90,7 @@ class UserModel extends NanModel
 
 -  switch collection  no need to re create new other Model file
    - put begin with  DB()->collection('[Collction Name]')  see example below
-      - ex-fillable use to use `protected $fillable = ["useid","username","lastname","password"] ` will replace with $schema as example below
-      - Example : `protected $schema [ "userscollection" , ["useid","username","lastname","password"] ] `
-
+ 
 ````
 <?php
 
