@@ -49,10 +49,62 @@ class UserDbModel  extends Model {
                           ->get() ;
                           
     return view('userlist')->with("users",$users) ; 
-                          
+
+
  ````
+
+ - insert Data to collection 
+   - Model  file in app/UserModel.php
+   - $schema is array the keys are fillable of collection and value are fillable of each field
+````
+  <?php
+
+namespace App;
+
+use Nantaburi\Mongodb\MongoNativeDriver\Model as NanModel ;
+
+class UserModel extends NanModel
+{  
+   /*
+   * @override $collection to all stack extends back to -> Class Model -> Class Connection( Using)
+   * 
+   */ 
+   protected  $collection = "users" ;  
+   protected  $database = "customer" ;  
+   /*
+   * @override
+   * $fillable migrated to under  $schema
+   *
+   */
+
+
+   protected  $collection = "users" ;   // prepare for default collection you can use mode of Model::DB()->collection("change new collection later")
+   protected  $database = "companydata" ;  
+   /*
+   * protected  $fillable = [ "username","email","first_name","last_name","password",
+   *                         "plan","services","server-reference","client-address",
+   *                        "server-req-time"
+   *                      ];  
+   */
+   
+   protected  $schema = [ 'users' => ["username","email","first_name",
+                                        "last_name","password",
+                                        "plan","services","server-reference",
+                                        "client-address","server-req-time"],
+                            'services' => ['sid',
+                                           'service_name',
+                                          'description']
+                          ];  
+  
+
+ 
+}
+
+````
 -  switch collection  no need to re create new other Model file
-  - put begin with  DB()->collection('[Collction Name]')  see example below
+   - put begin with  DB()->collection('[Collction Name]')  see example below
+      - ex-fillable use to use `protected $fillable = ["useid","username","lastname","password"] ` will replace with $schema as example below
+      - Example : `protected $schema [ "userscollection" , ["useid","username","lastname","password"] ] `
 
 ````
 <?php
@@ -77,37 +129,12 @@ use App\CompanyModel;
     }
 
  ````
-- insert Data to collection 
- - Model  file in app/UserModel.php
-````
-  <?php
 
-namespace App;
-
-use Nantaburi\Mongodb\MongoNativeDriver\Model as NanModel ;
-
-class UserModel extends NanModel
-{  
-   /*
-   * @override $collection to all stack extends back to -> Class Model -> Class Connection( Using)
-   * 
-   */ 
-   protected  $collection = "users" ;  
-   protected  $database = "customer" ;  
-   protected  $fillable = [ "username","email","first_name","last_name","password",
-                            "plan","services","server-reference","client-address",
-                            "server-req-time"
-                          ];  
-  
-
- 
-}
-
-````
 
  - Controller 
      - insert prepare code example below 
-     - once field data isn't in fillable member insert will reject and has error 
+     - $fillable had removed replace with $schema  and fillable will run under $schema
+     - once collectaion and  field  data isn't in schema member insert will reject and has error 
 
 ````
 
@@ -130,7 +157,13 @@ class UserModel extends NanModel
        $prepairinsertServices["client-address"] = $_SERVER['REMOTE_ADDR'] ;
        $prepairinsertServices["server-req-time"] = $_SERVER['REQUEST_TIME'] ; 
 
-       $resultInsert =  UserModel::insert( $prepairinsertServices ) ;  
+       $resultInsert =  UserModel::insert( $prepairinsertServices ) ;   // using default $collection in model
+       $resultInsertOtherone = UserModel::DB()->collection("services")
+                                              ->insert(['sid'=>'101',
+                                                        'service_name'=>'Gold' ,
+                                                      'description'=>'VIP sevice top level'
+                                                      ]) ; 
+        
       // Handle insert error !
       if ( $resultInsert[0] == 0 ) {
             return redirect()->back() ->with('alert', $resultInsert[1] );

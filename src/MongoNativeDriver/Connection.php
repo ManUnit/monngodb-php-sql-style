@@ -143,9 +143,8 @@ class Connection extends Compatible {  //defind the Class to be  master class
     public static function   all() {  // static method  display output 
         $config = new Config ;
         $config->setDb((new static)->getDbNonstatic() ) ;
-        $query = [] ;
-        $Operation = "null" ;
-  
+        $query = [] ; // find all documents 
+         // $Operation = "null" ;  // st
         $conclude = new BuildConnect ;
         $conclude->findDoc( $config ,(new static)->getCollectNonstatic() ,$query  ) ; 
         return $conclude->result ;  // no more end output  with get() will use and the end  
@@ -161,18 +160,41 @@ class Connection extends Compatible {  //defind the Class to be  master class
     } 
 
     public static function insert( array $arrVals ) {    // non static method  display output  using after where,orwhere operation
+
+        $canfill =  (new static)->fillable( $arrVals ) ;  // this method going to reject insert once unmatch schema and fillable 
+       
+        //  dd( "Break insert ! ", $resolute );
+        if( $canfill[0] = 1 ){
+            $config = new Config ;
+            $config->setDb((new static)->getDbNonstatic()) ;
+            $conclude = new BuildConnect ; 
+            $reactionInsert = $conclude->insertDoc($config ,(new static)->getCollectNonstatic() , $arrVals ) ; 
+            return  [ 1 ,$reactionInsert ] ; 
+         }else{
+            return  [ 0 ,"Error ! unfillable" ] ; 
+         }
+         
+    }
+
+    private function fillable(array $arrVals ) {
+        $collections=[];
+        $fillables=[];
+        foreach ( array_keys( (new static)->schema ) as $each_coll  ) { 
+            array_push($collections,$each_coll) ; 
+        }
+        if( !in_array((new static)->collection , $collections)  ){
+             return [0 , "Error ! collection out of member in schema" ] ;
+        }else{ 
+             foreach ((new static)->schema[(new static)->collection] as $fillable ) {
+                 array_push ($fillables , $fillable) ; 
+             } 
+        }
+        foreach ( array_keys($arrVals) as $key  ) {
+            if (  !in_array( $key , $fillables ) ) { return  [  0 , "Error ! insert fail -> feild name ".$key. " out of member fillables" ]; } 
+        }
  
-         foreach ( array_keys($arrVals) as $key  ) {
-           
-            if (  !in_array( $key , (new static)->fillable ) ) { return  [  0 , "Error ! insert fail-> ".$key. " out of fillable" ]; } 
- 
-          }
-         $config = new Config ;
-         $config->setDb((new static)->getDbNonstatic()) ;
-         $conclude = new BuildConnect ; 
-         $reactionInsert = $conclude->insertDoc($config ,(new static)->getCollectNonstatic() , $arrVals ) ; 
-         return  [ 1 ,$reactionInsert ] ; 
-     }
+        return [1," OK "] ;
+    }
 
 
 
