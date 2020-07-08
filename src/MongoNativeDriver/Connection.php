@@ -15,6 +15,7 @@ use Nantaburi\Mongodb\MongoNativeDriver\Config ;
 use Nantaburi\Mongodb\MongoNativeDriver\BuildConnect ;
 use Nantaburi\Mongodb\MongoNativeDriver\Compatible ;
 use MongoDB\BSON\Regex; 
+use MongoDB\BSON\Int64 ; 
 
 
 class Connection extends Compatible {  //defind the Class to be  master class
@@ -49,34 +50,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
     
     //End with display 
     public function first(){}
-    private function whereConversion(String $Key ,String $Operation ,String $Value) {
-        //  dd( $Key , $Operation , $Value  ) ;
-        //  for where (or,and)  operations
-          if ( $Operation  == "=" ){
-              return [ "$Key"=> "$Value" ];                    // SQL transform select * from table where 'key' = 'value'  ; 
-          }elseif( $Operation  == "!=" ) {
-              return [ "$Key" => ['$ne' => "$Value" ]  ];       // SQL transform select * from table where 'key' != 'value'
-          }elseif($Operation  == "<="){
-              return [ "$key" => [ '$lte' =>  "$Value" ]  ];   // SQL transform select * from table where 'key' <= 'value'
-          }elseif($Operation  == ">="){
-              return [ "$key" => [ '$gte' =>  "$Value" ]  ];    // SQL transform select * from table where 'key' >= 'value'
-          }elseif($Operation  == "<"){
-              return [ "$key" => [ '$lt' =>  "$Value" ]  ];     // SQL transform select * from table where 'key' < 'value'
-          }elseif($Operation  == ">"){
-              return [ "$key" => [ '$gt' =>  "$Value" ]  ];    // SQL transform select * from table where 'key' > 'value'
-          }elseif( $Operation  == "like" ) {
-              if (   $Value[0]  != "%" && substr(  "$Value" , -1 ) =="%"  ) { 
-                 return [  "$Key" => new Regex('^'. substr( $Value ,0,-1 ) .'.*$', 'i') ]  ;     // SQL transform select * from table where 'key' like 'value%'   ; find begin with ?    
-              }elseif (   $Value[0]  == "%"  &&  substr( "$Value" , -1 ) !=  "%"  ) {
-                  return [  "$Key" => new Regex('^.*'.substr( $Value ,1 ) .'$', 'i') ];          // SQL transform select * from table where 'key' like '%value'   ; find end with ?
-              }elseif (  $Value[0]  == "%"  &&  substr( "$Value" , -1 ) =="%"   ) {
-                  return [ "$Key" => new Regex('^.*'.substr( $Value ,1 ,-1)  .'.*$', 'i')];     // SQL transform select * from table where 'key' like '%value%'  ; find where ever with ?
-              }else{
-                  return [ "$Key" => new Regex('^.'."$Value".'.$', 'i')];   //  SQL transform select * from table where 'key' like 'value'
-              }
-          }
-      }
-  
+
     public static function DB(){
         return  (new static)->newQuery(); 
     } 
@@ -107,7 +81,6 @@ class Connection extends Compatible {  //defind the Class to be  master class
 
     public function where( String $Key ,String $Operation ,String $Value ) { 
 
-    //dd ( " WHERE : collection " .$this->collection ." Data base : ".$this->database  );
     
         self::$whereQuery = $this->whereConversion( $Key ,$Operation ,$Value ) ;
        return $this ;
@@ -144,60 +117,195 @@ class Connection extends Compatible {  //defind the Class to be  master class
         $config = new Config ;
         $config->setDb((new static)->getDbNonstatic() ) ;
         $query = [] ; // find all documents 
-         // $Operation = "null" ;  // st
+
         $conclude = new BuildConnect ;
         $conclude->findDoc( $config ,(new static)->getCollectNonstatic() ,$query  ) ; 
         return $conclude->result ;  // no more end output  with get() will use and the end  
     }
 
     public function get() {    // non static method  display output  using after where,orwhere operation
-       //dd( self::$whereQuery  ) ;
+
         $config = new Config ;
-        $config->setDb((new static)->getDbNonstatic()) ;
+        $config->setDb( $this->getDbNonstatic()) ;
         $conclude = new BuildConnect ; 
         $conclude->findDoc($config ,$this->collection ,self::$whereQuery) ; 
         return $conclude->result ; 
     } 
 
-    public static function insert( array $arrVals ) {    // non static method  display output  using after where,orwhere operation
-
-        $canfill =  (new static)->fillable( $arrVals ) ;  // this method going to reject insert once unmatch schema and fillable 
-       
-        //  dd( "Break insert ! ", $resolute );
+    public  function insert( array $arrVals ) {    // non static method  display output use after where,orwhere operation
+        $canfill =  $this->fillable( $arrVals ) ;  // this method going to reject insert once unmatch schema and fillable 
         if( $canfill[0] = 1 ){
             $config = new Config ;
-            $config->setDb((new static)->getDbNonstatic()) ;
+            $config->setDb( $this->getDbNonstatic()) ;
             $conclude = new BuildConnect ; 
-            $reactionInsert = $conclude->insertDoc($config ,(new static)->getCollectNonstatic() , $arrVals ) ; 
+            $reactionInsert = $conclude->insertDoc($config ,$this->getCollectNonstatic(),$arrVals ) ; 
             return  [ 1 ,$reactionInsert ] ; 
          }else{
-            return  [ 0 ,"Error ! unfillable" ] ; 
+            return  [ 0 ,"Error ! unfillable detected" ] ; 
          }
-         
     }
 
+    public function getModifySequence(String $autoIncName) { 
+        
+        $this->fillable( (array) [] );  // Pre scan schema to create all first since empty indecies and counter collection 
+        $config = new Config ;
+        $config->setDb( $this->getDbNonstatic() ) ;
+        $conclude = new BuildConnect ;
+        $result = $conclude->getModifySequence($config, $this->getCollectNonstatic() ,  $autoIncName) ; 
+        return $result  ; 
+    }
+
+    /****** @Private Zone ******/  
     private function fillable(array $arrVals ) {
         $collections=[];
         $fillables=[];
-        foreach ( array_keys( (new static)->schema ) as $each_coll  ) { 
+        foreach ( array_keys( $this->schema ) as $each_coll  ) { 
             array_push($collections,$each_coll) ; 
         }
-        if( !in_array((new static)->collection , $collections)  ){
-             return [0 , "Error ! collection out of member in schema" ] ;
+
+        if( !in_array( $this->collection , $collections)  ){
+             return [0 , "Error ! collection non member in schema" ] ;
         }else{ 
-             foreach ((new static)->schema[(new static)->collection] as $fillable ) {
-                 array_push ($fillables , $fillable) ; 
+             foreach (  $this->schema[ $this->collection]  as $keys =>  $values ) { 
+                if ( is_array($values) ){
+                     
+                    if(isset($this->schema[$this->collection][$keys]['AutoIncStartwith'])){ 
+                        $startseq = $this->schema[$this->collection][$keys]['AutoIncStartwith'] ; 
+                    }else{
+                        $startseq = 0 ;
+                    }
+                     
+                    foreach ( $values  as $key => $value  ) { 
+                        if ( $key === "AutoInc"  &&  $value === true )   $this->findCreateAutoInc($keys, $startseq )  ; 
+                        if ( $key === "Index"  &&  $value === true ) $this->findCreateIndexOne($keys) ;
+                    } 
+                    $findmultiIndex = substr( $keys  , 0, strlen( "\$__MULTIPLE_INDEX")  );
+                    if ( "\$__MULTIPLE_INDEX" === $findmultiIndex ){ 
+                             $this->findCreateIndexMany($keys) ;  
+                    }else{
+                        array_push ($fillables , $keys) ; 
+                    }
+
+                }else{
+                    array_push ($fillables , $values) ; 
+                }
              } 
         }
+        
         foreach ( array_keys($arrVals) as $key  ) {
             if (  !in_array( $key , $fillables ) ) { return  [  0 , "Error ! insert fail -> feild name ".$key. " out of member fillables" ]; } 
         }
  
         return [1," OK "] ;
     }
+    
+    public  function findCreateAutoInc(String $fieldNameToInc , int $StartSeq  ) {
+        $config = new Config ;
+        $config->setDb( $this->getDbNonstatic() ) ;
+        $conclude = new BuildConnect ; 
+        $collection_counter  = $this->getDbNonstatic().'_counters' ; 
+        $this->findCreateIndexAutoInc( $fieldNameToInc, $this->getCollectNonstatic() ) ; // Magic create index 
+        $query = [  'inc_field' => $fieldNameToInc , 'collection' => $this->getCollectNonstatic() ]  ;
+        
+        $conclude->findDoc($config , $collection_counter ,$query ) ; 
+         if ( null == $conclude->result ) {
+           
+            $reactionInsert = $conclude->insertDoc($config ,$collection_counter ,[
+                                                     	'inc_field' => $fieldNameToInc ,
+						                            	'collection'=> $this->getCollectNonstatic(),
+                                                        'sequence_value' =>   0.0 + $StartSeq    ]) ;
+         }  
+        
+        return $conclude->result ; 
+    } 
+    private function findCreateIndexAutoInc(String $fieldIndex , String $collection ){  
+        $config = new Config ;
+        $config->setDb( $this->getDbNonstatic() ) ;
+        $conclude = new BuildConnect ; 
+        $index = [
+                    "name" =>"\$__IDX_AUTOINC_".$this->getDbNonstatic()."_counters",
+                    "key"  =>['inc_field'=>1,'collection'=>1],
+                    "unique" => true ,
+                    "ns" => $config->getDb().".".$this->getDbNonstatic()."_counters"
+                ];
+        $result =  $conclude->getIndex($config , $this->getCollectNonstatic() , $index['name'] );
+         if ( !$result ) { 
+              $reactionInsert = $conclude->createIndex($config ,  $this->getDbNonstatic()."_counters" , $index  );
+          }else{
+              $reactionInsert = false ;
+          }  
+         return  $reactionInsert  ; 
+    }
 
+    private function findCreateIndexOne(String $fieldIndex){  
+        $config = new Config ;
+        $config->setDb( $this->getDbNonstatic() ) ;
+        $conclude = new BuildConnect ; 
+         if(isset($this->schema[$this->getCollectNonstatic()][$fieldIndex]['Unique'])){
+            $index_unique =  $this->schema[$this->getCollectNonstatic()][$fieldIndex]['Unique'] ;
+         }else{
+            $index_unique  = false ; 
+         }
+          
+        $index = [
+                    "name" =>  "\$__INDEX_".strtoupper($fieldIndex)."_"  ,
+                    "key"  =>  [$fieldIndex=>1] ,
+                    "unique" => $index_unique  ,
+                    "ns" => $config->getDb().".".$this->getCollectNonstatic()  
+                ];
+        $result =  $conclude->getIndex($config , $this->getCollectNonstatic() , $index['name'] );
+         if ( !$result ) { 
+              $reactionInsert = $conclude->createIndex($config , $this->getCollectNonstatic() , $index  );
+          }else{
+              $reactionInsert = false ;
+          }  
+         return  $reactionInsert  ; 
+    }
 
+    private function findCreateIndexMany(String $IndexMany){ 
+        $config = new Config ;
+        $config->setDb( $this->getDbNonstatic() ) ;
+        $conclude = new BuildConnect ; 
+        $index =  $this->schema[$this->getCollectNonstatic()][$IndexMany] ;  
+        $index['ns'] = $config->getDb().".".$this->getCollectNonstatic()  ;
+        $result =  $conclude->getIndex($config , $this->getCollectNonstatic() , $index['name'] );
+         if (  !$result ) { 
+              $reactionInsert = $conclude->createIndex($config , $this->getCollectNonstatic() , $index  );
+          }else{
+              $reactionInsert = false ;
+          }  
+         return  $reactionInsert  ; 
+    } 
 
+    private function whereConversion(String $Key ,String $Operation ,String $Value) {
+        //  dd( $Key , $Operation , $Value  ) ;
+        //  for where (or,and)  operations
+          if ( $Operation  == "=" ){
+              return [ "$Key"=> "$Value" ];                    // SQL transform select * from table where 'key' = 'value'  ; 
+          }elseif( $Operation  == "!=" ) {
+              return [ "$Key" => ['$ne' => "$Value" ]  ];       // SQL transform select * from table where 'key' != 'value'
+          }elseif($Operation  == "<="){
+              return [ "$key" => [ '$lte' =>  "$Value" ]  ];   // SQL transform select * from table where 'key' <= 'value'
+          }elseif($Operation  == ">="){
+              return [ "$key" => [ '$gte' =>  "$Value" ]  ];    // SQL transform select * from table where 'key' >= 'value'
+          }elseif($Operation  == "<"){
+              return [ "$key" => [ '$lt' =>  "$Value" ]  ];     // SQL transform select * from table where 'key' < 'value'
+          }elseif($Operation  == ">"){
+              return [ "$key" => [ '$gt' =>  "$Value" ]  ];    // SQL transform select * from table where 'key' > 'value'
+          }elseif( $Operation  == "like" ) {
+              if (   $Value[0]  != "%" && substr(  "$Value" , -1 ) =="%"  ) { 
+                 return [  "$Key" => new Regex('^'. substr( $Value ,0,-1 ) .'.*$', 'i') ]  ;     // SQL transform select * from table where 'key' like 'value%'   ; find begin with ?    
+              }elseif (   $Value[0]  == "%"  &&  substr( "$Value" , -1 ) !=  "%"  ) {
+                  return [  "$Key" => new Regex('^.*'.substr( $Value ,1 ) .'$', 'i') ];          // SQL transform select * from table where 'key' like '%value'   ; find end with ?
+              }elseif (  $Value[0]  == "%"  &&  substr( "$Value" , -1 ) =="%"   ) {
+                  return [ "$Key" => new Regex('^.*'.substr( $Value ,1 ,-1)  .'.*$', 'i')];     // SQL transform select * from table where 'key' like '%value%'  ; find where ever with ?
+              }else{
+                  return [ "$Key" => new Regex('^.'."$Value".'.$', 'i')];   //  SQL transform select * from table where 'key' like 'value'
+              }
+          }
+      }
+  
 
-
+   
+     
 }

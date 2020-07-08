@@ -21,7 +21,13 @@ __________
     - Create Model - using command `  php artisan make:model UserDbModel ` at laravel root project 
       and insert ` use Nantaburi\Mongodb\MongoNativeDriver\Model   ` on top 
       - ex-fillable use to use `protected $fillable = ["useid","username","lastname","password"] ` will replace with $schema as example below
-      - Example : `protected $schema [ "userscollection" , ["useid","username","lastname","password"] ] `
+      - Example : `protected $schema [ "userscollection" , ["useid","username","lastname","password"] ] ` 
+      - Magic create index with two ways
+         - first way :  add array with key [ Index => true ] if you want to add option Unique just add more key [ 'Index' => true , 'Unique' =>  true ] 
+         - secound way : multople keys with   create key `"$__MULTIPLE_INDEX_01" `on same level of collection change at the end `_01` to be other once you have  
+         - one more multiple keys you can use `_02` even `_AB` support as well 
+      - Magic create collection for counters auto increasement number by add `'AutoInc' => true , ` and also have option ` 'AutoInc' => true , 'AutoIncStartwith' => 10, ` default datatype  as double max number can be 2^1023 
+      - Magic  creation of Index and Magic counter will auto create affective once you run first insert       
 
 ````
  <?php
@@ -54,14 +60,38 @@ class UserModel extends NanModel
    *                      ];  
    */
    
-   protected  $schema = [ 'users' => ["username","email","first_name",
+    protected  $schema = [ 'users' => [ "userid" => [ 'AutoInc' => true  ] , "username","email","first_name",
                                         "last_name","password",
                                         "plan","services","server-reference",
                                         "client-address","server-req-time"],
-                            'services' => ['sid',
-                                           'service_name',
-                                          'description']
+                          'services' => ['sid'=>[ 
+                                                    'AutoInc' => true ,
+                                                    'AutoIncStartwith' => 10,
+                                                    'Index' => true,
+                                                    'Unique' => true
+                                                  ],
+                                            'productid'=>[ 
+                                                    'AutoInc' => true ,
+                                                    'AutoIncStartwith' => 1000001,
+                                                    'Index' => true,
+                                                    'Unique' => false
+                                                  ],
+                                            'service_name',
+                                            'description' ,
+                                            '$__MULTIPLE_INDEX_01'=>[
+                                                                  'name' => 'indexSidPid',
+                                                                  'key' => [ 'sid' => 1 , 'productid' => 1  ],
+                                                                  'unique' => true 
+                                            ], 
+                                            '$__MULTIPLE_INDEX_02'=>[
+                                                                  'name' => 'indexSnameDesc',
+                                                                  'key' => [ 'service_name' => 1 , 'description' => 1  ],
+                                                                  'unique' => true 
+                                            ]
+
+                                            ]
                           ];  
+    
   
 
  
@@ -69,6 +99,76 @@ class UserModel extends NanModel
 
 
 ````
+- Example get created  index  and the counters collection after run insert 
+ ````
+ $mongo
+  >db.services.getIndexes() ;
+  [
+    {
+        "v" : 2.0, 
+        "key" : {
+            "_id" : 1.0
+        }, 
+        "name" : "_id_", 
+        "ns" : "companydata.services"
+    }, 
+    {
+        "v" : 2.0, 
+        "key" : {
+            "sid" : 1.0
+        }, 
+        "name" : "$__INDEX_SID_", 
+        "ns" : "companydata.services"
+    }, 
+    {
+        "v" : 2.0, 
+        "key" : {
+            "productid" : 1.0
+        }, 
+        "name" : "$__INDEX_PRODUCTID_", 
+        "ns" : "companydata.services"
+    }, 
+    {
+        "v" : 2.0, 
+        "unique" : true, 
+        "key" : {
+            "sid" : 1.0, 
+            "productid" : 1.0
+        }, 
+        "name" : "indexSidPid", 
+        "ns" : "companydata.services"
+    }, 
+    {
+        "v" : 2.0, 
+        "unique" : true, 
+        "key" : {
+            "service_name" : 1.0, 
+            "description" : 1.0
+        }, 
+        "name" : "indexSnameDesc", 
+        "ns" : "companydata.services"
+    }
+]>db._companydata_counters.find() ;
+
+{ 
+    "_id" : "userid", 
+    "collection" : "users", 
+    "sequence_value" : "0"
+}
+{ 
+    "_id" : "sid", 
+    "collection" : "services", 
+    "sequence_value" : "BLM10"
+}
+{ 
+    "_id" : "productid", 
+    "collection" : "services", 
+    "sequence_value" : "PIDTH1000001"
+}
+
+
+ ````
+
 - Create Laravel controller 
    - using command `  php artisan make:controller --model=UserDbModel  ` at laravel root project 
    - then edit and insert basic SQL  example :
@@ -119,7 +219,10 @@ use App\CompanyModel;
  - Controller 
      - insert prepare code example below 
      - $fillable had removed replace with $schema  and fillable will run under $schema
-     - once collectaion and  field  data isn't in schema member insert will reject and has error 
+     - once collectaion and  field  data isn't in schema member insert will reject and has error  
+     - find below example to use function getModifySequence()  for auto increase number bilded in this function you have to 
+     - create schema to prepare on Model file then set  ` 'AutoInc' => true , 'AutoIncStartwith' => 101,` with 
+
 
 ````
 
@@ -144,7 +247,7 @@ use App\CompanyModel;
 
        $resultInsert =  UserModel::insert( $prepairinsertServices ) ;   // using default $collection in model
        $resultInsertOtherone = UserModel::DB()->collection("services")
-                                              ->insert(['sid'=>'101',
+                                              ->insert(['sid'=> UserModel::DB()->collection("services")->getModifySequence('sid') ,
                                                         'service_name'=>'Gold' ,
                                                       'description'=>'VIP sevice top level'
                                                       ]) ; 
