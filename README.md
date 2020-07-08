@@ -24,8 +24,7 @@ __________
       - Example : `protected $schema [ "userscollection" , ["useid","username","lastname","password"] ] ` 
       - Magic create index with two ways
          - first way :  add array with key [ Index => true ] if you want to add option Unique just add more key [ 'Index' => true , 'Unique' =>  true ] 
-         - secound way : multople keys with   create key `"$__MULTIPLE_INDEX_01" `on same level of collection change at the end `_01` to be other once you have  
-         - one more multiple keys you can use `_02` even `_AB` support as well 
+         - secound way : do multiple keys with   create key `"$__MULTIPLE_INDEX_01" `on same level of collection change at the end `_01` to be other once you have more one multiple keys you can use  `_02` even `_AB` support as well 
       - Magic create collection for counters auto increasement number by add `'AutoInc' => true , ` and also have option ` 'AutoInc' => true , 'AutoIncStartwith' => 10, ` default datatype  as double max number can be 2^1023 
       - Magic  creation of Index and Magic counter will auto create affective once you run first insert       
 
