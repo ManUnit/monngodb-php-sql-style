@@ -52,7 +52,7 @@ __________
       - Magic create collection for counters auto increasement number by add `'AutoInc' => true , ` and also have option ` 'AutoInc' => true , 'AutoIncStartwith' => 10, ` default datatype  as double max number can be 2^1023 
       - Magic  creation of Index and Magic counter will auto create affective once you run first insert  or you can do [NameModel]::InitIndexAutoInc() 
          - Example : run at Laravel controller just first time or do change schema   ` UserModel::InitIndexAutoInc() ` 
-   - to protect update option add ` 'UpdateProtected'=>true ` once you insert and do you want to protect update sush as price , ID Card number , you can put option  example ` idcard => [ 'UpdateProtected'=>true  ] `
+   - to protect update option add ` 'UpdateProtected'=>true ` once you inserted and do you want to protect update such as price , ID Card number , you can put option  example ` idcard => [ 'UpdateProtected'=>true  ] ` into option of that field
 
 ````
  <?php
