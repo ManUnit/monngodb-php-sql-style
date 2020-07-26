@@ -76,7 +76,7 @@ class UserModel extends NanModel
    */
 
 
-   protected  $collection = "users" ;   // prepare for default collection you can use mode of Model::DB()->collection("change new collection later")
+   protected  $collection = "users" ;   // prepare for default collection you can use mode of Model::collection("change new collection later")
    protected  $database = "companydata" ;  
    /*
    * protected  $fillable = [ "username","email","first_name","last_name","password",
