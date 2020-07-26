@@ -1,7 +1,7 @@
 # mongodb-sql-style 
 Mongodb using SQL style 
 - Configuraton  add setting in config/database.php of laravel 
-- once you don't have laravel just base on composer package copy 
+
 ````
 'mongodb' => [
     'driver' => 'mongodb',
