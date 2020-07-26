@@ -128,7 +128,7 @@ class UserModel extends NanModel
 
 ````
 - Example get created magic index  and the counters of each collection after run insert
-   - Magic create counter collection   
+   - Magic create counter collection  run command with mongo shell ` db.services.getIndexes() ` 
  ````
  $mongo
   >db.services.getIndexes() ;
