@@ -217,7 +217,7 @@ class UserModel extends NanModel
 
  ````
 Changing database and collection if you have permission of user and password on the same multiple databases you can change database difference in file ./config/database.php   
-    - examples change just database  DataBaseModel::database("shopping") ....    , change database and collection DataBaseModel::database("shopping","products") ... , change collection only DataBaseModel::collection("products") ... , change collection only 
+    - examples change just database  DataBaseModel::database("shopping") ....    , change database and collection DataBaseModel::database("shopping","products") ...
     
 ````
  
