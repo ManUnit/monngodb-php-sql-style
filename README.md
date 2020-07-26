@@ -1,6 +1,7 @@
 # mongodb-sql-style 
 Mongodb using SQL style 
-- Configuraton  add setting in config/database.php of laravel
+- Configuraton  add setting in config/database.php of laravel 
+- once you don't have laravel just base on composer package copy 
 ````
 'mongodb' => [
     'driver' => 'mongodb',
@@ -15,18 +16,42 @@ Mongodb using SQL style
 ],
 
 ````
+
+Run Nantabury/Mongodb standalone without laravel : 
+
+- once you don't have laravel just base on composer package create file under directory ./config/database.php and copy all below to database.php
+````
+<?php
+
+return [
+    'default' => 'mongodb',
+    'connections' => [
+            'mongodb' => [
+                    'driver' => 'mongodb',
+                    'host' => '127.0.0.1',
+                    'port' => 27017,
+                    'database' => 'shopping',
+                    'username' =>  'root',
+                    'password' =>  'richly',
+                    'options' => [],
+            ]
+    ],
+];
+
+````
 __________
 
 - Using Laravel for SQL query style  example below 
     - Create Model - using command `  php artisan make:model UserDbModel ` at laravel root project 
       and insert ` use Nantaburi\Mongodb\MongoNativeDriver\Model   ` on top 
-      - ex-fillable use to use `protected $fillable = ["useid","username","lastname","password"] ` will replace with $schema as example below
+      - ex-fillable use to be `protected $fillable = ["useid","username","lastname","password"] ` will replace with $schema as example below
       - Example : `protected $schema [ "userscollection" , ["useid","username","lastname","password"] ] ` 
       - Magic create index with two ways
          - first way :  add array with key [ Index => true ] if you want to add option Unique just add more key [ 'Index' => true , 'Unique' =>  true ] 
          - secound way : do multiple keys with   create key `"$__MULTIPLE_INDEX_01" `on same level of collection change at the end `_01` to be other once you have more one multiple keys you can use  `_02` even `_AB` support as well 
       - Magic create collection for counters auto increasement number by add `'AutoInc' => true , ` and also have option ` 'AutoInc' => true , 'AutoIncStartwith' => 10, ` default datatype  as double max number can be 2^1023 
-      - Magic  creation of Index and Magic counter will auto create affective once you run first insert       
+      - Magic  creation of Index and Magic counter will auto create affective once you run first insert  or you can do [NameModel]::InitIndexAutoInc() 
+         - Example : run at Laravel controller just first time or do change schema   ` UserModel::InitIndexAutoInc() ` 
 
 ````
  <?php
@@ -98,7 +123,8 @@ class UserModel extends NanModel
 
 
 ````
-- Example get created  index  and the counters collection after run insert 
+- Example get created magic index  and the counters of each collection after run insert
+   - Magic create counter collection   
  ````
  $mongo
   >db.services.getIndexes() ;
@@ -147,7 +173,7 @@ class UserModel extends NanModel
         "name" : "indexSnameDesc", 
         "ns" : "companydata.services"
     }
-]>db._companydata_counters.find() ;
+]>db.companydata_counters.find() ;
 
 { 
     "_id" : "userid", 
@@ -172,7 +198,7 @@ class UserModel extends NanModel
    - using command `  php artisan make:controller --model=UserDbModel  ` at laravel root project 
    - then edit and insert basic SQL  example :
       ` select * from user where  username like 'suphacha%' and age > 18 or mooban = 'Pangpoi' ; `
-   - using SQL transform showing  below : 
+   - using SQL transform to mongodb showing  below : 
  ````
  use App\UserDbModel ; 
  
@@ -196,17 +222,15 @@ class UserModel extends NanModel
 namespace App\Http\Controllers;
 use App\CompanyModel;
  
-          $users =  CompanyModel::DB() 
-                                ->collection("users")
+          $users =  CompanyModel::collection("users")
                                 ->where( "username" ,"=" , "shppachai")
-                                ->get() ;
+                                ->get();
 
-          $products = CompanyModel::DB() 
-                                ->collection("products")
+          $products = CompanyModel::collection("products")
                                 ->where( "pid" ,"=" , "101")
-                                ->get() ;
+                                ->get();
 
-
+          // Laravel's blade view to dispale
           return view("usermanage" )->with('users',$users)
                                     ->with('products',$products); 
                
@@ -216,11 +240,28 @@ use App\CompanyModel;
 
 
  - Controller 
+     - join collectios code example below 
+     - once you use groupby() request select() all of fields same fields in groupby() if seleted fields are not be field's member in groupby() output will display with empty data on that selected field 
+````
+      $users =  ShoppingModel::collection('products')
+                                        ->select('products.id','products.name','products_type.description_th','products_group.description')
+                                        ->leftjoin('products_type','products.type_id','products_type.type_id')
+                                        ->leftjoin('products_group','products.type_groupid','products_group.type_groupid')
+                                        ->where("products.name",'like',"%phone%")
+                                        ->orwhere("products.id",'>',400)
+                                        ->andwhere("products.description",'like','%the%')
+                                        ->groupby('products.id','products.name','products_type.description_th','products_group.description')
+                                        ->orderby('products.name','asc')
+                                        ->limit(10,2)
+                                        ->get(); 
+
+````
+
+ - Controller 
      - insert prepare code example below 
-     - $fillable had removed replace with $schema  and fillable will run under $schema
+     - $fillable had removed replace with $schema  and fillable will run behind $schema
      - once collectaion and  field  data isn't in schema member insert will reject and has error  
-     - find below example to use function getModifySequence()  for auto increase number bilded in this function you have to 
-     - create schema to prepare on Model file then set  ` 'AutoInc' => true , 'AutoIncStartwith' => 101,` with 
+     - find below example to use function  `getModifySequence() ` for auto increase number was bild-in this function you have to  create schema to prepare on Model file then set  ` 'AutoInc' => true , 'AutoIncStartwith' => 101,` with 
 
 
 ````
@@ -245,7 +286,7 @@ use App\CompanyModel;
        $prepairinsertServices["server-req-time"] = $_SERVER['REQUEST_TIME'] ; 
 
        $resultInsert =  UserModel::insert( $prepairinsertServices ) ;   // using default $collection in model
-       $resultInsertOtherone = UserModel::DB()->collection("services")
+       $resultInsertOtherone = UserModel::database()->collection("services")
                                               ->insert(['sid'=> UserModel::DB()->collection("services")->getModifySequence('sid') ,
                                                         'service_name'=>'Gold' ,
                                                       'description'=>'VIP sevice top level'
@@ -262,7 +303,7 @@ use App\CompanyModel;
     } 
 
 ````
-- Handle insert error in view
+- Handle insert error in view 
   -  add script below into your view file.blade.php
 
 ````

@@ -7,29 +7,29 @@ abstract class Compatible {  // Method compatible control class
    protected $database = 'dummyString' ;
    protected $schema = array() ;
     // Head function 
-   abstract  public static  function query();  // 
-   abstract  public static  function update(); //
+  
+  // abstract  public static  function update(); //
 
    // absolute no need stack function
-   abstract  public static  function all();  //
    abstract  public function insert(array $arrVals); //
-   
-   // Middle Function 
+   abstract  public function select(...$fields) ; //  Array values with 3dot prefix ...$argv
+   abstract  public function from(String $collection = '') ; //  Array values with 3dot prefix ...$argv
+   abstract  public function where(String $Key='',String $Operation ='', $Value , $boolean = 'mostleft' );
+   abstract  public function orwhere(String $Key ,String $Operation ,String $Value);
+   abstract  public function andwhere(String $Key ,String $Operation ,String $Value);
+   abstract  public static function update(...$param ) ;
+   abstract  public function andupdate(...$param) ; 
+  // Middle Function 
+  //  abstract  public function where(String $Key ,String $Operation ,String $Value); //
 
-   abstract  public function where(String $Key ,String $Operation ,String $Value); //
-   abstract  public function orwhere(String $Key ,String $Operation ,String $Value); //
-   abstract  public function andwhere(String $Key ,String $Operation ,String $Value); //
-   abstract  public function join();  // <--
-   abstract  public function jeftjoin(); // <--
-   abstract  public function select();  // <--
-   abstract  public function paginate();  // <--
-   abstract  public function links();   // <--
-   abstract  public function orderby();  // <--
-   abstract  public function groupby(); // <--
+   abstract  public function join(String $collection , String $localField , String  $foreignField , String $as = "" );  // <--
+   abstract  public function leftjoin(String $collection , String $localField , String  $foreignField , String $as = ""   ); // <--
+   abstract  public function limit(int $limit,int $skip); // <--
+   abstract  public function groupby(String ...$fieldGroup) ;
+   abstract  public function orderby(...$parameters);
    abstract  public function getModifySequence(String $autoIncName);
+   abstract  public function first() ;  // 
+   abstract  public function get() ; 
    
-   //End with display 
-   abstract  public function first();  
-   abstract  public function get(); //
 
 }

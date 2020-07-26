@@ -18,6 +18,7 @@
 
 namespace Nantaburi\Mongodb\MongoNativeDriver;
 use MongoDB\Client;
+use MongoDB\BSON\Regex; 
 use MongoDB\Driver\Manager ; 
 use MongoDB\Driver\Command ; 
 class BuildConnect {
@@ -38,29 +39,50 @@ class BuildConnect {
     
     } 
 
-    public function  findDoc($config ,$reqCollection , $query ) {
-  
+    public function  findDoc($config ,$reqCollection , $query , $options = [] ) {
         $connection = $this->preparecons($config) ;  
-
         try {
-        $client = new Client($connection);
-        $db = $client->selectDatabase($config->getDb() );
+            $client = new Client($connection);
+            $db = $client->selectDatabase($config->getDb() );
         }catch (Exception $error) {
             echo $error->getMessage(); die(1);
             exit ; 
         }
         $collection =  $db->selectCollection($reqCollection); 
-        $options = [];
+       //  $options = [];
         $cursor = $collection->find($query, $options);
         foreach ( $cursor  as $document) {
             array_push ( $this->result ,json_decode(json_encode($document))  ) ; 
-          }
+        }
  
         unset($connection) ;
         unset($client) ;
-
-
     }
+   // $deleteResult = $collection->deleteMany(['state' => 'ny']);
+   
+    
+    public function aggregate($config ,$reqCollection , $pipeline , $options = [] ) {
+        $connection = $this->preparecons($config);  
+        try {
+            $client = new Client($connection);
+            $db = $client->selectDatabase($config->getDb() );
+        }catch (Exception $error) {
+            echo $error->getMessage(); die(1);
+            exit ; 
+        }
+        $collection =  $db->selectCollection($reqCollection); 
+      //  $options = [] ;
+
+        $cursor = $collection->aggregate($pipeline , $options);
+     //   dd($pipeline, $options) ;
+        foreach ( $cursor  as $document) {
+            array_push ( $this->result ,json_decode(json_encode($document))  ) ; 
+        }
+ 
+        unset($connection) ;
+        unset($client) ;
+    }
+
     public function  insertDoc($config ,$reqCollection ,array $vlues ) {
   
         $connection =  'mongodb://'.$config->getUser() 
@@ -84,7 +106,7 @@ class BuildConnect {
         return [ 1, $insertOneResult ] ;  
     }
 
-    public function  updateDoc($config ,$reqCollection , $vlues ) {
+    public function  updateDoc($config ,$reqCollection , $query , $values ) {
   
         $connection =  'mongodb://'.$config->getUser() 
                                    .":".$config->getPassword()
@@ -98,16 +120,16 @@ class BuildConnect {
             echo $error->getMessage(); die(1);
             exit ; 
         }
-        $options = [];
-        $cursor = $collection->find($query, $options);
-        foreach ( $cursor  as $document) {
-            array_push ( $this->result ,json_decode(json_encode($document))  ) ; 
-        }
- 
+        $updateData = array_merge ( $query ,[ $values ]  ) ;
+        // $result = $collection->updateMany($updateData);
+        $result = $collection->updateMany($query, [ $values ]  , []);
         unset($connection) ;
         unset($client) ;
+         // dd("update", $updateData ,"Query :", $query,"Value", $values , "Result", $result);
+        return $result;
     }
-    public function  deleteDoc($config ,$reqCollection , $vlues ) {
+
+    public function  deleteDoc($config ,$reqCollection , $query ) {
   
         $connection =  'mongodb://'.$config->getUser() 
                                    .":".$config->getPassword()
@@ -115,22 +137,17 @@ class BuildConnect {
                                    .':'.$config->getPort() ;
                                    try {
                                                $client = new Client($connection);
-        $db = $client->selectDatabase($config->getDb() );
+        $db = $client->selectDatabase($config->getDb());
         }catch (Exception $error) {
             echo $error->getMessage(); die(1);
             exit ; 
         }
         $collection =  $db->selectCollection($reqCollection); 
-        $options = [];
-        $cursor = $collection->find($query, $options);
-        foreach ( $cursor  as $document) {
-            array_push ( $this->result ,json_decode(json_encode($document))  ) ; 
-        }
- 
+        $result = $collection->deleteMany($query);
+       
         unset($connection) ;
         unset($client) ;
-
-
+        return $result ; 
     }
 
     public function  adminCreateUserDatabase( $User,$Password,$Role,$UserDatabase ) {

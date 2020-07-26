@@ -41,7 +41,6 @@ class Connection extends Compatible {  //defind the Class to be  master class
     private static $andupdates = array();
     private static $joincollections = array();
     private static $groupby = array();
-    private static $mappingAs = array();
     
     public  function __construct() {  
         // no use self::$dataBaseStatic = $this->database ;   //replicate  non-static to static zone  //  use ( new static) instead 
@@ -219,26 +218,14 @@ class Connection extends Compatible {  //defind the Class to be  master class
         return $conclude->result ;  // no more end output  with get() will use and on the end  
     } 
 
-    // public function select(...$fields){   
-    //     if(count($fields)== 1 && $fields[0] === '*'  )return $this;
-    //     if (!isset ( self::$options['projection'])){self::$options['projection'] = [] ; }
-    //     foreach($fields as $field){  
-    //         self::$options['projection'] = array_merge(self::$options['projection'] , [ $field => "\$$field"  ]  );
-    //     }
-    //         self::$options['projection'] = array_merge(self::$options['projection'] , [ "_id" =>  0  ]  );
-            
-    //     return $this ;
-    // }
-
-    public function select(...$fields){
+    public function select(...$fields){   
         if(count($fields)== 1 && $fields[0] === '*'  )return $this;
         if (!isset ( self::$options['projection'])){self::$options['projection'] = [] ; }
-        self::$mappingAs = asmap($fields) ;
-        $fields=asmap_keys($fields);
         foreach($fields as $field){  
             self::$options['projection'] = array_merge(self::$options['projection'] , [ $field => "\$$field"  ]  );
         }
             self::$options['projection'] = array_merge(self::$options['projection'] , [ "_id" =>  0  ]  );
+            
         return $this ;
     }
 
@@ -274,7 +261,6 @@ class Connection extends Compatible {  //defind the Class to be  master class
                                  $option = substr($option,1) :
                                  $option = substr($option,0) ;
                                  if ($key !== '_id') 
-                                
                                  $project['$project'] = array_merge( $project['$project'] ,
                                                                      [ $key => '$_id.'.
                                                                       str_replace(".",dotter(),$option ) ]
@@ -287,28 +273,9 @@ class Connection extends Compatible {  //defind the Class to be  master class
                         }
                     }
                     $options = [ 'allowDiskUse' => TRUE ];
-            $conclude->aggregate($config,$this->collection,self::$pipeline,$options);  
-            //
-            // @ re-building new output
-            // 
-             $displayjoin = [] ;
-             $joinresult = json_decode( json_encode( $conclude->result ) , true ) ;
-             // Conversion to SQL data list style
-             foreach ($joinresult  as $keys => $datas){ 
-                 $eachdoc = [] ;
-                 foreach ($datas as $key => $data) {
-                     foreach($data as $in_key => $in_data ){ 
-                      $eachdoc = array_merge($eachdoc , [ self::$mappingAs[$key.".".$in_key] => $in_data ]);
-                     }
-                }
-                    $displayjoin = array_merge( $displayjoin ,[$eachdoc] );
-             }
-            return  $displayjoin ;
+            $conclude->aggregate($config,$this->collection,self::$pipeline,$options); 
         }
         //END JOIN
-        //
-        //@command for group by
-        //
         if(!null == self::$groupby && null ==  self::$joincollections ){ 
              $findMatch = 0 ;
              foreach( self::$pipeline as $key => $dat  ){
@@ -340,22 +307,14 @@ class Connection extends Compatible {  //defind the Class to be  master class
                 $options = [
                     'allowDiskUse' => TRUE
                 ];
+               
                 $conclude->aggregate($config,$this->collection,self::$pipeline,$options); 
         }else{  
-                $conclude->findDoc($config,$this->collection,self::$querys,self::$options); 
+            $conclude->findDoc($config,$this->collection,self::$querys,self::$options); 
         } 
 
-         $displayjoin = [] ;
-         $joinresult = json_decode( json_encode( $conclude->result ) , true ) ;
-
-         foreach ($joinresult  as $keys => $datas){ 
-             $docs = [] ;
-             foreach($datas as $key => $data){
-                $docs = array_merge($docs, [self::$mappingAs[$key]  => $data ]  );
-            }
-            $displayjoin = array_merge($displayjoin, [$docs]  );
-        }
-       return  $displayjoin ;
+    //    dd("Bake !!") ;
+        return $conclude->result ; 
     } 
        
     public function first (){
