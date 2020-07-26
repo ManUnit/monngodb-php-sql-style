@@ -262,7 +262,7 @@ use App\CompanyModel;
      - once you use groupby() request select() all of fields same fields in groupby() if seleted fields are not be field's member in groupby() output will display with empty data on that selected field 
 ````
       $users =  CompanyModel::collection('products')
-                                        ->select('products.id','products.name','products_type.description_th','products_group.description')
+                                        ->select('products.id as prod_id ','products.name','products_type.description_th','products_group.description')
                                         ->leftjoin('products_type','products.type_id','products_type.type_id')
                                         ->leftjoin('products_group','products.type_groupid','products_group.type_groupid')
                                         ->where("products.name",'like',"%phone%")
