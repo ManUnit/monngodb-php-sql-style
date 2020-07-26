@@ -69,6 +69,7 @@ class UserModel extends NanModel
    */ 
    protected  $collection = "users" ;  
    protected  $database = "customer" ;  
+   
    /*
    * @override
    * $fillable migrated to under  $schema
@@ -256,6 +257,31 @@ use App\CompanyModel;
 
  ````
 
+-  switch collection  don't need to re-create new other Model file
+   - put begin with  ->collection('[Collction Name]')  see example below
+   - and see  many way to get data
+
+````
+<?php
+
+namespace App\Http\Controllers;
+use App\CompanyModel;
+ 
+          $users =  CompanyModel::collection("users")
+                                ->where( "username" ,"=" , "shppachai")
+                                ->get();
+
+          $products = CompanyModel::all() ;
+          
+          $login =  CompanyModel::collection("users")->where( "id" ,"=" , 101)->first();
+
+          // Laravel's blade view to dispale
+          return view("usermanage" )->with('users',$users)
+                                    ->with('products',$products); 
+               
+    }
+
+ ````
 
  - Controller 
      - join collectios code example below 
