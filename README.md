@@ -371,7 +371,7 @@ $updateResult  =  ShoppingModel::collection("products")
 
 $updateResult  =  ShoppingModel::collection("products")
                                                   ->where('id',"=",454) 
-                                                  ->update( ["description_th" => "New iPhone 11.0 v3th " ] ) ;   // Array style
+                                                  ->update( "description_th" , "New iPhone 11.0 v3th " ) ;   // Two values style
                                                   
  ````
  
