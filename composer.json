@@ -10,13 +10,13 @@
         "model",
         "moloquent",
 	"sql"],
-    "homepage": "https://github.com/nutter-nut/mongodb-sqlquery",
+    "homepage": "https://github.com/ManUnit/monngodb-php-sql-style",
     "license": "MIT",
     "authors": [
         {
             "name": "Anan P.",
             "email": "sciantman@gmail.com",
-            "homepage": "https://github.com/manunit/mongodb-sql-model",
+            "homepage": "https://github.com/ManUnit/monngodb-php-sql-style",
             "role": "Developer"
         }
     ],
