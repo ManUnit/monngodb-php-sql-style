@@ -328,13 +328,13 @@ use App\CompanyModel;
  ````
 $updateResult  =  ShoppingModel::collection("products")
                                                   ->where('id',"=",454)   // update mltiple style 
-                                                  ->andupdate( [ "name" => "PHONE UPDATE 11.0 v3" , 'price' => 25200 ])    // Two values style
+                                                  ->andupdate( [ "name" => "PHONE UPDATE 11.0 v3" , 'price' => 25200 ])    // Array style
                                                   ->andupdate("description","=","Iphone version Thai v3")                  // Equaly style
-                                                  ->update("description_th","New iPhone 11.0 v3th ") ;                     // Array style
+                                                  ->update("description_th","New iPhone 11.0 v3th ") ;                     // Two values style
 
 $updateResult  =  ShoppingModel::collection("products")
                                                   ->where('id',"=",454) 
-                                                  ->update("description_th","New iPhone 11.0 v3th ") ;  // Two values style
+                                                  ->update( [ "description_th" => "New iPhone 11.0 v3th " ]) ;  // Array style
                                                   
 
 
