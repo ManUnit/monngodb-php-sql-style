@@ -343,10 +343,10 @@ $updateResult  =  ShoppingModel::collection("products")
                                                   ->update( ["description_th" => "New iPhone 11.0 v3th " ] ) ;   // Array style
                                                   
  ````
- ````
-
+ 
 - Deleteing document
     - request begin with where statement 
+ 
  ````
        $deleteresult =  ShoppingModel::collection("products")
                                  ->where("id" ,">",444)
