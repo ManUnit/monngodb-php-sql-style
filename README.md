@@ -344,7 +344,7 @@ $updateResult  =  ShoppingModel::collection("products")
                                                   
  ````
  
-- Deleteing document
+- Delete  documents
     - request begin with where statement 
  
  ````
