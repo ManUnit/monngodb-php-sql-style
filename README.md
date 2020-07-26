@@ -19,7 +19,7 @@ Mongodb using SQL style
 
 Run Nantabury/Mongodb standalone without laravel : 
 
-- once you don't have laravel just base on composer package create file under directory ./config/database.php and copy all below to database.php
+- once you don't have laravel just base on composer package go to create file under directory ./config/database.php and copy all below to database.php
 ````
 <?php
 
