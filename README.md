@@ -216,10 +216,24 @@ class UserModel extends NanModel
 
 
  ````
-
--  switch collection  no need to re create new other Model file
-   - put begin with  DB()->collection('[Collction Name]')  see example below
+Changing database and collection if you have permission of user and password on the same multiple databases you can change database difference in file ./config/database.php   
+    - examples change just database  DataBaseModel::database("shopping") ....    , change database and collection DataBaseModel::database("shopping","products") ... , change collection only DataBaseModel::collection("products") ... , change collection only 
+    
+````
  
+   $prods = CompanyDB::database("shopping")
+                                    ->select("id as prod_id","name as prod_name")
+                                    ->get()
+                                    
+   $users = CompanyDB::database("authentication","users")->select("id"," name as prod_name")
+                                  ->get()
+                                  
+   
+
+````
+-  switch collection  don't need to re-create new other Model file
+   - put begin with  ->collection('[Collction Name]')  see example below
+
 ````
 <?php
 
