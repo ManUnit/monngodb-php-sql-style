@@ -336,7 +336,7 @@ use App\CompanyModel;
 
        $resultInsert =  UserModel::insert( $prepairinsertServices ) ;   // using default $collection in model
        $resultInsertOtherone = UserModel::database()->collection("services")
-                                              ->insert(['sid'=> UserModel::DB()->collection("services")->getModifySequence('sid') ,
+                                              ->insert(['sid'=> UserModel::database()->collection("services")->getModifySequence('sid') ,
                                                         'service_name'=>'Gold' ,
                                                       'description'=>'VIP sevice top level'
                                                       ]) ; 
