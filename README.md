@@ -247,14 +247,14 @@ namespace App\Http\Controllers;
 use App\CompanyModel;
  
           $users =  CompanyModel::collection("users")
-                                ->where( "username" ,"=" , "shppachai")
+                                ->where( "username" ,"=" , "suppachai")
                                 ->get();
 
           $products = CompanyModel::collection("products")
                                 ->where( "pid" ,"=" , "101")
                                 ->get();
 
-          // Laravel's blade view to dispale
+          // Laravel's blade view to displays
           return view("usermanage" )->with('users',$users)
                                     ->with('products',$products); 
                
@@ -264,7 +264,7 @@ use App\CompanyModel;
 
 -  switch collection  don't need to re-create new other Model file
    - put begin with  ->collection('[Collction Name]')  see example below
-   - and see  many way to get data
+   - and many way to get data
 
 ````
 <?php
@@ -355,7 +355,7 @@ use App\CompanyModel;
 
 - Update
    - to prevent update field put in schema ` idcard => [ 'UpdateProtected'=>true  ] `
-   - update can be many style do you need see examples below
+   - update can be many style do you need to see examples below
  ````
 $updateResult  =  ShoppingModel::collection("products")
                                                   ->where('id',"=",454)   // update mltiple style 
