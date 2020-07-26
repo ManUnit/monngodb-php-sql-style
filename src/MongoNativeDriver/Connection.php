@@ -84,6 +84,15 @@ class Connection extends Compatible {  //defind the Class to be  master class
         return  (new static)->setCollection($coll); 
     }
 
+    public static function query($coll=''){
+        // support defind value with nothing 
+        if ($coll == '' ) return (new static)  // get  default collection from model when nothing value in collection()
+                         ->setCollection(
+                              (new static)->getCollectNonstatic()
+                         ) ;
+        return  (new static)->setCollection($coll); 
+    }
+
     public  function from(String $coll=''){
         // support defind value with nothing 
         if ($coll == '' ) return $this->setCollection( $this->getCollectNonstatic());
@@ -219,16 +228,6 @@ class Connection extends Compatible {  //defind the Class to be  master class
         return $conclude->result ;  // no more end output  with get() will use and on the end  
     } 
 
-    // public function select(...$fields){   
-    //     if(count($fields)== 1 && $fields[0] === '*'  )return $this;
-    //     if (!isset ( self::$options['projection'])){self::$options['projection'] = [] ; }
-    //     foreach($fields as $field){  
-    //         self::$options['projection'] = array_merge(self::$options['projection'] , [ $field => "\$$field"  ]  );
-    //     }
-    //         self::$options['projection'] = array_merge(self::$options['projection'] , [ "_id" =>  0  ]  );
-            
-    //     return $this ;
-    // }
 
     public function select(...$fields){
         if(count($fields)== 1 && $fields[0] === '*'  )return $this;
@@ -341,21 +340,34 @@ class Connection extends Compatible {  //defind the Class to be  master class
                     'allowDiskUse' => TRUE
                 ];
                 $conclude->aggregate($config,$this->collection,self::$pipeline,$options); 
+                $renewdisplay = [] ;
+                $groupresult = json_decode( json_encode( $conclude->result ) , true ) ;
+       
+                foreach ($groupresult  as $keys => $datas){ 
+                    $docs = [] ;
+                    foreach($datas as $key => $data){
+                       $docs = array_merge($docs, [self::$mappingAs[$key]  => $data ]  );
+                   }
+                   $renewdisplay = array_merge($renewdisplay, [$docs]  );
+               }
+               return $renewdisplay ;
         }else{  
                 $conclude->findDoc($config,$this->collection,self::$querys,self::$options); 
+                $renewdisplay = [] ;
+                $groupresult = json_decode( json_encode( $conclude->result ) , true ) ;
+       
+                foreach ($groupresult  as $keys => $datas){ 
+                    $docs = [] ;
+                    foreach($datas as $key => $data){
+                       $docs = array_merge($docs, [self::$mappingAs[$key]  => $data ]  );
+                   }
+                   $renewdisplay = array_merge($renewdisplay, [$docs]  );
+               }
+               return $renewdisplay ;
         } 
 
-         $displayjoin = [] ;
-         $joinresult = json_decode( json_encode( $conclude->result ) , true ) ;
-
-         foreach ($joinresult  as $keys => $datas){ 
-             $docs = [] ;
-             foreach($datas as $key => $data){
-                $docs = array_merge($docs, [self::$mappingAs[$key]  => $data ]  );
-            }
-            $displayjoin = array_merge($displayjoin, [$docs]  );
-        }
-       return  $displayjoin ;
+       return $conclude->result ;
+      
     } 
        
     public function first (){
