@@ -321,6 +321,41 @@ use App\CompanyModel;
     } 
 
 ````
+
+- Update
+   - to prevent update field put in schema ` idcard => [ 'UpdateProtected'=>true  ] `
+   - update can be many style do you need see examples below
+ ````
+$updateResult  =  ShoppingModel::collection("products")
+                                                  ->where('id',"=",454)   // update mltiple style 
+                                                  ->andupdate( [ "name" => "PHONE UPDATE 11.0 v3" , 'price' => 25200 ])    // Two values style
+                                                  ->andupdate("description","=","Iphone version Thai v3")                  // Equaly style
+                                                  ->update("description_th","New iPhone 11.0 v3th ") ;                     // Array style
+
+$updateResult  =  ShoppingModel::collection("products")
+                                                  ->where('id',"=",454) 
+                                                  ->update("description_th","New iPhone 11.0 v3th ") ;  // Two values style
+                                                  
+
+
+$updateResult  =  ShoppingModel::collection("products")
+                                                  ->where('id',"=",454) 
+                                                  ->update( ["description_th" => "New iPhone 11.0 v3th " ] ) ;   // Array style
+                                                  
+ ````
+ ````
+
+- Deleteing document
+    - request begin with where statement 
+ ````
+       $deleteresult =  ShoppingModel::collection("products")
+                                 ->where("id" ,">",444)
+                                 ->andwhere("id" ,"=",442)
+                                 ->delete("id",">",440);
+                                 
+      $deleteresult =  ShoppingModel::collection("products")
+                                               ->delete("id","=",440);
+ ````
 - Handle insert error in view 
   -  add script below into your view file.blade.php
 
