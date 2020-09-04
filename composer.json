@@ -9,20 +9,19 @@
         "database",
         "model",
         "moloquent",
-	"sql"],
-    "homepage": "https://github.com/nutter-nut/mongodb-sqlquery",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Anan P.",
-            "email": "sciantman@gmail.com",
-            "homepage": "https://github.com/manunit/mongodb-sql-model",
-            "role": "Developer"
-        }
+        "sql"
     ],
+    "homepage": "https://github.com/ManUnit/monngodb-php-sql-style",
+    "license": "MIT",
+    "authors": [{
+        "name": "Anan P.",
+        "email": "sciantman@gmail.com",
+        "homepage": "https://github.com/manunit/mongodb-sql-model",
+        "role": "Developer"
+    }],
     "require": {
         "php": ">=7.2.0",
-	"mongodb/mongodb": "^1.6"
+        "mongodb/mongodb": "^1.6"
     },
     "autoload": {
         "psr-4": {

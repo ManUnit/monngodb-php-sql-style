@@ -306,9 +306,7 @@ class SuperModelClass  { //  defind Master Class
         if ( $_Getperpage['paginate'] < 1   ){ $perpage = 1;}else { $perpage = $_Getperpage['paginate'];} ;  
          
         $request_page_number=1 ; 
-        // $searchText = "";
-        // using studio 3T conversion SQL to mongoDB query format on PHP
-        // https://studio3t.com/
+ 
         if ( !isset($_REQUEST['page'])) {
             $request_page_number=1;
         }
@@ -318,24 +316,18 @@ class SuperModelClass  { //  defind Master Class
         }
 
         $pipeline = self::$mainpipeline ;
-        //dd ( gettype($pipeline)  );
         $option_count=array('$group'=> ['_id'=> [], 'COUNT(*)'=> ['$sum'=> 1]]);
         $option_select=array('$project'=> ['count'=> '$COUNT(*)', '_id'=> 0]);
-        // $options = array ( 'allowDiskUse' => TRUE  ) ;   
         $counter_pipeline=$pipeline;
-        // Prepare for  document  counter 
         array_push($counter_pipeline, $option_count);
         array_push($counter_pipeline, $option_select);
-
         //========  
         $mongodata=new Products;
-
         $count_products=$mongodata->raw(function($collection) use ($counter_pipeline) {
                 return $collection->aggregate($counter_pipeline);
             }
 
         );
-
         //----- Paginate Limit documents calculation --// 
         $totalDocment=json_decode(json_encode($count_products))[0]->count;
         //^above line was  shortcut of $totalDocment= json_decode( json_encode(  $count_products ) ) ; $totalDocment[0]->count  
@@ -357,12 +349,9 @@ class SuperModelClass  { //  defind Master Class
             }
 
         );
-
-
         $data_array=array();
         $i=0;
         $data_array['totalpage']=$totalpage;
-        // $data_array['searchtext'] = $searchText;
         $data_array['totaldocument'] = $totalDocment;
         $data_array['pageselected']=$request_page_number;
         $data_array['data']=array();
@@ -396,7 +385,7 @@ class SuperModelClass  { //  defind Master Class
         return json_decode (json_encode($data_array));
     }
 
-    private static function paginate ($perpage, $totaldocument, $request_page_number) {
+    private static function paginate($perpage, $totaldocument, $request_page_number) {
 
         $stly_class="page-item";
         $stly_class_opt_active='active';

@@ -20,7 +20,6 @@ abstract class Compatible {  // Method compatible control class
    abstract  public static function update(...$param ) ;
    abstract  public function andupdate(...$param) ; 
   // Middle Function 
-  //  abstract  public function where(String $Key ,String $Operation ,String $Value); //
 
    abstract  public function join(String $collection , String $localField , String  $foreignField , String $as = "" );  // <--
    abstract  public function leftjoin(String $collection , String $localField , String  $foreignField , String $as = ""   ); // <--

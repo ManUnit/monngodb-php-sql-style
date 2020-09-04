@@ -19,17 +19,19 @@ use MongoDB\BSON\Regex;
 
 
 class Connection extends Compatible {  //defind the Class to be  master class
+
+    // Call trait class
+    use Commands ; 
     // Public , Protected  non-static properties  of values $this 
     /*  Static properties of self::$values 
      *
      */
-    // protected static $dataBaseStatic ;  // transform non-static $this->database to static self::$dataBaseStatic   
-    // protected static $collectStatic ;   // transform non-static $this->database to static self::$dataBaseStatic  
-    // Private properties 
 
+    //
     protected $collection = 'dummyString';
     protected $database = 'dummyString' ;
     protected $fillable = array();    
+     // Private properties 
     private static $ClassError = array();
     private static $querys = array();
     private static $combind = array();
@@ -355,15 +357,22 @@ class Connection extends Compatible {  //defind the Class to be  master class
                 $conclude->findDoc($config,$this->collection,self::$querys,self::$options); 
                 $renewdisplay = [] ;
                 $groupresult = json_decode( json_encode( $conclude->result ) , true ) ;
-       
-                foreach ($groupresult  as $keys => $datas){ 
-                    $docs = [] ;
-                    foreach($datas as $key => $data){
-                       $docs = array_merge($docs, [self::$mappingAs[$key]  => $data ]  );
-                   }
-                   $renewdisplay = array_merge($renewdisplay, [$docs]  );
-               }
-               return $renewdisplay ;
+                if ( !null == self::$mappingAs ){
+			if ( !null == self::$mappingAs ){
+                            foreach ($groupresult  as $keys => $datas){ 
+                              $docs = [] ;
+                              foreach($datas as $key => $data){
+                              $docs = array_merge($docs, [self::$mappingAs[$key]  => $data ]  );
+                            }
+                              $renewdisplay = array_merge($renewdisplay, [$docs]  );
+			}else{
+			    $renewdisplay = $groupresult ;
+        	        }
+                    }
+                    return $renewdisplay ;
+                }else{
+                    return $groupresult ;
+                }
         } 
 
        return $conclude->result ;
@@ -420,280 +429,10 @@ class Connection extends Compatible {  //defind the Class to be  master class
          }
     } 
 
-    public static function InitIndexAutoInc () { 
-        $this->fillable( (array) [] );
-    }
-
-    public function getModifySequence(String $autoIncName) { 
-        $this->fillable( (array) [] );  // Pre scan schema to create all first since empty indecies and counter collection 
-        $config = new Config ;
-        $config->setDb($this->getDbNonstatic());
-        $conclude = new BuildConnect ;
-        $result = $conclude->getModifySequence($config,$this->getCollectNonstatic(),$autoIncName); 
-        return $result; 
-    }
-
-    /****** @Private Zone ******/   
+ 
    
-    private function anError(int $err , $value ){
-        array_push ( self::$ClassError ,   [$err,$value] ) ;
-        
-    }
-
-    private function setCollection($collection){
-        $this->collection = $collection ;
-        return $this ; 
-    }
 
 
-    private function setDatabase($database){
-        $this->database = $database ;
-        return $this ; 
-    }
 
-    private function setDatabaseCollection($database , $collection){
-        $this->database = $database ;
-        $this->collection = $collection ;
-        return $this ; 
-    }
-
-    private function getAllwhere(){ 
-        $allAnd = ['$and'=>[]] ;
-        if (  isset (self::$orderTerm) &&  count(self::$orderTerm) == 1 ){  return ;
-        }elseif( count(self::$orderTerm) > 1) {
-          // Find all term are AND   // to Check all term is and(s)  where()->andwhere()->andwhere()->get()
-          $andCount=0; 
-          foreach(  self::$orderTerm as $key => $terms ){
-               if(array_keys($terms)[0]==='$and'){$andCount++;}
-               array_push($allAnd['$and'],$terms[array_keys($terms)[0]] ) ; 
-          }
-          if( $andCount == count(self::$orderTerm) -1 ){   // All term is ANDs
-            self::$querys = $allAnd ; 
-            return $allAnd;
-          }
-        }   
-        $finalwhere=self::$orderTerm;
-        $beforeOps = null ;
-        $beforeTerm = [] ;
-        $order = 0 ;
-        $termCount = 0 ;
-        $terms = [] ;
-        $finalTerms = ['$or'=>[]] ;
-        $andTerms = ['$and'=>[]] ; 
-        // Collector terms 
-        // @conversion SQL to  logic precendence order using Mongodb's format
-        // term (and)(and)  + term(or)(and)(and)  + term (or)(and)  + term(or) + term(or) 
-      
-        foreach($finalwhere as $operator => $term){  
-            if(   $beforeOps == null  && array_keys($term)[0] === 'mostleft' ){ 
-                $termCount++ ; 
-                if(!isset($terms[$termCount])) { $terms[$termCount] = [] ;}
-                array_push($terms[$termCount] , $term[array_keys($term)[0]] ); 
-            }elseif( $beforeOps == 'mostleft'  && array_keys($term)[0] === '$or' ){
-                $termCount++ ; 
-                if(!isset($terms[$termCount])) { $terms[$termCount] = [] ;}
-                 array_push($terms[$termCount] , $term[array_keys($term)[0]] ); 
-            }elseif( $beforeOps == 'mostleft'  && array_keys($term)[0] === '$and' ){
-                if(!isset($terms[$termCount])) { $terms[$termCount] = [] ;}
-                array_push($terms[$termCount] , $term[array_keys($term)[0]] ); 
-            }elseif( $beforeOps == '$or'  && array_keys($term)[0] === '$or' ){
-                $termCount++ ;
-                if(!isset($terms[$termCount])) { $terms[$termCount] = [] ;}
-                array_push($terms[$termCount] , $term[array_keys($term)[0]] ); 
-            }
-             elseif( $beforeOps == '$or'  && array_keys($term)[0] === '$and' ){
-                if(!isset($terms[$termCount])) { $terms[$termCount] = [] ;}
-                array_push($terms[$termCount] , $term[array_keys($term)[0]] ); 
-            }elseif( $beforeOps == '$and'  && array_keys($term)[0] === '$or' ){
-                $termCount++ ; 
-                if(!isset($terms[$termCount])) { $terms[$termCount] = [] ;}
-                array_push($terms[$termCount] , $term[array_keys($term)[0]] ); 
-            }elseif( $beforeOps == '$and'  && array_keys($term)[0] === '$and' ){
-              if(!isset($terms[$termCount])) { $terms[$termCount] = [] ;}
-                array_push($terms[$termCount] , $term[array_keys($term)[0]] ); 
-            }
-             array_keys($term)[0] ; 
-             $beforeOps = array_keys($term)[0] ;
-             $beforeTerm = $term[array_keys($term)[0]] ;
-        } 
-        // conversion Terms to OR term
-           foreach( $terms as $term){
-               if ( count($term) == 1 ){ 
-                    array_push ($finalTerms['$or'],$term[0]);  
-                }elseif(count($term)  > 1){
-                    $andTerms = ['$and'=>[]] ;
-                    foreach( $term as $andTerm  ){ 
-                       array_push($andTerms['$and'] , $andTerm)   ;
-                    } 
-                    array_push ($finalTerms['$or'],$andTerms);
-                }
-           } 
-           if ($finalTerms == ['$or'=>[]] ){ self::$querys =[] ;}else{
-               self::$querys = $finalTerms ;
-           } ;
-       return  self::$querys;
-    }
-    
-    private function fillable(array $arrVals , $option = [] ) { 
-        $collections=[];
-        $fillables=[];
-        $updateProtected=[];
-        foreach ( array_keys( $this->schema ) as $each_coll  ) { 
-            array_push($collections,$each_coll) ; 
-        }
-
-        if( !in_array( $this->collection , $collections)  ){
-             return [0 , "Error ! collection:$this->collection aren't in member of schema check your Model class ".get_class($this) ] ;
-        }else{ 
-             foreach (  $this->schema[ $this->collection]  as $keys =>  $values ) { 
-                if ( is_array($values) ){
-                     
-                    if(isset($this->schema[$this->collection][$keys]['AutoIncStartwith'])){ 
-                        $startseq = $this->schema[$this->collection][$keys]['AutoIncStartwith'] ; 
-                    }else{
-                        $startseq = 0 ;
-                    }
-                     
-                    foreach ( $values  as $key => $value  ) { 
-                        if ( $key === "AutoInc"  &&  $value === true )   $this->findCreateAutoInc($keys, $startseq )  ; 
-                        if ( $key === "Index"  &&  $value === true ) $this->findCreateIndexOne($keys) ;
-                        if ( $key === "UpdateProtected"  &&  $value === true  ) { 
-                           array_push( $updateProtected ,  $keys );
-                        }
-                            
-                    } 
-                    $findmultiIndex = substr( $keys  , 0, strlen( "\$__MULTIPLE_INDEX")  );
-                    if ( "\$__MULTIPLE_INDEX" === $findmultiIndex ){ 
-                             $this->findCreateIndexMany($keys) ;  
-                    }else{
-                        array_push ($fillables , $keys) ; 
-                    }
-
-                }else{
-                    array_push ($fillables , $values) ; 
-                }
-             } 
-        }
-         
-        foreach ( array_keys($arrVals) as $key  ) {  
-  
-            if (  !in_array( $key , $fillables ) ) { return  [  0 , "ERROR ! input fail -> field name:".$key. " aren't  member in schema check your Model ".get_class($this) ]; } 
-            if( isset($option['update']) ){ 
-                if (  in_array( $key,$updateProtected)  &&  $option['update'] == true  ){    return  [  0 , "ERROR ! update collection:". $this->collection."->feild:".$key. " has protected in ".get_class($this) ];  }
-            }
-        }
-        return [1,"fillable OK good luck my friend ! "] ;
-    }
-    
-    private  function findCreateAutoInc(String $fieldNameToInc , int $StartSeq  ) {
-        $config = new Config ;
-        $config->setDb( $this->getDbNonstatic() ) ;
-        $conclude = new BuildConnect ; 
-        $collection_counter  = $this->getDbNonstatic().'_counters' ; 
-        $this->findCreateIndexAutoInc( $fieldNameToInc, $this->getCollectNonstatic() ) ; // Magic create index 
-        $query = [  'inc_field' => $fieldNameToInc , 'collection' => $this->getCollectNonstatic() ]  ;
-        
-        $conclude->findDoc($config , $collection_counter ,$query ) ; 
-         if ( null == $conclude->result ) {
-           
-            $reactionInsert = $conclude->insertDoc($config ,$collection_counter ,[
-                                                     	'inc_field' => $fieldNameToInc ,
-						                            	'collection'=> $this->getCollectNonstatic(),
-                                                        'sequence_value' => 0.0 + $StartSeq ]) ; // conversion datatype to be double
-         }  
-        
-        return $conclude->result ; 
-    } 
-    private function findCreateIndexAutoInc(String $fieldIndex , String $collection ){  
-        $config = new Config ;
-        $config->setDb( $this->getDbNonstatic() ) ;
-        $conclude = new BuildConnect ; 
-        $index = [
-                    "name" =>"\$__IDX_AUTOINC_".$this->getDbNonstatic()."_counters",
-                    "key"  =>['inc_field'=>1,'collection'=>1],
-                    "unique" => true ,
-                    "ns" => $config->getDb().".".$this->getDbNonstatic()."_counters"
-                ];
-        $result =  $conclude->getIndex($config , $this->getCollectNonstatic() , $index['name'] );
-         if ( !$result ) { 
-              $reactionInsert = $conclude->createIndex($config ,  $this->getDbNonstatic()."_counters" , $index  );
-          }else{
-              $reactionInsert = false ;
-          }  
-         return  $reactionInsert  ; 
-    }
-
-    private function findCreateIndexOne(String $fieldIndex){  
-        $config = new Config ;
-        $config->setDb( $this->getDbNonstatic() ) ;
-        $conclude = new BuildConnect ; 
-         if(isset($this->schema[$this->getCollectNonstatic()][$fieldIndex]['Unique'])){
-            $index_unique =  $this->schema[$this->getCollectNonstatic()][$fieldIndex]['Unique'] ;
-         }else{
-            $index_unique  = false ; 
-         }
-        
-         if(isset($this->schema[$this->getCollectNonstatic()][$fieldIndex]['Sparse'])){
-            $index_Sparse =  $this->schema[$this->getCollectNonstatic()][$fieldIndex]['Sparse'] ;
-         }else{
-            $index_Sparse  = false ; 
-         }
-
-        $index = [
-                    "name" =>  "\$__INDEX_".strtoupper($fieldIndex)."_"  ,
-                    "key"  =>  [$fieldIndex=>1] ,
-                    "unique" => $index_unique  ,
-                    "sparse" => $index_Sparse  ,
-                    "ns" => $config->getDb().".".$this->getCollectNonstatic()  
-                ];
-        $result =  $conclude->getIndex($config , $this->getCollectNonstatic() , $index['name'] );
-         if ( !$result ) { 
-              $reactionInsert = $conclude->createIndex($config , $this->getCollectNonstatic() , $index  );
-          }else{
-              $reactionInsert = false ;
-          }  
-         return  $reactionInsert  ; 
-    }
-
-    private function findCreateIndexMany(String $IndexMany){ 
-        $config = new Config ;
-        $config->setDb( $this->getDbNonstatic() ) ;
-        $conclude = new BuildConnect ; 
-        $index =  $this->schema[$this->getCollectNonstatic()][$IndexMany] ;  
-        $index['ns'] = $config->getDb().".".$this->getCollectNonstatic()  ;
-        $result =  $conclude->getIndex($config , $this->getCollectNonstatic() , $index['name'] );
-         if (  !$result ) { 
-              $reactionInsert = $conclude->createIndex($config , $this->getCollectNonstatic() , $index  );
-          }else{
-              $reactionInsert = false ;
-          }  
-         return  $reactionInsert  ; 
-    } 
-
-    private function whereConversion(String $Key ,String $Operation , $Value) {
-          if ( $Operation  == "=" ){
-              return [ "$Key"=>  $Value ];                    // SQL transform select * from table where 'key' = 'value'  ; 
-          }elseif( $Operation  == "!=" ) {
-              return [ "$Key" => ['$ne' => $Value ]  ];       // SQL transform select * from table where 'key' != 'value'
-          }elseif($Operation  == "<="){
-              return [ "$Key" => [ '$lte' =>  $Value ]  ];   // SQL transform select * from table where 'Key' <= 'value'
-          }elseif($Operation  == ">="){
-              return [ "$Key" => [ '$gte' =>  $Value ]  ];    // SQL transform select * from table where 'Key' >= 'value'
-          }elseif($Operation  == "<"){
-              return [ "$Key" => [ '$lt' =>  $Value ]  ];     // SQL transform select * from table where 'Key' < 'value'
-          }elseif($Operation  == ">"){
-              return [ "$Key" => [ '$gt' =>   $Value ]  ];    // SQL transform select * from table where 'Key' > 'value'
-          }elseif( $Operation  == "like" ) {
-              if (   $Value[0]  != "%" && substr(  "$Value" , -1 ) =="%"  ) { 
-                 return [  "$Key" => new Regex('^'. substr( "$Value" ,0,-1 ) .'.*$', 'i') ]  ;     // SQL transform select * from table where 'Key' like 'value%'   ; find begin with ?    
-              }elseif (   $Value[0]  == "%"  &&  substr( "$Value" , -1 ) !=  "%"  ) {
-                  return [  "$Key" => new Regex('^.*'.substr( "$Value" ,1 ) .'$', 'i') ];          // SQL transform select * from table where 'Key' like '%value'   ; find end with ?
-              }elseif (  $Value[0]  == "%"  &&  substr( "$Value" , -1 ) =="%"   ) {
-                  return [ "$Key" => new Regex('^.*'.substr( "$Value" ,1 ,-1)  .'.*$', 'i')];     // SQL transform select * from table where 'Key' like '%value%'  ; find where ever with ?
-              }else{
-                  return [ "$Key" => new Regex('^.'."$Value".'.$', 'i')];   //  SQL transform select * from table where 'key' like 'value'
-              }
-          }
-      }
      
 }
