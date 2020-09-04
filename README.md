@@ -1,4 +1,9 @@
 # mongodb-sql-style 
+Installing 
+````
+composer require nantaburi/mongodb-sql-model 
+
+````
 Mongodb using SQL style 
 - Configuraton  add setting in config/database.php of laravel 
 
@@ -69,6 +74,7 @@ class UserModel extends NanModel
    */ 
    protected  $collection = "users" ;  
    protected  $database = "customer" ;  
+   
    /*
    * @override
    * $fillable migrated to under  $schema
@@ -241,12 +247,38 @@ namespace App\Http\Controllers;
 use App\CompanyModel;
  
           $users =  CompanyModel::collection("users")
-                                ->where( "username" ,"=" , "shppachai")
+                                ->where( "username" ,"=" , "suppachai")
                                 ->get();
 
           $products = CompanyModel::collection("products")
                                 ->where( "pid" ,"=" , "101")
                                 ->get();
+
+          // Laravel's blade view to displays
+          return view("usermanage" )->with('users',$users)
+                                    ->with('products',$products); 
+               
+    }
+
+ ````
+
+-  switch collection  don't need to re-create new other Model file
+   - put begin with  ->collection('[Collction Name]')  see example below
+   - and many way to get data
+
+````
+<?php
+
+namespace App\Http\Controllers;
+use App\CompanyModel;
+ 
+          $users =  CompanyModel::collection("users")
+                                ->where( "username" ,"=" , "shppachai")
+                                ->get();
+
+          $products = CompanyModel::all() ;
+          
+          $login =  CompanyModel::collection("users")->where( "id" ,"=" , 101)->first();
 
           // Laravel's blade view to dispale
           return view("usermanage" )->with('users',$users)
@@ -255,7 +287,6 @@ use App\CompanyModel;
     }
 
  ````
-
 
  - Controller 
      - join collectios code example below 
@@ -305,7 +336,7 @@ use App\CompanyModel;
 
        $resultInsert =  UserModel::insert( $prepairinsertServices ) ;   // using default $collection in model
        $resultInsertOtherone = UserModel::database()->collection("services")
-                                              ->insert(['sid'=> UserModel::DB()->collection("services")->getModifySequence('sid') ,
+                                              ->insert(['sid'=> UserModel::database()->collection("services")->getModifySequence('sid') ,
                                                         'service_name'=>'Gold' ,
                                                       'description'=>'VIP sevice top level'
                                                       ]) ; 
@@ -321,6 +352,41 @@ use App\CompanyModel;
     } 
 
 ````
+
+- Update
+   - to prevent update field put in schema ` idcard => [ 'UpdateProtected'=>true  ] `
+   - update can be many style do you need to see examples below
+ ````
+$updateResult  =  ShoppingModel::collection("products")
+                                                  ->where('id',"=",454)   // update mltiple style 
+                                                  ->andupdate( [ "name" => "PHONE UPDATE 11.0 v3" , 'price' => 25200 ])    // Array style
+                                                  ->andupdate("description","=","Iphone version Thai v3")                  // Equaly style
+                                                  ->update("description_th","New iPhone 11.0 v3th ") ;                     // Two values style
+
+$updateResult  =  ShoppingModel::collection("products")
+                                                  ->where('id',"=",454) 
+                                                  ->update( [ "description_th" => "New iPhone 11.0 v3th " ]) ;  // Array style
+                                                  
+
+
+$updateResult  =  ShoppingModel::collection("products")
+                                                  ->where('id',"=",454) 
+                                                  ->update( "description_th" , "New iPhone 11.0 v3th " ) ;   // Two values style
+                                                  
+ ````
+ 
+- Delete  documents
+    - request begin with where statement 
+ 
+ ````
+       $deleteresult =  ShoppingModel::collection("products")
+                                 ->where("id" ,">",444)
+                                 ->andwhere("id" ,"=",442)
+                                 ->delete("id",">",440);
+                                 
+      $deleteresult =  ShoppingModel::collection("products")
+                                               ->delete("id","=",440);
+ ````
 - Handle insert error in view 
   -  add script below into your view file.blade.php
 
