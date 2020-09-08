@@ -13,6 +13,7 @@
 namespace Nantaburi\Mongodb\MongoNativeDriver ;
 
 use Nantaburi\Mongodb\MongoNativeDriver\Classifier ;
+use PHPUnit\Framework\Exception;
 use MongoDB\BSON\Regex;
 
 trait Commands {    
@@ -84,6 +85,8 @@ trait Commands {
     }
 
     public function paginate(int $perpage) {   
+        
+ 
         if(!isset($_GET['page'] )){$page=(int) 1 ;}else{  $page= (int) $_GET['page'];}
         $outlet = new Outlet ;
         $outlet->items = $this->pageget($perpage);
@@ -96,6 +99,11 @@ trait Commands {
         $outlet->pageName = 'page'  ; 
         $outlet->links   = $this->pagedrawing($perpage ,$outlet->total,$page ) ;      
         $outlet->options   =   array_merge($outlet->options , [ 'path' => $outlet->path , 'pageName' => $outlet->pageName  ]) ; 
+        if( env('DEV_DEBUG' )) { 
+            dd( "DEBU paginate : this values " ,  $this , "perpage" , $perpage  , "Paginatge outlet" , $outlet ) ; 
+   
+           }
+              
         return $outlet ;
     }
 
@@ -104,6 +112,8 @@ trait Commands {
         $config=new Config ;
         $config->setDb($this->getDbNonstatic()) ;
         $conclude=new BuildConnect; 
+
+         dd( " Command.php  : paginate Get all where : " ,  self::$querys ) ;
         //=================
         //----- Paginate Limit documents calculation --// 
         $totalDocment=json_decode(json_encode($count_products))[0]->count;
@@ -324,6 +334,8 @@ trait Commands {
             }else{
                 return [ "$Key" => new Regex('^.'."$Value".'.$', 'i')];   //  SQL transform select * from table where 'key' like 'value'
             }
+        }else{
+               throw new Exception(" Error operator   '$Operation'  not support  for this module ");
         }
     }
 
@@ -541,7 +553,131 @@ trait Commands {
            } ;
        return  self::$querys;
     }
-  
+    
+    public function findNormal() {
+        $config=new Config ;
+        $config->setDb($this->getDbNonstatic()) ;
+        $conclude=new BuildConnect; 
+        $conclude->findDoc($config,$this->collection,self::$querys,self::$options); 
+        $renewdisplay = [] ;
+        $groupresult = json_decode( json_encode( $conclude->result ) , true ) ;
+            if ( !null == self::$mappingAs ){
+                            foreach ($groupresult  as $keys => $datas){ 
+                            $docs = [] ;
+                            foreach($datas as $key => $data){
+                                $docs = array_merge($docs, [self::$mappingAs[$key]  => $data ]  );
+                            }
+                            $renewdisplay = array_merge($renewdisplay, [$docs]  );
+                            }
+                            return $renewdisplay ;
+            }else{
+            
+                return $groupresult ;
+            }
+
+   } 
 
 
+    public function findGroup () { 
+            $config=new Config ;
+            $config->setDb($this->getDbNonstatic()) ;
+            $conclude=new BuildConnect; 
+            $findMatch = 0 ;
+            foreach( self::$pipeline as $key => $dat  ){
+                if ( $key === '$match'){ $findMatch++;}
+            }
+            if ( $findMatch == 0  ){
+            $swap = self::$pipeline ;
+            self::$pipeline = [] ;
+            self::$pipeline = array_merge(self::$pipeline,[ ['$match' => self::$querys] ]);
+            self::$pipeline = array_merge(self::$pipeline,$swap);
+            }
+            self::$pipeline = array_merge( self::$pipeline , [self::$groupby] );
+
+            foreach (self::$options as $mainkey => $mainOption){
+                    if('projection'===$mainkey){   
+                        $project['$project'] = [];
+                        foreach (self::$options['projection'] as $key => $option ){ 
+                            substr($option,0,1) === "$" ?     
+                                    $option = substr($option,1) :
+                                    $option = substr($option,0) ;
+                            if ($key !== '_id') $project['$project'] = array_merge( $project['$project'] , [ $key => "\$_id.$option" ]); 
+                        }
+                        $project['$project']= array_merge( $project['$project'],[ '_id' =>  0]); 
+                        self::$pipeline = array_merge(self::$pipeline,[$project]); 
+                    }else{
+                        self::$pipeline = array_merge(self::$pipeline,[["\$".$mainkey => $mainOption ]]); 
+                    }
+            }
+            $options = [
+                'allowDiskUse' => TRUE
+            ];
+            $conclude->aggregate($config,$this->collection,self::$pipeline,$options); 
+            $renewdisplay = [] ;
+            $groupresult = json_decode( json_encode( $conclude->result ) , true ) ;
+
+            foreach ($groupresult  as $keys => $datas){ 
+                $docs = [] ;
+                foreach($datas as $key => $data){
+                    $docs = array_merge($docs, [self::$mappingAs[$key]  => $data ]  );
+                }
+                $renewdisplay = array_merge($renewdisplay, [$docs]  );
+            }
+        return $renewdisplay ;
+    } 
+
+    public function findJoin() { 
+        if(env('DEV_DEBUG')) print ("   --> in function Join : <br>\n") ; 
+        $config=new Config ;
+        $config->setDb($this->getDbNonstatic()) ;
+        $conclude=new BuildConnect; 
+        self::$pipeline = array_merge(self::$pipeline,self::$joincollections) ; 
+        if(!null==self::$querys)self::$pipeline=array_merge(self::$pipeline,[['$match'=>self::$querys]]) ; 
+     
+               if (!null == self::$groupby )  self::$pipeline = array_merge(self::$pipeline,[self::$groupby]);   
+                 foreach (self::$options as $mainkey => $mainOption){
+                     if('projection'===$mainkey){   
+                         $project['$project'] = [];
+                         foreach (self::$options['projection'] as $key => $option ){ 
+                             substr($option,0,1) === "$" ?   
+                             $option = substr($option,1) :
+                             $option = substr($option,0) ;
+                             if ($key !== '_id'  ) { 
+                                if ( !null == self::$groupby ) {
+                                   $project['$project'] = array_merge( $project['$project'] ,
+                                                                    [ $key => '$_id.'. str_replace(".",dotter(),$option ) ]
+                                                                    ); 
+                                }else{
+                                    $project['$project'] = array_merge( $project['$project'] ,
+                                    [ $key => '$'.$option  ]
+                                    ); 
+                                }
+                            }
+                        }
+                        $project['$project']= array_merge( $project['$project'],[ '_id' =>  0]); 
+                        self::$pipeline = array_merge(self::$pipeline,[$project]); 
+                    }else{
+                        self::$pipeline = array_merge(self::$pipeline,[["\$".$mainkey => $mainOption ]]); 
+                    }
+                }
+                $options = [ 'allowDiskUse' => TRUE ]; 
+                // @dev debug  dd('pine line' ,self::$pipeline ,  'optons' ,  $options );
+        $conclude->aggregate($config,$this->collection,self::$pipeline,$options);  
+        //
+        // @ re-building new output
+        // 
+         $displayjoin = [] ;
+         $joinresult = json_decode( json_encode( $conclude->result ) , true ) ;
+         // Conversion to SQL data list style
+         foreach ($joinresult  as $keys => $datas){ 
+             $eachdoc = [] ;
+             foreach ($datas as $key => $data) {
+                 foreach($data as $in_key => $in_data ){ 
+                  $eachdoc = array_merge($eachdoc , [ self::$mappingAs[$key.".".$in_key] => $in_data ]);
+                 }
+            }
+                $displayjoin = array_merge( $displayjoin ,[$eachdoc] );
+         }
+        return  $displayjoin ;
+    } 
 }
