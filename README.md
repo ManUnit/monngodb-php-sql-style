@@ -291,7 +291,15 @@ use App\CompanyModel;
  - Controller 
      - join collectios code example below 
      - once you use groupby() request select() all of fields same fields in groupby() if seleted fields are not be field's member in groupby() output will display with empty data on that selected field 
-````
+```` 
+      $users =  AdminModel::collection("users")
+                              ->select( "users.username as uname","services.sid as service_id" )
+                              ->leftjoin("services","users.services_id","services.sid")
+                              ->where( "users.username" ,"=" , "supachai")
+                              ->groupby("users.username" , "services.sid" )
+                              ->get() ; 
+
+     
       $users =  CompanyModel::collection('products')
                                         ->select('products.id as prod_id ','products.name','products_type.description_th','products_group.description')
                                         ->leftjoin('products_type','products.type_id','products_type.type_id')
