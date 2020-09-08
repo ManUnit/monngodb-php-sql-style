@@ -296,7 +296,6 @@ use App\CompanyModel;
                               ->select( "users.username as uname","services.sid as service_id" )
                               ->leftjoin("services","users.services_id","services.sid")
                               ->where( "users.username" ,"=" , "supachai")
-                              ->groupby("users.username" , "services.sid" )
                               ->get() ; 
 
      
