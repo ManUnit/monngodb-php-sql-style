@@ -312,6 +312,28 @@ use App\CompanyModel;
                                         ->get(); 
 
 ````
+ - Paginate 
+     - pagination are displays data and page breakedown with data perge  
+     - paginate going to don't care function limit() if you have added into order command  
+     - Output of data will is in property ->items it also show below
+     - Output of linkdata  as ->link  and drawing of html by use method  ->link()
+     
+````
+
+        $users =  CompanyModel::collection("users")
+                                ->select( "users.username as u_name" , "users.password as pwd" , "address.city_name as live " )
+                                ->leftjoin("services","users.city_id","address.city_id")
+                                ->where( "users.username" ,"!=" , "supachai")
+                                ->orderby("users.username")
+                                ->groupby("users.username" , "users.password" ,"address.city_id" )
+                                ->limit(4,4)   // @@ don't care the limit function you don't need to add this line in process on module will ignore 
+                                ->paginate(10); 
+                                
+                                
+       print_r ($users->items) ; 
+       
+
+````
 
  - Controller 
      - insert prepare code example below 
