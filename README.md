@@ -327,7 +327,8 @@ use App\CompanyModel;
                                 ->where( "users.username" ,"!=" , "supachai")
                                 ->groupby("users.username" , "users.password" ,"address.city_id" )
                                 ->orderby("users.username")
-                                ->limit(4,4)   // @@ don't care the limit function don't you need to add this line in process on module will ignore 
+                                ->limit(4,4)   // @@ if do pagination will don't care the limit function 
+                                               // don't you need to add limit() in process line the module will ignore 
                                 ->paginate(10); 
          
         // Laravel view example //
