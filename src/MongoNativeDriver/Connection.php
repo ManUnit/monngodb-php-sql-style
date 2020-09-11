@@ -233,7 +233,6 @@ class Connection extends Compatible {  //defind the Class to be  master class
 
 
     public function select(...$fields){
-       
         if(count($fields)== 1 && $fields[0] === '*'  )return $this;
         if (!isset ( self::$options['projection'])){self::$options['projection'] = [] ; }
         self::$mappingAs = asmap($fields) ;
@@ -298,11 +297,11 @@ class Connection extends Compatible {  //defind the Class to be  master class
            if(env('DEV_DEBUG')) print  ("connection@DEBUG find group : <br>\n") ;
            return $this->findGroup() ; 
         }else{     // @ normal find 
-          if(env('DEV_DEBUG')) print  ("connection@DEBUG find group : <br>\n") ;
+          if(env('DEV_DEBUG')) print  ("connection@DEBUG find normal : <br>\n") ;
           return  $this->findNormal() ;
         } 
 
-       return $conclude->result ;
+       // return $conclude->result ;
       
     } 
        
@@ -337,8 +336,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
                 $engagementMap['sort'] = array_merge($engagementMap['sort'] , [ $parameter =>  $min2max ] );
                 $countParam++;
              } 
-             
-             }
+        }
              self::$options = array_merge ( self::$options , $engagementMap);
              return $this ;   
     }  
