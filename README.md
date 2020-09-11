@@ -316,7 +316,7 @@ use App\CompanyModel;
      - pagination are displays data and page breakedown with data perge  
      - paginate going to don't care function limit() if you have added into order command  
      - Output of data will is in property ->items it also show below
-     - Output of linkdata  as ->link  and drawing of html by use method  ->link()
+     - Output of pages number linkdata  as ->link  and drawing of html code by use method  ->link()
      
 ````
 
