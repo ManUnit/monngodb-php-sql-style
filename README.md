@@ -238,7 +238,7 @@ Changing database and collection if you have permission of user and password on 
 
 ````
 -  switch collection  don't need to re-create new other Model file
-   - put begin with  ->collection('[Collction Name]')  see example below
+   - put begin with  ->collection('[Collection Name]')  see example below
 
 ````
 <?php
@@ -263,7 +263,7 @@ use App\CompanyModel;
  ````
 
 -  switch collection  don't need to re-create new other Model file
-   - put begin with  ->collection('[Collction Name]')  see example below
+   - put begin with  ->collection('[Collection Name]')  see example below
    - and many way to get data
 
 ````
@@ -278,7 +278,7 @@ use App\CompanyModel;
 
           $products = CompanyModel::all() ;
           
-          $login =  CompanyModel::collection("users")->where( "id" ,"=" , 101)->first();
+          $login =  CompanyModel::collection("products")->where( "id" ,"=" , 101)->first();
 
           // Laravel's blade view to dispale
           return view("usermanage" )->with('users',$users)
@@ -316,7 +316,8 @@ use App\CompanyModel;
      - pagination are displays data and page breakedown with data perge  
      - paginate going to don't care function limit() if you have added into order command  
      - Output of data will is in property ->items it also show below
-     - Output of pages number linkdata  as ->link  and drawing of html code by use method  ->link()
+     - Output of pages number linkdata  as ->link  and drawing of html code by use method  ->link() 
+     - switch to  page 2 using as example :  http://127.0.0.1/?page=2   
      
 ````
 
@@ -324,18 +325,31 @@ use App\CompanyModel;
                                 ->select( "users.username as u_name" , "users.password as pwd" , "address.city_name as live " )
                                 ->leftjoin("services","users.city_id","address.city_id")
                                 ->where( "users.username" ,"!=" , "supachai")
-                                ->orderby("users.username")
                                 ->groupby("users.username" , "users.password" ,"address.city_id" )
-                                ->limit(4,4)   // @@ don't care the limit function you don't need to add this line in process on module will ignore 
+                                ->orderby("users.username")
+                                ->limit(4,4)   // @@ don't care the limit function don't you need to add this line in process on module will ignore 
                                 ->paginate(10); 
-                                
-                                
-       print_r ($users->items) ; 
-       
+         
+        // Laravel view example //
+         return view("usermanage" )->with('users',$users)
+        
+         
+         // example get values in blade file  resource/views/usermanage.blade.php
+          <?php 
+          // ceate example file usermanage.blade.php 
+           <div> total users : {{$users->total}}    </div>
+           <div>
+               @foreach($users->items as $key => $values)
+                    <a href="?page={{$values['page']}}" > {{ $values['icon']}} </a>           
+               @endforeach
+           </div>
+           
+           ?>
+        
 
 ````
 
- - Controller 
+ - insert via Controller 
      - insert prepare code example below 
      - $fillable had removed replace with $schema  and fillable will run behind $schema
      - once collectaion and  field  data isn't in schema member insert will reject and has error  
