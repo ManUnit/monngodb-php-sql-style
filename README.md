@@ -204,7 +204,7 @@ class UserModel extends NanModel
 
  ````
 
-
+  - Head functions 
   <table>
     <thead>
       <tr>
@@ -254,8 +254,8 @@ class UserModel extends NanModel
    </tr>
    </tbody>
   </table>
-
- 
+  
+  - Middle functions 
 
   <table>
     <thead>
@@ -281,7 +281,7 @@ class UserModel extends NanModel
              </p>
         </td>
     </tr>
-   <tr><td>find matched  data </td>
+   <tr><td>where</td>
        <td><p>
            <code>->where( String $field ,String $Operator, $values )-> </code><br>
          </p>
@@ -294,7 +294,7 @@ class UserModel extends NanModel
             </p>
         </td> 
    </tr>
-   <tr><td> find matched  data multiple values</td>
+   <tr><td> where in </td>
    <td>
         <p>
         <code>->wherein(string $filed , array $values )-></code><br>
@@ -306,14 +306,53 @@ class UserModel extends NanModel
        </p>
       </td>
    </tr>
+   <tr><td>where or where </td>
+   <td>
+        <p>
+        <code>->orwhere(String $field ,String $Operator, $values )-></code><br>
+        </p>
+   </td>
+   <td>
+      <p>
+        <code>->where("userid",'=',1)</code><br>
+        <code>->orwhere("userid",'=>',10)-></code><br>
+       </p>
+      </td>
+   </tr>
+  
+   <tr><td>where and where </td>
+   <td>
+        <p>
+        <code>->orwhere(String $field ,String $Operator, $values )-></code><br>
+        </p>
+   </td>
+   <td>
+      <p>
+        <code>->where("userid",'=',1)</code><br>
+        <code>->andwhere("username",'=','supachai')-></code><br>
+       </p>
+      </td>
+   </tr>
+   <tr><td>Group by</td>
+   <td>
+        <p>
+        <code>->groupby(String $field1 ,String $field1...)-></code><br>
+        #group same with ->select() function shortcut with with '$selected'
+        <code>->groupby( string '$selected')-></code><br>
+        </p>
+   </td>
+   <td>
+      <p>
+        <code>->groupby("userid","username")-></code><br>
+        <code>->groupby( string '$selected')-></code><br>
+       </p>
+      </td>
+   </tr>
+   
    </tbody>
   </table>
 
  
-
-
-
-
 - Create Laravel controller 
    - using command `  php artisan make:controller --model=UserDbModel  ` at laravel root project 
    - then edit and insert basic SQL  example :
