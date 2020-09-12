@@ -29,6 +29,20 @@ Mongodb using SQL style
         <th>Head function </th>
      </tr>
    </thead>
+   <tbody>
+   <tr>
+            <td>set data base</td>
+    </tr>
+    <tr>
+        <td>
+            <p>
+              <code>[DBModel]::database(string $dbname[, string $collectionName])</code><br>
+              <code>[DBModel]::DB( string $dbname[, string $collectionName])</code><br>
+              <code>[DBModel]::collection(string $collectionName)</code><br>
+            </p>
+        </td>
+   </tr>
+   </tbody>
   </table>
 
  
