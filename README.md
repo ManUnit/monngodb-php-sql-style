@@ -296,11 +296,14 @@ class UserModel extends NanModel
    <td>
         <p>
         <code>->wherein(string $filed , array $values )-></code><br>
+        <code>->where(string $filed ,"in",array $values )-></code><br>
+         
         </p>
    </td>
    <td>
       <p>
         <code>->wherein("userid" , [1,4,5,6,10])-></code><br>
+        <code>->where("userid" ,"in" ,[1,4,5,6,10])-></code><br>
        </p>
       </td>
    </tr>
@@ -461,8 +464,81 @@ class UserModel extends NanModel
   </table>
   
   
+- Where comparison  operation  
+   - to comparison macthing field  to use function format ->where( $field , $Operator , $value) for $Operator list see below table
  
- 
+  <table>
+    <thead>
+      <tr>
+        <th>Operator</th>
+        <th> description </th>
+          <th> Example </th>
+     </tr>
+   </thead>
+   <tbody>
+   <tr><td> "="</td>
+        <td>
+            <p>
+              <code>operator matches documents where the value of a field equals the specified value</code><br>
+           </p>
+        </td>
+        <td>
+            <p>
+                <code>->where("userid","=",100) </code><br>
+             </p>
+        </td>
+    </tr>
+       <tr><td> ">"</td>
+        <td>
+            <p>
+              <code>selects those documents where the value of the field is greater than (i.e. >) the specified value</code><br>
+           </p>
+        </td>
+        <td>
+            <p>
+                <code>->where("userid",">",5) </code><br>
+             </p>
+        </td>
+    </tr>
+    <tr><td> ">="</td>
+        <td>
+            <p>
+              <code>selects the documents where the value of the field is greater than or equal to (i.e. >=) a specified value (e.g. value.)</code><br>
+           </p>
+        </td>
+        <td>
+            <p>
+                <code>->where("userid",">=",5) </code><br>
+             </p>
+        </td>
+    </tr>
+         <tr><td> "in"</td>
+        <td>
+            <p>
+              <code>The "in" operator selects the documents where the value of a field equals any value in the specified array. To specify an "in" expressio</code><br>
+           </p>
+        </td>
+        <td>
+            <p>
+                <code>->where("userid","in",[5,11,10]) </code><br>
+             </p>
+        </td>
+    </tr>
+             <tr><td> "nin"</td>
+        <td>
+            <p>
+              <code>The "nin" operator selects the documents where the value of a field equals any value not in the specified array. To specify an "nin" expressio</code><br>
+           </p>
+        </td>
+        <td>
+            <p>
+                <code>->where("userid","nin",[5,11,10]) </code><br>
+             </p>
+        </td>
+    </tr>
+   </tbody>
+  </table>
+  
  
 - Create Laravel controller 
    - using command `  php artisan make:controller --model=UserDbModel  ` at laravel root project 
