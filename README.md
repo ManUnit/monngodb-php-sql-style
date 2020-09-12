@@ -25,7 +25,7 @@ Mongodb using SQL style
   <table>
     <thead>
       <tr>
-        <th>Functio name</th>
+        <th>Function name</th>
         <th>Head function </th>
         <th>Middle function</th>
         <th>End function</th>
@@ -33,8 +33,13 @@ Mongodb using SQL style
     </thead>
     <tbody>
         <tr>
-            <td>"XML HTTP request"</td>
-            <td>pascalCase</td>
+            <td>set data base</td>
+            <td>
+                <p>
+                    <code>[DBModel]::database('dbname')</code>
+                    <code>[DBModel]::collection('collection Name')</code>
+                </p>
+            </td>
             <td><code>XmlHttpRequest</code></td>
             <td><code>XMLHTTPRequest</code></td>
         </tr>
