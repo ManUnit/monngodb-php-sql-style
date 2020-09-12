@@ -289,8 +289,7 @@ class UserModel extends NanModel
         <td>
             <p>
            <code>->where("userid" ,"=", 100 )-> </code><br>
-           <code>->where("userid" ,">=", 100 )-> </code><br>
-           <code>->where("userid" ,">!=", 100 )-> </code><br>  
+ 
             </p>
         </td> 
    </tr>
@@ -315,7 +314,7 @@ class UserModel extends NanModel
    <td>
       <p>
         <code>->where("userid",'=',1)</code><br>
-        <code>->orwhere("userid",'=>',10)-></code><br>
+        <code>->orwhere("userid",'>=',10)-></code><br>
        </p>
       </td>
    </tr>
