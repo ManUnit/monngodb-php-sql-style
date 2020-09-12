@@ -36,7 +36,7 @@ Mongodb using SQL style
         <td>
             <p>
               <code>[DBModel]::database(string $dbname[, string $collectionName])</code><br>
-              <code>[DBModel]::DB( string $dbname[, string $collectionName])</code><br>
+              <code>[DBModel]::DB(string $dbname[,string $collectionName])</code><br>
               <code>[DBModel]::collection(string $collectionName)</code><br>
             </p>
         </td>
