@@ -269,7 +269,7 @@ class UserModel extends NanModel
    <tr><td>display documents</td>
         <td>
             <p>
-              <code>->select( $field1 , $field3 ....)</code><br>
+              <code>->select( $field1 , $field3 ....)-></code><br>
            </p>
         </td>
         <td>
