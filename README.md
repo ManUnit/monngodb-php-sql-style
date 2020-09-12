@@ -297,7 +297,6 @@ class UserModel extends NanModel
         <p>
         <code>->wherein(string $filed , array $values )-></code><br>
         <code>->where(string $filed ,"in",array $values )-></code><br>
-         
         </p>
    </td>
    <td>
