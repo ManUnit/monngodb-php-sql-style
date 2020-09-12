@@ -467,7 +467,8 @@ class UserModel extends NanModel
 - Where comparison  operation  
    - to comparison macthing field  to use function format ->where( $field , $Operator , $value) for $Operator list see below table
  
-  <table>
+ 
+ <table>
     <thead>
       <tr>
         <th>Operator</th>
@@ -515,7 +516,7 @@ class UserModel extends NanModel
          <tr><td> "in"</td>
         <td>
             <p>
-              <code>The "in" operator selects the documents where the value of a field equals any value in the specified array. To specify an "in" expressio</code><br>
+              <code>The "in" operator selects the documents where the value of a field equals any value in the specified array. To specify an "in" expression</code><br>
            </p>
         </td>
         <td>
@@ -524,10 +525,10 @@ class UserModel extends NanModel
              </p>
         </td>
     </tr>
-             <tr><td> "nin"</td>
+    <tr><td> "nin"</td>
         <td>
             <p>
-              <code>The "nin" operator selects the documents where the value of a field equals any value not in the specified array. To specify an "nin" expressio</code><br>
+              <code>The "nin" operator selects the documents where the value of a field equals any value not in the specified array. To specify an "nin" expression</code><br>
            </p>
         </td>
         <td>
@@ -536,6 +537,56 @@ class UserModel extends NanModel
              </p>
         </td>
     </tr>
+    <tr><td> "<"</td>
+        <td>
+            <p>
+              <code> < selects the documents where the value of the field is less than (i.e. <) the specified value.</code><br>
+           </p>
+        </td>
+        <td>
+            <p>
+                <code>->where("userid","<",5 </code><br>
+             </p>
+        </td>
+    </tr>
+        <tr><td> "<="</td>
+        <td>
+            <p>
+              <code> <= selects the documents where the value of the field is less than or equal to (i.e. <=) the specified value.</code><br>
+           </p>
+        </td>
+        <td>
+            <p>
+                <code>->where("userid","<=",10) </code><br>
+             </p>
+        </td>
+    </tr>
+    <tr><td> "!="</td>
+        <td>
+            <p>
+              <code> != selects the documents where the value of the field is not equal to the specified value. This includes documents that do not contain the field.</code><br>
+           </p>
+        </td>
+        <td>
+            <p>
+                <code>->where("username","!=","Supachai") </code><br>
+             </p>
+        </td>
+    </tr>
+ <tr><td> "like"</td>
+        <td>
+            <p>
+              <code> != selects the documents where the value of the field is like machting values.</code><br>
+           </p>
+        </td>
+        <td>
+            <p>
+                <code>->where("username","like","Supa%") </code><br>
+                 <code>->where("username","like","%chai") </code><br>
+                 <code>->where("username","like","%upa%") </code><br>
+             </p>
+        </td>
+    </tr>    
    </tbody>
   </table>
   
