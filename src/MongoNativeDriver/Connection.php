@@ -44,6 +44,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
     private static $andupdates = array();
     private static $joincollections = array();
     private static $groupby = array();
+    private static $pre_groupby = array();
     private static $mappingAs = array();
     
     public  function __construct() {  
@@ -102,21 +103,22 @@ class Connection extends Compatible {  //defind the Class to be  master class
         return  $this->setCollection($coll); 
     }
 
-    public function join(String $collection , String $localField , String  $foreignField , String $as = " "){  
-        return $this->leftjoin($collection ,$localField , $foreignField , $as  ) ;
+    public function join(String $joinCollection , String $localField , String  $foreignField , String $as = " "){  
+        return $this->leftjoin($joinCollection ,$localField , $foreignField , $as  ) ;
     }
 
-    public function leftjoin(String $collection,String $localField , String  $foreignField , String $as = " "){ 
+    public function leftjoin(String $joinCollection,String $localField , String  $foreignField , String $as = " "){ 
+       // dd(__file__.":".__line__,$joinCollection,$localField ,$foreignField ,$as);
         $asForeign = explode('.', $foreignField );
-        if($asForeign[0] !== $collection ){ array_push( self::ClassError,['101' => [ "join coollection error" => "foreignField :".$asForeign[0]," prefix mismatch with join collection"  ]   ] ) ;}
+        if($asForeign[0] !== $joinCollection ){  throw new Exception(" Error ! Foreign field  $foreignField isn't in join collection $joinCollection  ");     }
         if(!isset(self::$joincollections [0]['$project'][$this->collection])) array_push(self::$joincollections , ['$project' =>['_id'=>0 , $this->collection => '$$ROOT' ]]);
          array_push(self::$joincollections  , ['$lookup' =>  [ 
                                         'localField' =>  $localField ,
-                                        'from' => $collection ,
+                                        'from' => $joinCollection ,
                                         'foreignField' => $asForeign[1] ,
                                         'as' => $asForeign[0]  
                                     ]]);   
-        array_push(self::$joincollections  , ['$unwind'=>[ 
+        array_push(self::$joincollections,['$unwind'=>[ 
                                       'path' => "\$$asForeign[0]",
                                       'preserveNullAndEmptyArrays' => true
                                     ]]); 
@@ -183,6 +185,12 @@ class Connection extends Compatible {  //defind the Class to be  master class
        return  $this ;
     }
 
+    public function wherein( String $Key = '' ,array $searchArr , $boolean = 'mostleft'  ) { 
+        self::$querys= $this->whereConversion($Key,'in',$searchArr );
+         array_push(self::$orderTerm, [ $boolean =>  $this->whereConversion($Key,'in',$searchArr )]); 
+        return  $this ;
+     }
+
     public function orwhere(String $Key ,String $Operation , $Value) { 
         return $this->where($Key ,$Operation ,$Value , '$or' ) ;
     }
@@ -232,7 +240,8 @@ class Connection extends Compatible {  //defind the Class to be  master class
     } 
 
 
-    public function select(...$fields){
+    public function select(...$fields){ 
+        self::$pre_groupby = array_merge(['$selected'=>true], removeAs($fields)  ); 
         if(count($fields)== 1 && $fields[0] === '*'  )return $this;
         if (!isset ( self::$options['projection'])){self::$options['projection'] = [] ; }
         self::$mappingAs = asmap($fields) ;
@@ -248,6 +257,8 @@ class Connection extends Compatible {  //defind the Class to be  master class
         $groupby =['_id' => [
             
         ]];
+
+        if($params[0]==='$selected'){$params=self::$pre_groupby;unset($params['$selected']);}
         foreach($params as $param){
                $groupby['_id'] += [  str_replace(".",dotter(),$param) => '$'. $param ];
         }
@@ -271,23 +282,24 @@ class Connection extends Compatible {  //defind the Class to be  master class
         //  $groupby = array();
         //  $mappingAs = array();
         if(env('Connection DEV_DEBUG@get',false)){
-        dd("test 001 this " ,
-                "DEBUG status : " , 
-                env('DEV_DEBUG',false) , 
-                " AS OPTIONS" , 
-                self::$options ,
-                "AS MAP" ,
-                self::$mappingAs , 
-                "Query " , 
-                self::$querys  ,
-                'Join' , 
-                 self::$joincollections ,
-                'this' , 
-                $this) ; // dev debug
+            dd("test 001 this " ,
+            "DEBUG status : " , 
+            env('DEV_DEBUG',false) , 
+            " AS OPTIONS" , 
+            self::$options ,
+            "AS MAP" ,
+            self::$mappingAs , 
+            "Query " , 
+            self::$querys  ,
+            'Join' , 
+            self::$joincollections ,
+            'this' , 
+            $this) ; // dev debug
         }
         $this->getAllwhere() ;  // Intregate where everywhere  
+        //dd(__file__.":".__line__,self::$querys);
         if(!null == self::$joincollections){ 
-           if(env('DEV_DEBUG'))print  ("connection@DEBUG -> find join : <br>\n") ;
+           if(env('DEV_DEBUG'))print  (__file__.":".__line__ ."connection@DEBUG -> find join : <br>\n") ;
            return $this->findJoin() ;
         }
         //
@@ -297,7 +309,8 @@ class Connection extends Compatible {  //defind the Class to be  master class
            if(env('DEV_DEBUG')) print  ("connection@DEBUG find group : <br>\n") ;
            return $this->findGroup() ; 
         }else{     // @ normal find 
-          if(env('DEV_DEBUG')) print  ("connection@DEBUG find normal : <br>\n") ;
+          if(env('DEV_DEBUG')) print  (__file__.":".__line__ ."<br> ------> connection@DEBUG find normal : <br>\n") ;
+         // dd( self::$querys);
           return  $this->findNormal() ;
         } 
 

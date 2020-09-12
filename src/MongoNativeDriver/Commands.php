@@ -17,11 +17,11 @@ use PHPUnit\Framework\Exception;
 use MongoDB\BSON\Regex;
 
 trait Commands {    
-    use Classifier ;
-    public static function  GetGroupType () {
-        $mongodata=new Group_type;
-        // using studio 3T conversion SQL to mongoDB query format on PHP
-        // https://studio3t.com/
+    use Classifier ; 
+
+    public  function  getgroup() {
+
+        $this->getAllwhere() ;
         $cursor=array([ '$project'=> [ '_id'=> 0, 'group_type'=> '$$ROOT']],
             [ '$lookup'=> [ 'localField'=> 'group_type.group_id', 'from'=> 'products_type', 'foreignField'=> 'group_id', 'as'=> 'products_type']],
             [ '$unwind'=> [ 'path'=> '$products_type', 'preserveNullAndEmptyArrays'=> true]],
@@ -35,6 +35,11 @@ trait Commands {
             'products_type.description_th'=> '$products_type.description_th',
             '_id'=> 0]]);
 
+         if( null == self::$joincollections ){ throw new Exception(" Error !  ->getgroup() require function ->leftjoin() before ");  }
+
+         $joinout = $this->findJoin( ) ;
+
+        dd(__file__.":".__line__." manual group ",$cursor, "Query ", self::$querys , " Join " , self::$joincollections ) ;
         $group_type=$mongodata->raw(function($collection) use ($cursor) {
                 return $collection->aggregate($cursor);
             }
@@ -83,7 +88,7 @@ trait Commands {
         return $result; 
     }
 
-    public function paginate(int $perpage) {   
+    public function paginate(int $perpage , string  $viewlinkfile = '') {   
         $this->getAllwhere() ;  // Intregate where everywhere         
         if(!isset($_GET['page'] )){$page=(int) 1 ;}else{  $page= (int) $_GET['page'];}
         $outlet = new Outlet ;
@@ -95,9 +100,9 @@ trait Commands {
         $this->getAllwhere()  ;  //@@@ update latest query
         $outlet->query = self::$querys ; 
         $outlet->pageName = 'page'  ; 
+        $outlet->viewlinkfile = $viewlinkfile;  
         $outlet->links   = $this->pagedrawing($perpage ,$outlet->total,$page ) ;      
         $outlet->options   =   array_merge($outlet->options , [ 'path' => $outlet->path , 'pageName' => $outlet->pageName  ]) ; 
- 
         return $outlet ;
     }
 
@@ -114,16 +119,17 @@ trait Commands {
             if(!null == self::$joincollections){ 
                 $setFind = 'join' ; 
               $count_products =  $this->findJoin([ 'count' => true ]) ;
-              $totalDocment=json_decode(json_encode($count_products))[0]->count;
+              $totalDocment=isset(json_decode(json_encode($count_products))[0]->count) ? json_decode(json_encode($count_products))[0]->count : 0;
+              //$totalDocment=json_decode(json_encode($count_products))[0]->count;
             }elseif(!null == self::$groupby && null ==  self::$joincollections ){ 
                 $setFind = 'group' ; 
               $count_products =  $this->findGroup([ 'count' => true ]) ; 
-              $totalDocment=json_decode(json_encode($count_products))[0]->count;
+              $totalDocment=isset(json_decode(json_encode($count_products))[0]->count) ? json_decode(json_encode($count_products))[0]->count : 0;
             }else{     // @ normal find 
                 $setFind ='normal' ; 
               if(env('DEV_DEBUG')) print  (__FILE__. " : "  . __LINE__ ." : DEBUG paginate find normal : <br>\n") ;
               $count_products =  $this->findNormal([ 'count' => true ]) ;
-              $totalDocment=json_decode(json_encode($count_products))[0]->count;
+              $totalDocment=isset(json_decode(json_encode($count_products))[0]->count) ? json_decode(json_encode($count_products))[0]->count : 0;
             } 
         //@@=================
         //@@----- Paginate Limit documents calculation --// 
@@ -151,13 +157,13 @@ trait Commands {
             $joinout = $this->findJoin([ 'count' => false  , 'options' => $options ,'perpage'=> $perpage ]) ;
             return ['items'=>$joinout, 'totaldocuments' => $totalDocment , 'totalpage' => $totalpage ] ;
          }
-        if(!null == self::$joincollections){
-            return $this->getJoin($conclude,$config,$perpage,true);
-        }elseif(!null == self::$groupby && null ==  self::$joincollections ){ 
-            return $this->getGroup($conclude ,$config,$perpage,true) ;
-        }else{  
-            return $this->getFind($conclude,$config,$perpage,true);
-        } 
+        // if(!null == self::$joincollections){
+        //     return $this->getJoin($conclude,$config,$perpage,true);
+        // }elseif(!null == self::$groupby && null ==  self::$joincollections ){ 
+        //     return $this->getGroup($conclude ,$config,$perpage,true) ;
+        // }else{  
+        //     return $this->getFind($conclude,$config,$perpage,true);
+        // } 
        return $conclude->result ;
     } 
        
@@ -333,6 +339,8 @@ trait Commands {
             return [ "$Key" => [ '$lt' =>  $Value ]  ];     // SQL transform select * from table where 'Key' < 'value'
         }elseif($Operation  == ">"){
             return [ "$Key" => [ '$gt' =>   $Value ]  ];    // SQL transform select * from table where 'Key' > 'value'
+        }elseif($Operation  == "in"){
+            return [ "$Key" => [ '$in' =>   $Value ]  ];    // SQL transform select * from table where 'Key' > 'value'
         }elseif( $Operation  == "like" ) {
             if (   $Value[0]  != "%" && substr(  "$Value" , -1 ) =="%"  ) { 
                return [  "$Key" => new Regex('^'. substr( "$Value" ,0,-1 ) .'.*$', 'i') ]  ;     // SQL transform select * from table where 'Key' like 'value%'   ; find begin with ?    
@@ -486,82 +494,6 @@ trait Commands {
         return [1,"fillable OK good luck my friend ! "] ;
     }
 
-    private function getAllwhere(){ 
-        $allAnd = ['$and'=>[]] ;
-        if (  isset (self::$orderTerm) &&  count(self::$orderTerm) == 1 ){  return ;
-        }elseif( count(self::$orderTerm) > 1) {
-          // Find all term are AND   // to Check all term is and(s)  where()->andwhere()->andwhere()->get()
-          $andCount=0; 
-          foreach(  self::$orderTerm as $key => $terms ){
-               if(array_keys($terms)[0]==='$and'){$andCount++;}
-               array_push($allAnd['$and'],$terms[array_keys($terms)[0]] ) ; 
-          }
-          if( $andCount == count(self::$orderTerm) -1 ){   // All term is ANDs
-            self::$querys = $allAnd ; 
-            return $allAnd;
-          }
-        }   
-        $finalwhere=self::$orderTerm;
-        $beforeOps = null ;
-        $beforeTerm = [] ;
-        $order = 0 ;
-        $termCount = 0 ;
-        $terms = [] ;
-        $finalTerms = ['$or'=>[]] ;
-        $andTerms = ['$and'=>[]] ; 
-        // @@Collector terms 
-        // @@conversion SQL to  logic precendence order using Mongodb's format
-        // @@term (and)(and)  + term(or)(and)(and)  + term (or)(and)  + term(or) + term(or) 
-      
-        foreach($finalwhere as $operator => $term){  
-            if(   $beforeOps == null  && array_keys($term)[0] === 'mostleft' ){ 
-                $termCount++ ; 
-                if(!isset($terms[$termCount])) { $terms[$termCount] = [] ;}
-                array_push($terms[$termCount] , $term[array_keys($term)[0]] ); 
-            }elseif( $beforeOps == 'mostleft'  && array_keys($term)[0] === '$or' ){
-                $termCount++ ; 
-                if(!isset($terms[$termCount])) { $terms[$termCount] = [] ;}
-                 array_push($terms[$termCount] , $term[array_keys($term)[0]] ); 
-            }elseif( $beforeOps == 'mostleft'  && array_keys($term)[0] === '$and' ){
-                if(!isset($terms[$termCount])) { $terms[$termCount] = [] ;}
-                array_push($terms[$termCount] , $term[array_keys($term)[0]] ); 
-            }elseif( $beforeOps == '$or'  && array_keys($term)[0] === '$or' ){
-                $termCount++ ;
-                if(!isset($terms[$termCount])) { $terms[$termCount] = [] ;}
-                array_push($terms[$termCount] , $term[array_keys($term)[0]] ); 
-            }
-             elseif( $beforeOps == '$or'  && array_keys($term)[0] === '$and' ){
-                if(!isset($terms[$termCount])) { $terms[$termCount] = [] ;}
-                array_push($terms[$termCount] , $term[array_keys($term)[0]] ); 
-            }elseif( $beforeOps == '$and'  && array_keys($term)[0] === '$or' ){
-                $termCount++ ; 
-                if(!isset($terms[$termCount])) { $terms[$termCount] = [] ;}
-                array_push($terms[$termCount] , $term[array_keys($term)[0]] ); 
-            }elseif( $beforeOps == '$and'  && array_keys($term)[0] === '$and' ){
-              if(!isset($terms[$termCount])) { $terms[$termCount] = [] ;}
-                array_push($terms[$termCount] , $term[array_keys($term)[0]] ); 
-            }
-             array_keys($term)[0] ; 
-             $beforeOps = array_keys($term)[0] ;
-             $beforeTerm = $term[array_keys($term)[0]] ;
-        } 
-        // conversion Terms to OR term
-           foreach( $terms as $term){
-               if ( count($term) == 1 ){ 
-                    array_push ($finalTerms['$or'],$term[0]);  
-                }elseif(count($term)  > 1){
-                    $andTerms = ['$and'=>[]] ;
-                    foreach( $term as $andTerm  ){ 
-                       array_push($andTerms['$and'] , $andTerm)   ;
-                    } 
-                    array_push ($finalTerms['$or'],$andTerms);
-                }
-           } 
-           if ($finalTerms == ['$or'=>[]] ){ self::$querys =[] ;}else{
-               self::$querys = $finalTerms ;
-           } ;
-       return  self::$querys;
-    }
      
     public function findNormal(array $argv = null ) { 
         $paginate_options = '' ; 
@@ -579,7 +511,7 @@ trait Commands {
             $pipeline = [] ;
         }
         
-        if(env("DEV_DEBUG"))  print(  __FILE__. " : " . __LINE__ ." : ---> In find normal <br>\n") ; 
+        //if(env("DEV_DEBUG"))  print(  __FILE__. " : " . __LINE__ ." : ---> In find normal <br>\n") ; 
         $config=new Config ;
         $config->setDb($this->getDbNonstatic()) ;
         $conclude=new BuildConnect;  
@@ -590,16 +522,17 @@ trait Commands {
             ];
            $conclude->aggregate($config,$this->collection,$pipeline,$options); 
            return $conclude->result ;  //@@ Just find count of document value
-       }elseif (  !isset($argv['count'])  || ( isset($argv['count'])   &&   $argv['count'] == false ) ) {
+       }elseif(!isset($argv['count'])||(isset($argv['count'])&&$argv['count'] == false ) ){
             $modify_limit = [] ;
             if ($paginate_options != '' ){  // @ Call by paginate 
                         $modify_limit =  self::$options ; 
                         $modify_limit = array_merge($modify_limit,['limit' => $paginate_options[1]['limit'] , 'skip' => $paginate_options[0]['skip']   ]   ) ;
                         $conclude->findDoc($config,$this->collection,self::$querys,$modify_limit); 
                     }else{   // @call findnormal with out paginate 
+
+                     //   dd(__file__.":".__line__,"TEST" , self::$querys , self::$options) ;
                         $conclude->findDoc($config,$this->collection,self::$querys,self::$options); 
                     }
-
        } 
         $renewdisplay = [] ;
         $groupresult = json_decode( json_encode( $conclude->result ) , true ) ;
@@ -610,7 +543,7 @@ trait Commands {
                             foreach($datas as $key => $data){
                                 $docs = array_merge($docs, [self::$mappingAs[$key]  => $data ]  );
                             }
-                            $renewdisplay = array_merge($renewdisplay, [$docs]  );
+                                $renewdisplay = array_merge($renewdisplay, [$docs]  );
                             }
                            // dd($renewdisplay);
                             return $renewdisplay ;

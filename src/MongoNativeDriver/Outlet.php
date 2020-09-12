@@ -13,16 +13,20 @@ class Outlet {
     public  $links = array() ;
     public  $options = array() ;
     public  $elements = array(['page=1']) ;
+    public  $viewlinkfile = '' ; 
 
     public function links () {
        view()->addNamespace('nantaburi' , __DIR__.'/../views' );
        view()->addLocation(__DIR__.'/../views');
-       return view("nantaburi::paginate")
-                        ->with('paginator',$this);
+        if ($this->viewlinkfile === 'null') {
+            return view("nantaburi::paginate")->with('paginator',$this);
+        }else{
+            return view($this->viewlinkfile)->with('paginator',$this);
+        }
     }
 
     public function hasPages(){
-        ( $total > 0 )?  $has = true : $has = false ;
+        ( $this->total > 0 )?  $has = true : $has = false ;
          return $has ;
     }
 
