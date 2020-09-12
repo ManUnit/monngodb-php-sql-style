@@ -47,7 +47,7 @@ Mongodb using SQL style
               <code>[DBModel]::DB('companyDb')-></code><br>
               <code>[DBModel]::DB('companyDb','Products')-></code><br> 
               <code>[DBModel]::collection('Products')-></code><br>
-              <code>[DBModel]::database('companyDb')->collection('Products')</code><br>
+              <code>[DBModel]::database('companyDb')->collection('Products')-></code><br>
             </p>
         </td>
        
