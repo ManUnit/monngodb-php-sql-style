@@ -27,11 +27,12 @@ Mongodb using SQL style
       <tr>
         <th>Function name</th>
         <th>Head function </th>
+        <th>Example </th>
      </tr>
    </thead>
    <tbody>
    <tr>
-        <td>set data base</td>
+        <td>set database</td>
         <td>
             <p>
               <code>[DBModel]::database(string $dbname[, string $collectionName])</code><br>
@@ -39,6 +40,17 @@ Mongodb using SQL style
               <code>[DBModel]::collection(string $collectionName)</code><br>
             </p>
         </td>
+         <td>
+            <p>
+              <code>[DBModel]::database('companyDb')-> </code><br>
+              <code>[DBModel]::database('companyDb','collectionProducts')-> </code><br> 
+              <code>[DBModel]::DB('companyDb')-></code><br>
+              <code>[DBModel]::DB('companyDb','collectionProducts')-></code><br> 
+              <code>[DBModel]::collection('collectionProducts')</code><br>
+              <code>[DBModel]::database('companyDb')->collection('collectionProducts')</code><br>
+            </p>
+        </td>
+       
    </tr>
    </tbody>
   </table>
