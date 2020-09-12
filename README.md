@@ -443,7 +443,7 @@ class UserModel extends NanModel
    </td>
    <td>
       <p>
-         ->first(null) 
+         ->first() 
        </p>
       </td>
    </tr>
