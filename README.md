@@ -274,9 +274,9 @@ class UserModel extends NanModel
         </td>
         <td>
             <p>
-              <code>->select('*')->->->-><br>
-              <code>->select('userid' , 'username' , 'password')->->-></code><br> 
-              <code>->select('userid as uid' , 'username as uname' , 'password as pass')->-></code><br> 
+              <code>->select('*')-></code><br>
+              <code>->select('userid' , 'username' , 'password')-></code><br> 
+              <code>->select('userid as uid' , 'username as uname' , 'password as pass')-></code><br> 
               <code>->select('users.userid as uid' , 'users.username as uname' , 'users.password as pass'->)-></code><br> 
              </p>
         </td>
@@ -284,8 +284,7 @@ class UserModel extends NanModel
    <tr><td>find matched  data </td>
        <td><p>
            <code>->where( String $field ,String $Operator, $values )-> </code><br>
-  
-           </p>
+         </p>
         </td>
         <td>
             <p>
