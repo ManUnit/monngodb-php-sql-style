@@ -266,7 +266,7 @@ class UserModel extends NanModel
      </tr>
    </thead>
    <tbody>
-   <tr><td>displai documents</td>
+   <tr><td>display documents</td>
         <td>
             <p>
               <code>->select( $field1 , $field3 ....)</code><br>
@@ -385,9 +385,86 @@ class UserModel extends NanModel
        </p>
       </td>
    </tr>
+         <tr><td>Limit display output</td>
+   <td>
+        <p>
+        <code>->limit(int $limitPerpage [,Int $offset])-></code><br>
+        </p>
+   </td>
+   <td>
+      <p>
+        <code>->limit(10)-></code><br>
+          <code>->limit(10,40)-></code><br>
+       </p>
+      </td>
+   </tr>
     </tbody>
   </table>
 
+ 
+   - End functions 
+  <table>
+    <thead>
+      <tr>
+        <th>Functional</th>
+        <th>End function </th>
+        <th>Example </th>
+     </tr>
+   </thead>
+   <tbody>
+   <tr><td>get all documents static functon::</td>
+        <td>
+            <p>
+              <code>DBModel::all( null )</code><br>
+           </p>
+        </td>
+        <td>
+            <p>
+                <code>DBModel::all() </code><br>
+             </p>
+        </td>
+    </tr>
+   <tr><td>get documents</td>
+       <td><p>
+           <code>->get(null) </code><br>
+           </p>
+        </td>
+        <td>
+            <p>
+              <code>->get()</code><br>
+            </p>
+        </td> 
+   </tr>
+   <tr><td>get one first document </td>
+   <td>
+        <p>
+         <code>->first(null) </code><br>
+        </p>
+   </td>
+   <td>
+      <p>
+         ->first(null) 
+       </p>
+      </td>
+   </tr>
+       <tr><td>Pagination</td>
+   <td>
+        <p>
+         <code>->paginate(int $perpage) </code><br>
+        </p>
+   </td>
+   <td>
+      <p>
+         ->paginate(10) 
+       </p>
+      </td>
+   </tr>
+   </tbody>
+  </table>
+  
+  
+ 
+ 
  
 - Create Laravel controller 
    - using command `  php artisan make:controller --model=UserDbModel  ` at laravel root project 
