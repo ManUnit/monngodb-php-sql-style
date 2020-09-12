@@ -313,6 +313,19 @@ use App\CompanyModel;
                                         ->orderby('products.name','asc')
                                         ->limit(10,2)
                                         ->get(); 
+                                        
+       // Example do reduce shortcut operator ->groupby()                                  
+       $users =  CompanyModel::collection('products')
+                                        ->select('products.id as prod_id ','products.name','products_type.description_th','products_group.description')
+                                        ->leftjoin('products_type','products.type_id','products_type.type_id')
+                                        ->leftjoin('products_group','products.type_groupid','products_group.type_groupid')
+                                        ->where("products.name",'like',"%phone%")
+                                        ->orwhere("products.id",'>',400)
+                                        ->andwhere("products.description",'like','%the%')
+                                        ->groupby('$selected')   //@@ do shortcut same as ->select()
+                                        ->orderby('products.name','asc')
+                                        ->limit(10,2)
+                                        ->get(); 
 
 ````
  - Paginate 
