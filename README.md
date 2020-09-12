@@ -292,8 +292,8 @@ use App\CompanyModel;
      - join collectios code example below 
      - once you use groupby() request select() all of fields same fields in groupby() if seleted fields are not be field's member
        in groupby() output will display with empty data on that selected field 
-     - if you want to use shortcut of ->groupby( )  to be same as all fields in ->select("field1","field2") you can do shortcut 
-       by add one operator '$selected' into ->groupby('$selected')  
+     - if you want to use shortcut of `->groupby( ) `  to be same as all fields in ` ->select("field1 as fl1","field2") ` you can do shortcut 
+       by add one operator '$selected' into ->groupby('$selected')  also auto remove ` as ` operator 
 ```` 
       $users =  CompanyModel::collection("users")
                               ->select( "users.username as uname","services.sid as service_id" )
