@@ -25,7 +25,7 @@ Mongodb using SQL style
   <table>
     <thead>
       <tr>
-        <th>Function name</th>
+        <th>Functional</th>
         <th>Head function </th>
         <th>Example </th>
      </tr>
