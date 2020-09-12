@@ -31,9 +31,7 @@ Mongodb using SQL style
    </thead>
    <tbody>
    <tr>
-            <td>set data base</td>
-    </tr>
-    <tr>
+        <td>set data base</td>
         <td>
             <p>
               <code>[DBModel]::database(string $dbname[, string $collectionName])</code><br>
