@@ -31,26 +31,45 @@ Mongodb using SQL style
      </tr>
    </thead>
    <tbody>
-   <tr>
-        <td>set database</td>
+   <tr><td>set database</td>
         <td>
             <p>
               <code>[DBModel]::database(string $dbname[, string $collectionName])</code><br>
-              <code>[DBModel]::DB(string $dbname[,string $collectionName])</code><br>
-              <code>[DBModel]::collection(string $collectionName)</code><br>
-            </p>
+           </p>
         </td>
-         <td>
+        <td>
             <p>
               <code>[DBModel]::database('companyDb')-> </code><br>
               <code>[DBModel]::database('companyDb','Products')-> </code><br> 
+             </p>
+        </td>
+    </tr>
+   <tr><td>set database</td>
+       <td><p>
+           <code>[DBModel]::DB(string $dbname[,string $collectionName])</code><br>
+           </p>
+        </td>
+        <td>
+            <p>
               <code>[DBModel]::DB('companyDb')-></code><br>
-              <code>[DBModel]::DB('companyDb','Products')-></code><br> 
+              <code>[DBModel]::DB('companyDb','Products')-></code><br>    
+            </p>
+        </td>
+                
+   </tr>
+   <tr><td>set database</td>
+       <td>
+        <p>
+              <code>[DBModel]::collection(string $collectionName)</code><br>
+        </p>
+        </td>
+    
+         <td>
+            <p>
               <code>[DBModel]::collection('Products')-></code><br>
               <code>[DBModel]::database('companyDb')->collection('Products')-></code><br>
             </p>
-        </td>
-       
+         </td>
    </tr>
    </tbody>
   </table>
