@@ -36,21 +36,17 @@ Mongodb using SQL style
             <td>set data base</td>
             <td>
                 <p>
-                    <code>[DBModel]::database('dbname')</code><br>
-                    <code>[DBModel]::collection('collection Name')</code>
+                    <code>[DBModel]::database(string $dbname[, string $collectionName])</code><br>
+                    <code>[DBModel]::DB( string $dbname[, string $collectionName])</code><br>
+                    <code>[DBModel]::collection(string $collectionName)</code><br>
                 </p>
             </td>
-            <td><code>XmlHttpRequest</code></td>
-            <td><code>XMLHTTPRequest</code></td>
-        </tr>
-        <tr>
-            <td>"new customer ID"</td>
-            <td>camelCase</td>
-            <td><code>newCustomerId</code></td>
-            <td><code>newCustomerID</code></td>
-        </tr>
-    </tbody>
-  </table>
+
+          </tr>
+          </tbody>
+     </table>
+
+ 
 
 
 Run Nantabury/Mongodb standalone without laravel : 
