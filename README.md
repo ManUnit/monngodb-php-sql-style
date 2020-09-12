@@ -22,59 +22,6 @@ Mongodb using SQL style
 
 ````
 
-  <table>
-    <thead>
-      <tr>
-        <th>Functional</th>
-        <th>Head function </th>
-        <th>Example </th>
-     </tr>
-   </thead>
-   <tbody>
-   <tr><td>set database</td>
-        <td>
-            <p>
-              <code>[DBModel]::database(string $dbname[, string $collectionName])</code><br>
-           </p>
-        </td>
-        <td>
-            <p>
-              <code>[DBModel]::database('companyDb')-> </code><br>
-              <code>[DBModel]::database('companyDb','Products')-> </code><br> 
-             </p>
-        </td>
-    </tr>
-   <tr><td>set database</td>
-       <td><p>
-           <code>[DBModel]::DB(string $dbname[,string $collectionName])</code><br>
-           </p>
-        </td>
-        <td>
-            <p>
-              <code>[DBModel]::DB('companyDb')-></code><br>
-              <code>[DBModel]::DB('companyDb','Products')-></code><br>    
-            </p>
-        </td> 
-   </tr>
-   <tr><td>set database</td>
-   <td>
-        <p>
-        <code>[DBModel]::collection(string $collectionName)</code><br>
-        </p>
-   </td>
-   <td>
-      <p>
-        <code>[DBModel]::collection('Products')-></code><br>
-        <code>[DBModel]::database('companyDb')->collection('Products')-></code><br>
-       </p>
-      </td>
-   </tr>
-   </tbody>
-  </table>
-
- 
-
-
 Run Nantabury/Mongodb standalone without laravel : 
 
 - once you don't have laravel just base on composer package go to create file under directory ./config/database.php and copy all below to database.php
@@ -256,6 +203,61 @@ class UserModel extends NanModel
 
 
  ````
+
+
+  <table>
+    <thead>
+      <tr>
+        <th>Functional</th>
+        <th>Head function </th>
+        <th>Example </th>
+     </tr>
+   </thead>
+   <tbody>
+   <tr><td>set database</td>
+        <td>
+            <p>
+              <code>[DBModel]::database(string $dbname[, string $collectionName])</code><br>
+           </p>
+        </td>
+        <td>
+            <p>
+              <code>[DBModel]::database('companyDb')-> </code><br>
+              <code>[DBModel]::database('companyDb','Products')-> </code><br> 
+             </p>
+        </td>
+    </tr>
+   <tr><td>set database</td>
+       <td><p>
+           <code>[DBModel]::DB(string $dbname[,string $collectionName])</code><br>
+           </p>
+        </td>
+        <td>
+            <p>
+              <code>[DBModel]::DB('companyDb')-></code><br>
+              <code>[DBModel]::DB('companyDb','Products')-></code><br>    
+            </p>
+        </td> 
+   </tr>
+   <tr><td>set database</td>
+   <td>
+        <p>
+        <code>[DBModel]::collection(string $collectionName)</code><br>
+        </p>
+   </td>
+   <td>
+      <p>
+        <code>[DBModel]::collection('Products')-></code><br>
+        <code>[DBModel]::database('companyDb')->collection('Products')-></code><br>
+       </p>
+      </td>
+   </tr>
+   </tbody>
+  </table>
+
+ 
+
+
 
 - Create Laravel controller 
    - using command `  php artisan make:controller --model=UserDbModel  ` at laravel root project 
