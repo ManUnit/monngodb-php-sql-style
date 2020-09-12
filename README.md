@@ -289,7 +289,6 @@ class UserModel extends NanModel
         <td>
             <p>
            <code>->where("userid" ,"=", 100 )-> </code><br>
- 
             </p>
         </td> 
    </tr>
