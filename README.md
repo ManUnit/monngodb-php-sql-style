@@ -257,6 +257,62 @@ class UserModel extends NanModel
 
  
 
+  <table>
+    <thead>
+      <tr>
+        <th>Functional</th>
+        <th>Middle function </th>
+        <th>Example </th>
+     </tr>
+   </thead>
+   <tbody>
+   <tr><td>displai documents</td>
+        <td>
+            <p>
+              <code>->select( $field1 , $field3 ....)</code><br>
+           </p>
+        </td>
+        <td>
+            <p>
+              <code>->select('*')->->->-><br>
+              <code>->select('userid' , 'username' , 'password')->->-></code><br> 
+              <code>->select('userid as uid' , 'username as uname' , 'password as pass')->-></code><br> 
+              <code>->select('users.userid as uid' , 'users.username as uname' , 'users.password as pass'->)-></code><br> 
+             </p>
+        </td>
+    </tr>
+   <tr><td>find matched  data </td>
+       <td><p>
+           <code>->where( String $field ,String $Operator, $values )-> </code><br>
+  
+           </p>
+        </td>
+        <td>
+            <p>
+           <code>->where("userid" ,"=", 100 )-> </code><br>
+           <code>->where("userid" ,">=", 100 )-> </code><br>
+           <code>->where("userid" ,">!=", 100 )-> </code><br>  
+            </p>
+        </td> 
+   </tr>
+   <tr><td> find matched  data multiple values</td>
+   <td>
+        <p>
+        <code>->wherein(string $filed , array $values )-></code><br>
+        </p>
+   </td>
+   <td>
+      <p>
+        <code>->wherein("userid" , [1,4,5,6,10])-></code><br>
+       </p>
+      </td>
+   </tr>
+   </tbody>
+  </table>
+
+ 
+
+
 
 
 - Create Laravel controller 
