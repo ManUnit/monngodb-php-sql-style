@@ -43,11 +43,11 @@ Mongodb using SQL style
          <td>
             <p>
               <code>[DBModel]::database('companyDb')-> </code><br>
-              <code>[DBModel]::database('companyDb','collectionProducts')-> </code><br> 
+              <code>[DBModel]::database('companyDb','Products')-> </code><br> 
               <code>[DBModel]::DB('companyDb')-></code><br>
-              <code>[DBModel]::DB('companyDb','collectionProducts')-></code><br> 
-              <code>[DBModel]::collection('collectionProducts')</code><br>
-              <code>[DBModel]::database('companyDb')->collection('collectionProducts')</code><br>
+              <code>[DBModel]::DB('companyDb','Products')-></code><br> 
+              <code>[DBModel]::collection('Products')</code><br>
+              <code>[DBModel]::database('companyDb')->collection('Products')</code><br>
             </p>
         </td>
        
