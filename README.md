@@ -25,10 +25,10 @@ Mongodb using SQL style
   <table>
     <thead>
       <tr>
-        <th>words</th>
-        <th>transform to</th>
-        <th>keepUpperCase is false</th>
-        <th>keepUpperCase is true</th>
+        <th>Functio name</th>
+        <th>Head function </th>
+        <th>Middle function</th>
+        <th>End function</th>
       </tr>
     </thead>
     <tbody>
