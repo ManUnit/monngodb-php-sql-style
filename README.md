@@ -333,6 +333,31 @@ class UserModel extends NanModel
        </p>
       </td>
    </tr>
+         <tr><td>join collection </td>
+   <td>
+        <p>
+        <code>->join(String $foreignCollection ,String $localCollection["."]localKey,String $foreign["."]foreignkey)-></code><br>
+        </p>
+   </td>
+   <td>
+      <p>
+        <code>->join("products_group","products.typeid","product_group.typeid" )-></code><br>
+       </p>
+      </td>
+   </tr>
+      <tr><td>leftjoin collection </td>
+   <td>
+        <p>
+        <code>->leftjoin(String $foreignCollection ,String $localCollection["."]localKey,String $foreign["."]foreignkey)-></code><br>
+        </p>
+   </td>
+   <td>
+      <p>
+        <code>->leftjoin("products_group","products.typeid","product_group.typeid" )-></code><br>
+       </p>
+      </td>
+   </tr>
+   
    <tr><td>Group by</td>
    <td>
         <p>
@@ -344,12 +369,23 @@ class UserModel extends NanModel
    <td>
       <p>
         <code>->groupby("userid","username")-></code><br>
-        <code>->groupby( string '$selected')-></code><br>
+        <code>->groupby('$selected')-></code><br>
        </p>
       </td>
    </tr>
-   
-   </tbody>
+      <tr><td>sort order by</td>
+   <td>
+        <p>
+        <code>->orderby(String $field1 ,String $field1...)-></code><br>
+        </p>
+   </td>
+   <td>
+      <p>
+        <code>->orderby("userid","username")-></code><br>
+       </p>
+      </td>
+   </tr>
+    </tbody>
   </table>
 
  
