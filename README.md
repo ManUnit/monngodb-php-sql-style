@@ -22,6 +22,32 @@ Mongodb using SQL style
 
 ````
 
+  <table>
+    <thead>
+      <tr>
+        <th>words</th>
+        <th>transform to</th>
+        <th>keepUpperCase is false</th>
+        <th>keepUpperCase is true</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>"XML HTTP request"</td>
+            <td>pascalCase</td>
+            <td><code>XmlHttpRequest</code></td>
+            <td><code>XMLHTTPRequest</code></td>
+        </tr>
+        <tr>
+            <td>"new customer ID"</td>
+            <td>camelCase</td>
+            <td><code>newCustomerId</code></td>
+            <td><code>newCustomerID</code></td>
+        </tr>
+    </tbody>
+  </table>
+
+
 Run Nantabury/Mongodb standalone without laravel : 
 
 - once you don't have laravel just base on composer package go to create file under directory ./config/database.php and copy all below to database.php
