@@ -54,22 +54,20 @@ Mongodb using SQL style
               <code>[DBModel]::DB('companyDb')-></code><br>
               <code>[DBModel]::DB('companyDb','Products')-></code><br>    
             </p>
-        </td>
-                
+        </td> 
    </tr>
    <tr><td>set database</td>
-       <td>
+   <td>
         <p>
-              <code>[DBModel]::collection(string $collectionName)</code><br>
+        <code>[DBModel]::collection(string $collectionName)</code><br>
         </p>
-        </td>
-    
-         <td>
-            <p>
-              <code>[DBModel]::collection('Products')-></code><br>
-              <code>[DBModel]::database('companyDb')->collection('Products')-></code><br>
-            </p>
-         </td>
+   </td>
+   <td>
+      <p>
+        <code>[DBModel]::collection('Products')-></code><br>
+        <code>[DBModel]::database('companyDb')->collection('Products')-></code><br>
+       </p>
+      </td>
    </tr>
    </tbody>
   </table>
