@@ -67,7 +67,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
 
     public static function __callStatic($method, $parameters){
      //   return (new static)->$method(...$parameters);
-         if ( $method = "database" ){ 
+         if ( $method === "database" ){ 
              if(count($parameters) == 0) {
                      return (new static)->setDatabaseCollection((new static)->database , (new static)->collection);
              }elseif ( count($parameters) == 1 ){
@@ -75,6 +75,15 @@ class Connection extends Compatible {  //defind the Class to be  master class
              }elseif(count($parameters) == 2){
                      return (new static)->setDatabaseCollection("$parameters[0]" , "$parameters[1]" );
              }
+         }elseif($method === "DB" ) {
+            if(count($parameters) == 0) {
+                return (new static)->setDatabaseCollection((new static)->database , (new static)->collection);
+            }elseif ( count($parameters) == 1 ){
+                    return (new static)->setDatabase("$parameters[0]");
+            }elseif(count($parameters) == 2){
+                    return (new static)->setDatabaseCollection("$parameters[0]" , "$parameters[1]" );
+            }
+
          }
     }
  
@@ -108,7 +117,6 @@ class Connection extends Compatible {  //defind the Class to be  master class
     }
 
     public function leftjoin(String $joinCollection,String $localField , String  $foreignField , String $as = " "){ 
-       // dd(__file__.":".__line__,$joinCollection,$localField ,$foreignField ,$as);
         $asForeign = explode('.', $foreignField );
         if($asForeign[0] !== $joinCollection ){  throw new Exception(" Error ! Foreign field  $foreignField isn't in join collection $joinCollection  ");     }
         if(!isset(self::$joincollections [0]['$project'][$this->collection])) array_push(self::$joincollections , ['$project' =>['_id'=>0 , $this->collection => '$$ROOT' ]]);
@@ -297,7 +305,6 @@ class Connection extends Compatible {  //defind the Class to be  master class
             $this) ; // dev debug
         }
         $this->getAllwhere() ;  // Intregate where everywhere  
-        //dd(__file__.":".__line__,self::$querys);
         if(!null == self::$joincollections){ 
            if(env('DEV_DEBUG'))print  (__file__.":".__line__ ."connection@DEBUG -> find join : <br>\n") ;
            return $this->findJoin() ;
@@ -310,7 +317,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
            return $this->findGroup() ; 
         }else{     // @ normal find 
           if(env('DEV_DEBUG')) print  (__file__.":".__line__ ."<br> ------> connection@DEBUG find normal : <br>\n") ;
-         // dd( self::$querys);
+         
           return  $this->findNormal() ;
         } 
 

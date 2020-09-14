@@ -39,7 +39,6 @@ trait Commands {
 
          $joinout = $this->findJoin( ) ;
 
-        dd(__file__.":".__line__." manual group ",$cursor, "Query ", self::$querys , " Join " , self::$joincollections ) ;
         $group_type=$mongodata->raw(function($collection) use ($cursor) {
                 return $collection->aggregate($cursor);
             }
@@ -127,7 +126,7 @@ trait Commands {
               $totalDocment=isset(json_decode(json_encode($count_products))[0]->count) ? json_decode(json_encode($count_products))[0]->count : 0;
             }else{     // @ normal find 
                 $setFind ='normal' ; 
-              if(env('DEV_DEBUG')) print  (__FILE__. " : "  . __LINE__ ." : DEBUG paginate find normal : <br>\n") ;
+            //  if(env('DEV_DEBUG')) print  (__FILE__. " : "  . __LINE__ ." : DEBUG paginate find normal : <br>\n") ;
               $count_products =  $this->findNormal([ 'count' => true ]) ;
               $totalDocment=isset(json_decode(json_encode($count_products))[0]->count) ? json_decode(json_encode($count_products))[0]->count : 0;
             } 
@@ -327,26 +326,28 @@ trait Commands {
     }
     
     private function whereConversion(String $Key ,String $Operation , $Value) {
-        if ( $Operation  == "=" ){
+        if ( $Operation  === "=" ){
             return [ "$Key"=>  $Value ];                    // SQL transform select * from table where 'key' = 'value'  ; 
-        }elseif( $Operation  == "!=" ) {
+        }elseif( $Operation  === "!=" ) {
             return [ "$Key" => ['$ne' => $Value ]  ];       // SQL transform select * from table where 'key' != 'value'
-        }elseif($Operation  == "<="){
+        }elseif($Operation  === "<="){
             return [ "$Key" => [ '$lte' =>  $Value ]  ];   // SQL transform select * from table where 'Key' <= 'value'
-        }elseif($Operation  == ">="){
+        }elseif($Operation  === ">="){
             return [ "$Key" => [ '$gte' =>  $Value ]  ];    // SQL transform select * from table where 'Key' >= 'value'
-        }elseif($Operation  == "<"){
+        }elseif($Operation  === "<"){
             return [ "$Key" => [ '$lt' =>  $Value ]  ];     // SQL transform select * from table where 'Key' < 'value'
-        }elseif($Operation  == ">"){
+        }elseif($Operation  === ">"){
             return [ "$Key" => [ '$gt' =>   $Value ]  ];    // SQL transform select * from table where 'Key' > 'value'
-        }elseif($Operation  == "in"){
-            return [ "$Key" => [ '$in' =>   $Value ]  ];    // SQL transform select * from table where 'Key' > 'value'
-        }elseif( $Operation  == "like" ) {
-            if (   $Value[0]  != "%" && substr(  "$Value" , -1 ) =="%"  ) { 
+        }elseif($Operation  === "in"){
+            return [ "$Key" => [ '$in' =>   $Value ]  ];    // SQL transform select * from table where 'Key' in  [1,2,3]   // in array
+        }elseif($Operation  === "nin"){
+            return [ "$Key" => [ '$nin' =>   $Value ]  ];    // SQL transform select * from table where 'Key' nin  [1,2,3]   // in array
+        }elseif( $Operation  === "like" ) {
+            if (   $Value[0]  !== "%" && substr(  "$Value" , -1 ) =="%"  ) { 
                return [  "$Key" => new Regex('^'. substr( "$Value" ,0,-1 ) .'.*$', 'i') ]  ;     // SQL transform select * from table where 'Key' like 'value%'   ; find begin with ?    
-            }elseif (   $Value[0]  == "%"  &&  substr( "$Value" , -1 ) !=  "%"  ) {
+            }elseif (   $Value[0]  === "%"  &&  substr( "$Value" , -1 ) !==  "%"  ) {
                 return [  "$Key" => new Regex('^.*'.substr( "$Value" ,1 ) .'$', 'i') ];          // SQL transform select * from table where 'Key' like '%value'   ; find end with ?
-            }elseif (  $Value[0]  == "%"  &&  substr( "$Value" , -1 ) =="%"   ) {
+            }elseif (  $Value[0]  === "%"  &&  substr( "$Value" , -1 ) ==="%"   ) {
                 return [ "$Key" => new Regex('^.*'.substr( "$Value" ,1 ,-1)  .'.*$', 'i')];     // SQL transform select * from table where 'Key' like '%value%'  ; find where ever with ?
             }else{
                 return [ "$Key" => new Regex('^.'."$Value".'.$', 'i')];   //  SQL transform select * from table where 'key' like 'value'
