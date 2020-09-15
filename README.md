@@ -362,7 +362,7 @@ class UserModel extends NanModel
    <td>
         <p>
         <code>->groupby(String $field1 ,String $field1...)-></code><br>
-        #group same with ->select() function shortcut with with '$selected'
+        #group same with ->select() function shortcut with '$selected'
         <code>->groupby( string '$selected')-></code><br>
         </p>
    </td>
