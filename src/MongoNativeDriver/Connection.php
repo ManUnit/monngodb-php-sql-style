@@ -45,7 +45,17 @@ class Connection extends Compatible {  //defind the Class to be  master class
     private static $joincollections = array();
     private static $groupby = array();
     private static $pre_groupby = array();
-    private static $mappingAs = array();
+    private static $mappingAs = array(); 
+
+    
+    public function  initClass() {
+        self::$pre_groupby = [] ;
+        self::$mappingAs = [] ;
+        self::$options = [] ;
+        self::$querys = [] ;
+        self::$joincollections = [] ;
+        self::$pipeline = [] ;
+    }
     
     public  function __construct() {  
         // no use self::$dataBaseStatic = $this->database ;   //replicate  non-static to static zone  //  use ( new static) instead 
@@ -87,6 +97,8 @@ class Connection extends Compatible {  //defind the Class to be  master class
          }
     }
  
+ 
+
     
     public static function collection($coll=''){
         // support defind value with nothing 
@@ -248,11 +260,15 @@ class Connection extends Compatible {  //defind the Class to be  master class
     } 
 
 
-    public function select(...$fields){ 
+    public function select(...$fields){  
+
+        $this->initClass() ; // reset all $this values
+       
         self::$pre_groupby = array_merge(['$selected'=>true], removeAs($fields)  ); 
         if(count($fields)== 1 && $fields[0] === '*'  )return $this;
         if (!isset ( self::$options['projection'])){self::$options['projection'] = [] ; }
         self::$mappingAs = asmap($fields) ;
+
         $fields=asmap_keys($fields);
         foreach($fields as $field){  
             self::$options['projection'] = array_merge(self::$options['projection'] , [ $field => "\$$field"  ]  );
@@ -277,36 +293,10 @@ class Connection extends Compatible {  //defind the Class to be  master class
 
     
     public function get() {    
-        //  $ClassError = array();
-        //  $querys = array();
-        //  $combind = array();
-        //  $options = array(); 
-        //  $limits = array(); 
-        //  $orderTerm = array();
-        //  $pipeline = array();
-        //  $updates = array();
-        //  $andupdates = array();
-        //  $joincollections = array();
-        //  $groupby = array();
-        //  $mappingAs = array();
-        if(env('Connection DEV_DEBUG@get',false)){
-            dd("test 001 this " ,
-            "DEBUG status : " , 
-            env('DEV_DEBUG',false) , 
-            " AS OPTIONS" , 
-            self::$options ,
-            "AS MAP" ,
-            self::$mappingAs , 
-            "Query " , 
-            self::$querys  ,
-            'Join' , 
-            self::$joincollections ,
-            'this' , 
-            $this) ; // dev debug
-        }
+
         $this->getAllwhere() ;  // Intregate where everywhere  
         if(!null == self::$joincollections){ 
-           if(env('DEV_DEBUG'))print  (__file__.":".__line__ ."connection@DEBUG -> find join : <br>\n") ;
+          // if(env('DEV_DEBUG'))print  (__file__.":".__line__ ." -> find join : <br>\n") ;
            return $this->findJoin() ;
         }
         //

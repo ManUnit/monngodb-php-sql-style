@@ -17,9 +17,9 @@ use PHPUnit\Framework\Exception;
 use MongoDB\BSON\Regex;
 
 trait Commands {    
-    use Classifier ; 
+    use Classifier ;  
 
-    public  function  getgroup() {
+    public  function  getgroup(string $group , string $subgroup) {
 
         $this->getAllwhere() ;
         $cursor=array([ '$project'=> [ '_id'=> 0, 'group_type'=> '$$ROOT']],
@@ -35,10 +35,21 @@ trait Commands {
             'products_type.description_th'=> '$products_type.description_th',
             '_id'=> 0]]);
 
+             $mixKeysValues = [] ;
+
+             foreach(self::$mappingAs as $key => $value ) {
+                $mixKeysValues = array_merge( $mixKeysValues,[$key]);
+                $mixKeysValues = array_merge( $mixKeysValues,[$value]);
+             }
+              
+             $mixKeysValues  =  array_unique($mixKeysValues );
+            dd($cursor,self::$joincollections , self::$mappingAs , "MIX" , $mixKeysValues , "Break !!") ;
+            
+
+
          if( null == self::$joincollections ){ throw new Exception(" Error !  ->getgroup() require function ->leftjoin() before ");  }
-
          $joinout = $this->findJoin( ) ;
-
+       
         $group_type=$mongodata->raw(function($collection) use ($cursor) {
                 return $collection->aggregate($cursor);
             }
@@ -94,7 +105,7 @@ trait Commands {
         $outlet->items = $this->pageget($perpage)['items'];
         $outlet->total = $this->pageget($perpage)['totaldocuments'];
         $outlet->perPage = $perpage;
-        $outlet->path = 'http'.(empty($_SERVER['HTTPS'])?'':'s').'://'.$_SERVER['HTTP_HOST'].'/'.str_replace ('/','',$_SERVER['PATH_INFO']);
+        $outlet->path = 'http'.(empty($_SERVER['HTTPS'])?'':'s').'://'.$_SERVER['HTTP_HOST'].'/'.str_replace ('/','',$_SERVER['REQUEST_URI']);
         $outlet->currentPage = $page  ; 
         $this->getAllwhere()  ;  //@@@ update latest query
         $outlet->query = self::$querys ; 
@@ -721,7 +732,8 @@ trait Commands {
                 $conclude->aggregate($config,$this->collection,self::$pipeline,$options); 
             }
             $displayjoin = [] ;
-            $joinresult = json_decode( json_encode( $conclude->result ) , true ) ;
+            $joinresult = json_decode( json_encode( $conclude->result ) , true ) ; 
+
             foreach ($joinresult  as $keys => $datas){ 
                 $eachdoc = [] ;
                 foreach ($datas as $key => $data) {
