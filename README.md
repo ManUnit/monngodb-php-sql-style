@@ -427,7 +427,7 @@ class UserModel extends NanModel
    <tr><td>Delete document</td>
    <td>
         <p>
-        <code>->delete(string $key ,string $operator ,string $value )-></code><br>
+        <code>->delete(string $key ,string $operator ,string $value )</code><br>
         </p>
    </td>
    <td>
