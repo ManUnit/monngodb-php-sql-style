@@ -432,7 +432,7 @@ class UserModel extends NanModel
    </td>
    <td>
       <p>
-        <code>->delete(["userid", "=", 1 )-></code><br><br>
+        <code>->delete(["userid", "=", 1 )</code><br><br>
                  <code> ->where("id" ,"=",444)</code><br>
                                  <code> ->andwhere("id" ,"=",442)</code><br>
                                  <code> ->delete("id",">",440);</code><br> 
