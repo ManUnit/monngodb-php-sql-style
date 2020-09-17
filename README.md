@@ -414,13 +414,29 @@ class UserModel extends NanModel
       <tr><td>Update document # request where match/td>
    <td>
         <p>
-        <code>where( string $key ,string $operator ,v $value )->update(array $DictArray = null )-> </code><br>
+        <code>where( string $key ,string $operator ,v $value )->update(array $DictArray = null ) </code><br>
         </p>
    </td>
    <td>
       <p>
         <code>->where("userid" , "=" , 1 ,)->update(["password" => "AAA321" ]) </code><br><br>
         <code>->where('id',"=",454)</code><br><code>->andupdate( [ "name" => "PHONE UPDATE 11.0 v3" , 'price' => 25200 ])</code><br><code>->andupdate("description","=","Iphone version Thai v3")</code><br><code>->update("description_th","New iPhone 11.0 v3th ") ; </code><br>           
+       </p>
+      </td>
+   </tr>
+   <tr><td>Delete document</td>
+   <td>
+        <p>
+        <code>->delete(string $key ,string $operator ,string $value )-></code><br>
+        </p>
+   </td>
+   <td>
+      <p>
+        <code>->delete(["userid", "=", 1 )-></code><br><br>
+                 <code> ->where("id" ,">",444)</code><br>
+                                 <code> ->andwhere("id" ,"=",442)</code><br>
+                                 <code> ->delete("id",">",440);</code><br>
+
        </p>
       </td>
    </tr>
