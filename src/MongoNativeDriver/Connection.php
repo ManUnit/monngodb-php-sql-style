@@ -48,13 +48,15 @@ class Connection extends Compatible {  //defind the Class to be  master class
     private static $mappingAs = array(); 
 
     
-    public function  initClass() {
+    public function  initQuerysValues() {
         self::$pre_groupby = [] ;
         self::$mappingAs = [] ;
         self::$options = [] ;
         self::$querys = [] ;
         self::$joincollections = [] ;
         self::$pipeline = [] ;
+        self::$orderTerm  = [] ;
+        self::$limits  = [] ;
     }
     
     public  function __construct() {  
@@ -169,6 +171,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
     } 
 
     public static function update(...$param ){ 
+        $this->initQuerysValues() ; 
         if (self::$querys == null ){ return [0,"Error missing where query document require method  where() before andupdate() or update() example where(...)->andupdate()->update() "] ;}
         if( count($param) == 1 && is_array($param[0]) ){ 
             $canfill =  (new static)->fillable( $param[0] , ['update' => true] ) ; 
@@ -220,6 +223,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
     }
 
     public function delete(...$params){ 
+        $this->initQuerysValues() ; 
         $deleteQuery = [] ;
         if (self::$querys == null && count($params) == 0 ){ return [0,"Error missing where query document require  where() before delete() : example where(...)->delete() "] ;}
         elseif(self::$querys == !null && count($params) == 0){
@@ -262,7 +266,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
 
     public function select(...$fields){  
 
-        $this->initClass() ; // reset all $this values
+        $this->initQuerysValues() ; // reset all $this values
        
         self::$pre_groupby = array_merge(['$selected'=>true], removeAs($fields)  ); 
         if(count($fields)== 1 && $fields[0] === '*'  )return $this;
@@ -363,9 +367,5 @@ class Connection extends Compatible {  //defind the Class to be  master class
             return  [ 0 ,$canfill[1]  ] ; 
          }
     } 
-
   //@@ while get function 
-  
-   
-     
 }
