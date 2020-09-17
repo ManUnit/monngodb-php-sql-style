@@ -433,7 +433,7 @@ class UserModel extends NanModel
    <td>
       <p>
         <code>->delete(["userid", "=", 1 )-></code><br><br>
-                 <code> ->where("id" ,">",444)</code><br>
+                 <code> ->where("id" ,"=",444)</code><br>
                                  <code> ->andwhere("id" ,"=",442)</code><br>
                                  <code> ->delete("id",">",440);</code><br> 
        </p>
@@ -867,7 +867,7 @@ $updateResult  =  ShoppingModel::collection("products")
  
  ````
        $deleteresult =  ShoppingModel::collection("products")
-                                 ->where("id" ,">",444)
+                                 ->where("id" ,"=",444)
                                  ->andwhere("id" ,"=",442)
                                  ->delete("id",">",440);
                                  
