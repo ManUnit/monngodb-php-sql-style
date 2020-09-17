@@ -398,6 +398,32 @@ class UserModel extends NanModel
        </p>
       </td>
    </tr>
+   <tr><td>Insert document</td>
+   <td>
+        <p>
+        <code>->insert(array $DictArray)-></code><br>
+        </p>
+   </td>
+   <td>
+      <p>
+        <code>->insert(["userid" => 1 , "username" => "Supachai" , "password" => "321PASS" ])-></code><br>
+
+       </p>
+      </td>
+   </tr>
+      <tr><td>Update document # request where match/td>
+   <td>
+        <p>
+        <code>where( string $key ,string $operator ,v $value )->update(array $DictArray = null )-> </code><br>
+        </p>
+   </td>
+   <td>
+      <p>
+        <code>->where("userid" , "=" , 1 ,)->update(["password" => "AAA321" ]) </code><br>
+        <code>->where('id',"=",454)->andupdate( [ "name" => "PHONE UPDATE 11.0 v3" , 'price' => 25200 ])->andupdate("description","=","Iphone version Thai v3")->update("description_th","New iPhone 11.0 v3th ") ; </code><br>           
+       </p>
+      </td>
+   </tr>
     </tbody>
   </table>
 
