@@ -12,6 +12,7 @@
 
 namespace Nantaburi\Mongodb\MongoNativeDriver ;
 require  __DIR__."/../Operators/AdvanceOps.php" ;  // get myown global function
+require  __DIR__."/../Operators/helpper.php" ;
 use Nantaburi\Mongodb\MongoNativeDriver\Config ;
 use Nantaburi\Mongodb\MongoNativeDriver\BuildConnect ;
 use Nantaburi\Mongodb\MongoNativeDriver\Compatible ;
@@ -112,6 +113,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
     }
 
     public static function query($coll=''){
+        $this->initQuerysValues() ; 
         // support defind value with nothing 
         if ($coll == '' ) return (new static)  // get  default collection from model when nothing value in collection()
                          ->setCollection(
@@ -307,7 +309,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
         //@command for group by
         //
         if(!null == self::$groupby && null ==  self::$joincollections ){ 
-           if(env('DEV_DEBUG')) print  ("connection@DEBUG find group : <br>\n") ;
+          // if(env('DEV_DEBUG')) print  ("connection@DEBUG find group : <br>\n") ;
            return $this->findGroup() ; 
         }else{     // @ normal find 
           if(env('DEV_DEBUG')) print  (__file__.":".__line__ ."<br> ------> connection@DEBUG find normal : <br>\n") ;
