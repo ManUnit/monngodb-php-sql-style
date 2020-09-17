@@ -24,7 +24,7 @@
         "mongodb/mongodb": "^1.6"
     },
     "autoload": {
-        "psr-4": {
+        "psr-0": {
             "Nantaburi\\Mongodb\\": "src/"
         }
     }
