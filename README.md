@@ -420,7 +420,7 @@ class UserModel extends NanModel
    <td>
       <p>
         <code>->where("userid" , "=" , 1 ,)->update(["password" => "AAA321" ]) </code><br><br>
-        <code>->where('id',"=",454)<br>->andupdate( [ "name" => "PHONE UPDATE 11.0 v3" , 'price' => 25200 ])<br><br>->andupdate("description","=","Iphone version Thai v3")<br>->update("description_th","New iPhone 11.0 v3th ") ; </code><br>           
+        <code>->where('id',"=",454)</code><br><code>->andupdate( [ "name" => "PHONE UPDATE 11.0 v3" , 'price' => 25200 ])</code><br><code>->andupdate("description","=","Iphone version Thai v3")</code><br><code>->update("description_th","New iPhone 11.0 v3th ") ; </code><br>           
        </p>
       </td>
    </tr>
