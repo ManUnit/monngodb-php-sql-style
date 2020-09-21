@@ -24,6 +24,9 @@
         "mongodb/mongodb": "^1.6"
     },
     "autoload": {
+        "files": [
+            "src/Operators/helpper.php"
+        ],
         "psr-4": {
             "Nantaburi\\Mongodb\\": "src/"
         }
