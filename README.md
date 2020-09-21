@@ -458,7 +458,7 @@ class UserModel extends NanModel
        </p>
       </td>
    </tr>
-   <tr><td>Update document # request where match/td>
+   <tr><td>Update document # request where match</td>
    <td>
         <p>
         <code>where( string $key ,string $operator ,v $value )->update(array $DictArray = null ) </code><br>
