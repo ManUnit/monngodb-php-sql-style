@@ -25,7 +25,7 @@
     },
     "autoload": {
         "files": [
-            "src/Operators/helpper.php"
+            "src/Operators/helpper2.php"
         ],
         "psr-0": {
             "Nantaburi\\Mongodb\\": "src/"
