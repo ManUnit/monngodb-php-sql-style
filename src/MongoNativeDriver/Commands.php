@@ -18,22 +18,61 @@ use MongoDB\BSON\Regex;
 
 trait Commands {    
     use Classifier ;  
+    
+    private static $key_collection= '' ; 
+    private static $link_collection = '' ; 
+    
 
-    public  function  getgroup(string $group , string $subgroup) {
+    public static function pair( string $key_collection , string $pair_collection )  {
+        self::$key_collection = '' ; 
+        self::$link_collection = ''  ; 
+        self::$key_collection = $key_collection  ; 
+        self::$link_collection = $link_collection ; 
+        (new static)->setPairCollection(); 
+    }
 
-        $this->getAllwhere() ;
-        $cursor=array([ '$project'=> [ '_id'=> 0, 'group_type'=> '$$ROOT']],
-            [ '$lookup'=> [ 'localField'=> 'group_type.group_id', 'from'=> 'products_type', 'foreignField'=> 'group_id', 'as'=> 'products_type']],
-            [ '$unwind'=> [ 'path'=> '$products_type', 'preserveNullAndEmptyArrays'=> true]],
-            [ '$match'=> [ 'products_type.group_id'=> [ '$ne'=> null]]],
-            [ '$sort'=> [ 'group_type.group_id'=> 1]],
-            [ '$project'=> [ 'group_type.group_id'=> '$group_type.group_id',
-            'group_type.type_groupname_en'=> '$group_type.type_groupname_en',
-            'group_type.type_groupname_th'=> '$group_type.type_groupname_th',
-            'products_type.type_id'=> '$products_type.type_id',
-            'products_type.description'=> '$products_type.description',
-            'products_type.description_th'=> '$products_type.description_th',
-            '_id'=> 0]]);
+    private function setPairCollection(){
+       
+        return $this ; 
+    }
+
+    public   function  pairjoin(string $key_join , string $pair_join) {
+
+       // $this->getAllwhere() ;
+        // $cursor=array([ '$project'=> [ '_id'=> 0, 'group_type'=> '$$ROOT']],
+        //     [ '$lookup'=> [ 'localField'=> 'group_type.group_id', 'from'=> 'products_type', 'foreignField'=> 'group_id', 'as'=> 'products_type']],
+        //     [ '$unwind'=> [ 'path'=> '$products_type', 'preserveNullAndEmptyArrays'=> true]],
+        //     [ '$match'=> [ 'products_type.group_id'=> [ '$ne'=> null]]],
+        //     [ '$sort'=> [ 'group_type.group_id'=> 1]],
+        //     [ '$project'=> [ 'group_type.group_id'=> '$group_type.group_id',
+        //     'group_type.type_groupname_en'=> '$group_type.type_groupname_en',
+        //     'group_type.type_groupname_th'=> '$group_type.type_groupname_th',
+        //     'products_type.type_id'=> '$products_type.type_id',
+        //     'products_type.description'=> '$products_type.description',
+        //     'products_type.description_th'=> '$products_type.description_th',
+        //     '_id'=> 0]]);
+
+       
+       return $this->pairview( null , null , $key_join , $pair_join ) ; 
+
+    }
+
+    public function pairview ( array $viewskey = null  , array $viewpair = null , string $key_join , string $pair_join ){ 
+
+        // dd( "Break !! " , $viewskey  ,  $viewpair , $key_join , $pair_join ) ; 
+        
+        $cursor=array([ '$project'=> [ '_id'=> 0, self::$key_collection => '$$ROOT']],
+        [ '$lookup'=> [ 'localField'=> self::$key_collection.".". $key_join , 'from'=> self::$link_collection , 'foreignField'=> $pair_join, 'as'=> self::$link_collection]],
+        [ '$unwind'=> [ 'path'=> '$'.self::$link_collection, 'preserveNullAndEmptyArrays'=> true]],
+        [ '$match'=> [ self::$link_collection.".".$pair_join => [ '$ne'=> null]]],
+        [ '$sort'=> [ 'group_type.group_id'=> 1]],
+        [ '$project'=> [ 'group_type.group_id'=> '$group_type.group_id',
+        'group_type.type_groupname_en'=> '$group_type.type_groupname_en',
+        'group_type.type_groupname_th'=> '$group_type.type_groupname_th',
+        self::$link_collection.".".'type_id'=> '$'.self::$link_collection.".".'type_id',
+        self::$link_collection.".".'description'=> '$'.self::$link_collection.".".'description',
+        self::$link_collection.".".'description_th'=> '$'.self::$link_collection.".".'description_th',
+        '_id'=> 0]]);
 
              $mixKeysValues = [] ;
 
@@ -43,47 +82,48 @@ trait Commands {
              }
               
              $mixKeysValues  =  array_unique($mixKeysValues );
-            dd($cursor,self::$joincollections , self::$mappingAs , "MIX" , $mixKeysValues , "Break !!") ;
+           // dd($cursor,self::$joincollections , self::$mappingAs , "MIX" , $mixKeysValues , "Break !!") ;
             
 
 
          if( null == self::$joincollections ){ throw new Exception(" Error !  ->getgroup() require function ->leftjoin() before ");  }
-         $joinout = $this->findJoin( ) ;
-       
-        $group_type=$mongodata->raw(function($collection) use ($cursor) {
-                return $collection->aggregate($cursor);
-            }
-
-        );
-        $i=0;
-        $keyid=NULL;
-        $grouptype_array=array();
-
-        foreach ($group_type as $key=> $value) {
-
-            if ($keyid !==$value['group_type']->group_id) {
-                $grouptype_array[$i]['group_id']=$value['group_type']->group_id;
-                $grouptype_array[$i]['gname_en']=$value['group_type']->type_groupname_en;
-                $grouptype_array[$i]['gname_th']=$value['group_type']->type_groupname_th;
-                $grouptype_array[$i]['types']=array();
-                $subarray=array('type_id'=> $value['products_type']->type_id, 'desc_en'=> $value['products_type']->description, 'desc_th'=> $value['products_type']->description_th);
-                array_push($grouptype_array[$i]['types'], $subarray);
-                $last_i=$i;
-                $i++;
-                $keyid=$value['group_type']->group_id;
-            }else{
-                if(isset($last_i)) {
-                    $subarray=array('type_id'=> $value['products_type']->type_id, 'desc_en'=> $value['products_type']->description, 'desc_th'=> $value['products_type']->description_th);
-                    array_push($grouptype_array[$last_i]['types'], $subarray);
-                }
-            }
+       //  $joinout = $this->findJoin( ) ;
+    
+    $group_type=$mongodata->raw(function($collection) use ($cursor) {
+            return $collection->aggregate($cursor);
         }
 
-        $jsondata=json_decode(json_encode($grouptype_array));
+    );
+    $i=0;
+    $keyid=NULL;
+    $grouptype_array=array();
 
-        return $jsondata;
+    foreach ($group_type as $key=> $value) {
 
+        if ($keyid !==$value['group_type']->group_id) {
+            $grouptype_array[$i]['group_id']=$value['group_type']->group_id;
+            $grouptype_array[$i]['gname_en']=$value['group_type']->type_groupname_en;
+            $grouptype_array[$i]['gname_th']=$value['group_type']->type_groupname_th;
+
+            $grouptype_array[$i]['types']=array();
+            $subarray=array('type_id'=> $value['products_type']->type_id, 'desc_en'=> $value['products_type']->description, 'desc_th'=> $value['products_type']->description_th);
+            array_push($grouptype_array[$i]['types'], $subarray);
+            $last_i=$i;
+            $i++;
+            $keyid=$value['group_type']->group_id;
+        }else{
+            if(isset($last_i)) {
+                $subarray=array('type_id'=> $value['products_type']->type_id, 'desc_en'=> $value['products_type']->description, 'desc_th'=> $value['products_type']->description_th);
+                array_push($grouptype_array[$last_i]['types'], $subarray);
+            }
+        }
     }
+
+    $jsondata=json_decode(json_encode($grouptype_array));
+
+    return $jsondata;
+    }
+
 
     public static function InitIndexAutoInc () { 
         $this->fillable( (array) [] );
@@ -385,6 +425,10 @@ trait Commands {
       
     
     private function findCreateIndexOne(String $fieldIndex){  
+        // if(env('DEV_DEBUG')){
+        //    print(__file__ .":".__line__ . " function findCreateIndexOne(" . $fieldIndex .")<br>") ;
+        // }
+
         $config = new Config ;
         $config->setDb( $this->getDbNonstatic() ) ;
         $conclude = new BuildConnect ; 
@@ -409,6 +453,8 @@ trait Commands {
                 ];
         $result =  $conclude->getIndex($config , $this->getCollectNonstatic() , $index['name'] );
          if ( !$result ) { 
+              print(__file__ .":".__line__ . " Try create  <br>" . " ". $this->getCollectNonstatic()  . "<br> " )  ; 
+              print_r($index) ; 
               $reactionInsert = $conclude->createIndex($config , $this->getCollectNonstatic() , $index  );
           }else{
               $reactionInsert = false ;
@@ -421,12 +467,13 @@ trait Commands {
         $config->setDb( $this->getDbNonstatic() ) ;
         $conclude = new BuildConnect ; 
         $index = [
-                    "name" =>"\$__IDX_AUTOINC_".$this->getDbNonstatic()."_counters",
+                    "name" =>'$__IDX_AUTOINC_'.$this->getDbNonstatic()."_counters",
                     "key"  =>['inc_field'=>1,'collection'=>1],
                     "unique" => true ,
                     "ns" => $config->getDb().".".$this->getDbNonstatic()."_counters"
                 ];
-        $result =  $conclude->getIndex($config , $this->getCollectNonstatic() , $index['name'] );
+        $result =  $conclude->getIndex($config ,  $this->getDbNonstatic()."_counters" , $index['name'] );
+       // dd(__file__.":".__line__ , $this->getCollectNonstatic() , $index['name'],$result ); 
          if ( !$result ) { 
               $reactionInsert = $conclude->createIndex($config ,  $this->getDbNonstatic()."_counters" , $index  );
           }else{
@@ -441,8 +488,9 @@ trait Commands {
         $conclude = new BuildConnect ; 
         $collection_counter  = $this->getDbNonstatic().'_counters' ; 
         $this->findCreateIndexAutoInc( $fieldNameToInc, $this->getCollectNonstatic() ) ; // Magic create index 
+       // dd(__file__.":".__line__ );
         $query = [  'inc_field' => $fieldNameToInc , 'collection' => $this->getCollectNonstatic() ]  ;
-        
+       //  dd(__file__."".__line__ , $config , $collection_counter ,$query ) ;
         $conclude->findDoc($config , $collection_counter ,$query ) ; 
          if ( null == $conclude->result ) {
            
@@ -456,6 +504,7 @@ trait Commands {
     } 
 
     private function fillable(array $arrVals , $option = [] ) { 
+      
         $collections=[];
         $fillables=[];
         $updateProtected=[];
@@ -465,8 +514,10 @@ trait Commands {
 
         if( !in_array( $this->collection , $collections)  ){
              return [0 , "Error ! collection:$this->collection aren't in member of schema check your Model class ".get_class($this) ] ;
+             
         }else{ 
              foreach (  $this->schema[ $this->collection]  as $keys =>  $values ) { 
+               
                 if ( is_array($values) ){
                      
                     if(isset($this->schema[$this->collection][$keys]['AutoIncStartwith'])){ 
@@ -474,15 +525,21 @@ trait Commands {
                     }else{
                         $startseq = 0 ;
                     }
-                     
+                    
                     foreach ( $values  as $key => $value  ) { 
+                       
                         if ( $key === "AutoInc"  &&  $value === true )   $this->findCreateAutoInc($keys, $startseq )  ; 
+                     
+                     //   if (env('DEV_DEBUG')){ print ( __file__.":".__line__ ."  fillable  , key : $keys => $value <br>"  );  }
+                       
                         if ( $key === "Index"  &&  $value === true ) $this->findCreateIndexOne($keys) ;
                         if ( $key === "UpdateProtected"  &&  $value === true  ) { 
                            array_push( $updateProtected ,  $keys );
                         }
                             
                     } 
+
+                    
                     $findmultiIndex = substr( $keys  , 0, strlen( "\$__MULTIPLE_INDEX")  );
                     if ( "\$__MULTIPLE_INDEX" === $findmultiIndex ){ 
                              $this->findCreateIndexMany($keys) ;  
@@ -495,7 +552,7 @@ trait Commands {
                 }
              } 
         }
-         
+       
         foreach ( array_keys($arrVals) as $key  ) {  
   
             if (  !in_array( $key , $fillables ) ) { return  [  0 , "ERROR ! input fail -> field name:".$key. " aren't  member in schema check your Model ".get_class($this) ]; } 
@@ -523,7 +580,7 @@ trait Commands {
             $pipeline = [] ;
         }
         
-        //if(env("DEV_DEBUG"))  print(  __FILE__. " : " . __LINE__ ." : ---> In find normal <br>\n") ; 
+        if(env("DEV_DEBUG"))  print(  __FILE__. " : " . __LINE__ ." : ---> In find normal <br>\n") ; 
         $config=new Config ;
         $config->setDb($this->getDbNonstatic()) ;
         $conclude=new BuildConnect;  
@@ -542,16 +599,17 @@ trait Commands {
                         $conclude->findDoc($config,$this->collection,self::$querys,$modify_limit); 
                     }else{   // @call findnormal with out paginate 
 
-                     //   dd(__file__.":".__line__,"TEST" , self::$querys , self::$options) ;
                         $conclude->findDoc($config,$this->collection,self::$querys,self::$options); 
                     }
        } 
+
+   
         $renewdisplay = [] ;
         $groupresult = json_decode( json_encode( $conclude->result ) , true ) ;
             if ( !null == self::$mappingAs ){
                             foreach ($groupresult  as $keys => $datas){ 
                             $docs = [] ;
-                           // dd($datas) ;
+                     
                             foreach($datas as $key => $data){
                                 $docs = array_merge($docs, [self::$mappingAs[$key]  => $data ]  );
                             }
@@ -581,15 +639,29 @@ trait Commands {
                 if ( isset(self::$pipeline[$key]['$match'])){ $findMatch = $key ; break ;}
             }
           
-            if ( $findMatch === 'null'  ){ 
+            if ( $findMatch === 'null' && !null ==  self::$querys ){ 
+               // dd(__file__.":".__line__ , " No match "  ,self::$pipeline ,self::$querys ) ;
                 $swap = [] ;
                 $swap = self::$pipeline ;
                 // $group_project = [ '$project' => [ 'count' => '$COUNT(*)','_id' => 0 ]  ] ; 
                 self::$pipeline = [] ;
                 self::$pipeline = array_merge(self::$pipeline,[ ['$match' => self::$querys] ]);
                 self::$pipeline = array_merge(self::$pipeline,$swap);
-                self::$pipeline = array_merge( self::$pipeline , [self::$groupby] );
-           } // @@ End add $match 
+               
+           }
+
+           $foundGroup = 'null' ;
+           foreach(self::$pipeline as $key => $values) {
+                   if( isset(self::$pipeline[$key]['$group'])  ){
+                    $foundGroup = $key ;
+                       break ;
+                   } ;
+           }
+
+           if ($foundGroup === 'null' ) {
+            self::$pipeline = array_merge( self::$pipeline , [self::$groupby] );
+           }
+           // @@ End add $match 
            //@@  search $project in pipeline 
             $foundProject = 'null' ;
             foreach(self::$pipeline as $key => $values) {
@@ -640,20 +712,32 @@ trait Commands {
               return $conclude->result ;
                
             }elseif( !isset($argv['count']) || isset($argv['count']) && $argv['count'] == false  ) { 
-                if ( env('DEV_DEBUG') ){ print (__file__.":".__line__  ." FIND GROUP<br>\n" ) ; print_r ( self::$pipeline ) ; } 
+                if ( env('DEV_DEBUG') ){ print (__file__.":".__line__  ." FIND GROUP<br>\n" ) ; print_r ( self::$pipeline ) ; print ("<br>") ; } 
                 if (!null == $paginate_perpage) { 
                     $modify_pipeline =   self::$pipeline  ; 
+                    $reindex_pipline = [] ;
                      //@@ find limit and skip 
                     $findLimit='null';
+
                     foreach ($modify_pipeline as $key => $values) {
                         if( isset($modify_pipeline[$key]['$skip'])){ unset($modify_pipeline[$key]) ;}
                         if( isset($modify_pipeline[$key]['$limit'])){ unset($modify_pipeline[$key]) ;}
-                   }
-                   $modify_pipeline = array_merge($modify_pipeline , $paginate_options ) ;  
-                   $conclude->aggregate($config,$this->collection,$modify_pipeline,$options); 
-                }else{
+                    } 
+                    // @@ Re index number start with 0
+                    foreach ( $modify_pipeline as $key => $values) {
+                        if( isset( $modify_pipeline[$key]['$match'])){ 
+                            if ( null ==  $modify_pipeline[$key]['$match']) unset( $modify_pipeline[$key]) ;
+                        }else{ 
+                            $reindex_pipline = array_merge($reindex_pipline,[$modify_pipeline[$key]]); 
+                        }
+                    }
+
+                    $reindex_pipline = array_merge($modify_pipeline , $paginate_options ) ;  
+                    $conclude->aggregate($config,$this->collection,$reindex_pipline,$options); 
+                }else{ 
                     $conclude->aggregate($config,$this->collection,self::$pipeline,$options); 
-                }         
+                } 
+
                 $renewdisplay = [] ;
                 $groupresult = json_decode(json_encode( $conclude->result ) , true ) ;
                 foreach ($groupresult  as $keys => $datas){ 

@@ -51,6 +51,8 @@ class Connection extends Compatible {  //defind the Class to be  master class
     
     public function  initQuerysValues() {
         self::$pre_groupby = [] ;
+       // self::$combind  = [] ;
+        self::$groupby = [] ;
         self::$mappingAs = [] ;
         self::$options = [] ;
         self::$querys = [] ;
@@ -284,6 +286,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
     }
 
     public function groupby(String ...$params){ 
+        
         $groupby =['_id' => [
             
         ]];
@@ -364,10 +367,47 @@ class Connection extends Compatible {  //defind the Class to be  master class
             $config->setDb($this->getDbNonstatic()) ;
             $conclude = new BuildConnect ; 
             $reactionInsert = $conclude->insertDoc($config ,$this->getCollectNonstatic(),$arrVals ) ; 
-            return  [ 1 ,$reactionInsert ] ; 
+            if ($reactionInsert[0]) {   
+                  return  [ true ,$reactionInsert  ] ; 
+            }else{
+                return $reactionInsert ;
+            }
          }else{
             return  [ 0 ,$canfill[1]  ] ; 
          }
     } 
+
+
+    
+    public  function insertGetId( array $arrVals , string $key_return  = '' ) {    // non static method  display output use after where,orwhere operation
+        
+        $canfill =  $this->fillable( $arrVals , ['insert'=> true] ) ;  // this method going to reject insert once unmatch schema and fillable 
+        if( $canfill[0] == 1 ){  
+            $config = new Config ;
+            $config->setDb($this->getDbNonstatic()) ;
+            $conclude = new BuildConnect ; 
+            $inOrderArray = [] ;
+            foreach ($arrVals as $arr) {  // 
+                $inOrderArray = array_merge($inOrderArray , [$arr]) ;  
+            }
+          
+             $reactionInsert = $conclude->insertDoc($config ,$this->getCollectNonstatic(),$arrVals ) ; 
+             
+            if ($reactionInsert[0]) {   
+                if ( !null == $key_return  ) {
+                  return  [ true ,$reactionInsert , $arrVals[$key_return]  ] ; 
+                }else{
+                  return  [ true ,$reactionInsert , $inOrderArray[0]  ] ; 
+                }
+            }else{
+                return [ $reactionInsert[0],$reactionInsert[1] , null ] ;
+            }
+         }else{
+            return  [ 0 ,$canfill[1] , null  ] ; 
+         }
+       
+    } 
+    
+
   //@@ while get function 
 }
