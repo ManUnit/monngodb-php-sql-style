@@ -319,7 +319,6 @@ class UserModel extends NanModel
        </p>
       </td>
    </tr>
-  
    <tr><td>where and where </td>
    <td>
         <p>
@@ -398,20 +397,7 @@ class UserModel extends NanModel
        </p>
       </td>
    </tr>
-   <tr><td>Insert document</td>
-   <td>
-        <p>
-        <code>->insert(array $DictArray)-></code><br>
-        </p>
-   </td>
-   <td>
-      <p>
-        <code>->insert(["userid" => 1 , "username" => "Supachai" , "password" => "321PASS" ])-></code><br>
-
-       </p>
-      </td>
-   </tr>
-      <tr><td>Update document # request where match/td>
+   <tr><td>Update document # request where match/td>
    <td>
         <p>
         <code>where( string $key ,string $operator ,v $value )->update(array $DictArray = null ) </code><br>
@@ -497,6 +483,33 @@ class UserModel extends NanModel
    <td>
       <p>
          ->paginate(10) 
+       </p>
+      </td>
+   </tr>
+   <tr><td>Insert document</td>
+   <td>
+        <p>
+        <code>->insert(array $DictArray)-></code><br>
+        </p>
+   </td>
+   <td>
+      <p>
+        <code>->insert(["userid" => 1 , "username" => "Supachai" , "password" => "321PASS" ])</code><br>
+
+       </p>
+      </td>
+   </tr>
+      <tr><td>Insert document and get ID </td>
+   <td>
+        <p>
+        <code>->insertGetId(array $DictArray [,string $fieldGet] )-></code><br>
+        </p>
+   </td>
+   <td>
+      <p>
+        <code> $response = CompanyUser::collection("users")->insertGetId(["userid" => 1 , "username" => "Supachai" , "password" => "321PASS" ])</code><br>
+        <code> ->insertGetId(["userid" => 1 , "username" => "Supachai" , "password" => "321PASS" ] , 'username' )</code><br>
+          <code> ->insertGetId(["userid" => 1 , "username" => "Keattisak" , "password" => "PhomPoung" ] , 'userid' )</code><br>
        </p>
       </td>
    </tr>
