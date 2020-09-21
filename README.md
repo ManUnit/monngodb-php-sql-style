@@ -489,7 +489,7 @@ class UserModel extends NanModel
    <tr><td>Insert document</td>
    <td>
         <p>
-        <code>->insert(array $DictArray)-></code><br>
+        <code>->insert(array $DictArray)</code><br>
         </p>
    </td>
    <td>
@@ -502,7 +502,7 @@ class UserModel extends NanModel
       <tr><td>Insert document and get ID </td>
    <td>
         <p>
-        <code>->insertGetId(array $DictArray [,string $fieldGet] )-></code><br>
+        <code>->insertGetId(array $DictArray [,string $fieldGet] )</code><br>
         </p>
    </td>
    <td>
