@@ -446,7 +446,7 @@ class UserModel extends NanModel
        </p>
       </td>
    </tr>
-      <tr><td>random documents</td>
+      <tr><td>random documents<br> <code>->request function groupby()</code></td>
        <td><p>
            <code>->random(int $numberDoc) </code><br>
            <code>->request function groupby()</code><br>
