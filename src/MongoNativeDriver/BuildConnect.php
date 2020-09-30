@@ -257,5 +257,30 @@ class BuildConnect {
     }
 
 
+    public function raw( string $command , $config) {
+           
+        $connection =  'mongodb://'.$config->getUser() 
+        .":".$config->getPassword()
+        .'@'.$config->getHost()
+        .':'.$config->getPort() ;
+        try {
+            $client = new Client($connection);
+            $db = $client->selectDatabase($config->getDb() );
+        }catch (Exception $error) {
+            return [ 0, $error->getMessage() ] ;
+        }
+       
+        dd( get_class_methods($db) );
+
+        try { 
+            $response = $db->execute($command) ;
+        }catch (BulkWriteException $error) {
+            return [ false , $error->getMessage() ] ;
+        }
+        unset($connection) ;
+        unset($client) ;
+        return [ true , $response  ] ;  
+    } 
+
 
 }

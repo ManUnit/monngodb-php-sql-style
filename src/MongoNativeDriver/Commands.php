@@ -19,110 +19,7 @@ use MongoDB\BSON\Regex;
 trait Commands {    
     use Classifier ;  
     
-    private static $key_collection= '' ; 
-    private static $link_collection = '' ; 
-    
-
-    public static function pair( string $key_collection , string $pair_collection )  {
-        self::$key_collection = '' ; 
-        self::$link_collection = ''  ; 
-        self::$key_collection = $key_collection  ; 
-        self::$link_collection = $link_collection ; 
-        (new static)->setPairCollection(); 
-    }
-
-    private function setPairCollection(){
-       
-        return $this ; 
-    }
-
-    public   function  pairjoin(string $key_join , string $pair_join) {
-
-       // $this->getAllwhere() ;
-        // $cursor=array([ '$project'=> [ '_id'=> 0, 'group_type'=> '$$ROOT']],
-        //     [ '$lookup'=> [ 'localField'=> 'group_type.group_id', 'from'=> 'products_type', 'foreignField'=> 'group_id', 'as'=> 'products_type']],
-        //     [ '$unwind'=> [ 'path'=> '$products_type', 'preserveNullAndEmptyArrays'=> true]],
-        //     [ '$match'=> [ 'products_type.group_id'=> [ '$ne'=> null]]],
-        //     [ '$sort'=> [ 'group_type.group_id'=> 1]],
-        //     [ '$project'=> [ 'group_type.group_id'=> '$group_type.group_id',
-        //     'group_type.type_groupname_en'=> '$group_type.type_groupname_en',
-        //     'group_type.type_groupname_th'=> '$group_type.type_groupname_th',
-        //     'products_type.type_id'=> '$products_type.type_id',
-        //     'products_type.description'=> '$products_type.description',
-        //     'products_type.description_th'=> '$products_type.description_th',
-        //     '_id'=> 0]]);
-
-       
-       return $this->pairview( null , null , $key_join , $pair_join ) ; 
-
-    }
-
-    public function pairview ( array $viewskey = null  , array $viewpair = null , string $key_join , string $pair_join ){ 
-
-        // dd( "Break !! " , $viewskey  ,  $viewpair , $key_join , $pair_join ) ; 
-        
-        $cursor=array([ '$project'=> [ '_id'=> 0, self::$key_collection => '$$ROOT']],
-        [ '$lookup'=> [ 'localField'=> self::$key_collection.".". $key_join , 'from'=> self::$link_collection , 'foreignField'=> $pair_join, 'as'=> self::$link_collection]],
-        [ '$unwind'=> [ 'path'=> '$'.self::$link_collection, 'preserveNullAndEmptyArrays'=> true]],
-        [ '$match'=> [ self::$link_collection.".".$pair_join => [ '$ne'=> null]]],
-        [ '$sort'=> [ 'group_type.group_id'=> 1]],
-        [ '$project'=> [ 'group_type.group_id'=> '$group_type.group_id',
-        'group_type.type_groupname_en'=> '$group_type.type_groupname_en',
-        'group_type.type_groupname_th'=> '$group_type.type_groupname_th',
-        self::$link_collection.".".'type_id'=> '$'.self::$link_collection.".".'type_id',
-        self::$link_collection.".".'description'=> '$'.self::$link_collection.".".'description',
-        self::$link_collection.".".'description_th'=> '$'.self::$link_collection.".".'description_th',
-        '_id'=> 0]]);
-
-             $mixKeysValues = [] ;
-
-             foreach(self::$mappingAs as $key => $value ) {
-                $mixKeysValues = array_merge( $mixKeysValues,[$key]);
-                $mixKeysValues = array_merge( $mixKeysValues,[$value]);
-             }
-              
-             $mixKeysValues  =  array_unique($mixKeysValues );
-           // dd($cursor,self::$joincollections , self::$mappingAs , "MIX" , $mixKeysValues , "Break !!") ;
-            
-
-
-         if( null == self::$joincollections ){ throw new Exception(" Error !  ->getgroup() require function ->leftjoin() before ");  }
-       //  $joinout = $this->findJoin( ) ;
-    
-    $group_type=$mongodata->raw(function($collection) use ($cursor) {
-            return $collection->aggregate($cursor);
-        }
-
-    );
-    $i=0;
-    $keyid=NULL;
-    $grouptype_array=array();
-
-    foreach ($group_type as $key=> $value) {
-
-        if ($keyid !==$value['group_type']->group_id) {
-            $grouptype_array[$i]['group_id']=$value['group_type']->group_id;
-            $grouptype_array[$i]['gname_en']=$value['group_type']->type_groupname_en;
-            $grouptype_array[$i]['gname_th']=$value['group_type']->type_groupname_th;
-
-            $grouptype_array[$i]['types']=array();
-            $subarray=array('type_id'=> $value['products_type']->type_id, 'desc_en'=> $value['products_type']->description, 'desc_th'=> $value['products_type']->description_th);
-            array_push($grouptype_array[$i]['types'], $subarray);
-            $last_i=$i;
-            $i++;
-            $keyid=$value['group_type']->group_id;
-        }else{
-            if(isset($last_i)) {
-                $subarray=array('type_id'=> $value['products_type']->type_id, 'desc_en'=> $value['products_type']->description, 'desc_th'=> $value['products_type']->description_th);
-                array_push($grouptype_array[$last_i]['types'], $subarray);
-            }
-        }
-    }
-
-    $jsondata=json_decode(json_encode($grouptype_array));
-
-    return $jsondata;
-    }
+   
 
 
     public static function InitIndexAutoInc () { 
@@ -207,13 +104,7 @@ trait Commands {
             $joinout = $this->findJoin([ 'count' => false  , 'options' => $options ,'perpage'=> $perpage ]) ;
             return ['items'=>$joinout, 'totaldocuments' => $totalDocment , 'totalpage' => $totalpage ] ;
          }
-        // if(!null == self::$joincollections){
-        //     return $this->getJoin($conclude,$config,$perpage,true);
-        // }elseif(!null == self::$groupby && null ==  self::$joincollections ){ 
-        //     return $this->getGroup($conclude ,$config,$perpage,true) ;
-        // }else{  
-        //     return $this->getFind($conclude,$config,$perpage,true);
-        // } 
+
        return $conclude->result ;
     } 
        
@@ -567,7 +458,7 @@ trait Commands {
     public function findNormal(array $argv = null ) { 
         $paginate_options = '' ; 
         $paginate_perpage = null ; 
-        
+       
         if ( isset($argv['perpage']) &&  $argv['perpage'] != null ){ $paginate_perpage = $argv['perpage'] ;} 
         if ( isset($argv['options']) &&  $argv['options'] != '' ){ $paginate_options = $argv['options'] ;} 
         if ( isset($argv['count']) && $argv['count'] == true ){  
@@ -624,12 +515,14 @@ trait Commands {
     public function findGroup (array $argv = null ) {  
            //  if(env('DEV_DEBUG'))  dd( __file__ ." : ". __line__,$argv['count']) ; 
            // findGroup([ 'count' => false  , 'options' => $options ,'perpage'=> $perpage ])  
+        
            $paginate_options = '' ; 
            $paginate_perpage = null ; 
-           
+           $query_random  = null ; 
+           if ( isset($argv['random']) &&  $argv['random'] != null ){ $query_random = (int) $argv['random'] ;} 
            if ( isset($argv['perpage']) &&  $argv['perpage'] != null ){ $paginate_perpage = $argv['perpage'] ;} 
            if ( isset($argv['options']) &&  $argv['options'] != '' ){ $paginate_options = $argv['options'] ;} 
-
+  
             $config=new Config ;
             $config->setDb($this->getDbNonstatic()) ;
             $conclude=new BuildConnect; 
@@ -670,7 +563,7 @@ trait Commands {
                         break ;
                     } ;
             }
-            if( $foundProject === 'null' ) {
+            if( $foundProject === 'null' ) { 
                 foreach (self::$options as $mainkey => $mainOption){
                         if('projection'===$mainkey){   
                             $project['$project'] = [];
@@ -692,8 +585,9 @@ trait Commands {
                 'allowDiskUse' => TRUE
             ];
 
-            if(isset($argv['count']) && $argv['count'] == true  ){ 
+            if(isset($argv['count']) && $argv['count'] == true  ){  
                 $modifyPipeline = self::$pipeline ; 
+               
                 //@@ find where index number  is  $group  and index number $projet  
                  $index_project=0;
                  foreach ( $modifyPipeline as $key => $values) {  // @@ index project finder
@@ -715,6 +609,7 @@ trait Commands {
                 if ( env('DEV_DEBUG') ){ print (__file__.":".__line__  ." FIND GROUP<br>\n" ) ; print_r ( self::$pipeline ) ; print ("<br>") ; } 
                 if (!null == $paginate_perpage) { 
                     $modify_pipeline =   self::$pipeline  ; 
+                    
                     $reindex_pipline = [] ;
                      //@@ find limit and skip 
                     $findLimit='null';
@@ -735,11 +630,18 @@ trait Commands {
                     $reindex_pipline = array_merge($modify_pipeline , $paginate_options ) ;  
                     $conclude->aggregate($config,$this->collection,$reindex_pipline,$options); 
                 }else{ 
-                    $conclude->aggregate($config,$this->collection,self::$pipeline,$options); 
+                    $modify_pipeline = self::$pipeline ;
+                    $query_random != null ? $modify_pipeline  = array_merge ($modify_pipeline , [ [ '$sample' => [  "size" => $query_random ]  ] ] ) : $modify_pipeline = self::$pipeline  ;  
+                     // dd(__file__ . __line__ , $modify_pipeline) ; 
+                    $conclude->aggregate($config,$this->collection,$modify_pipeline,$options); 
                 } 
 
                 $renewdisplay = [] ;
-                $groupresult = json_decode(json_encode( $conclude->result ) , true ) ;
+                $groupresult = json_decode(json_encode( $conclude->result ) , true ) ; 
+                foreach ( self::$pipeline as $key => $values ) {
+                     if ( isset(self::$pipeline[$key]['$group']["_id"]['*'] ) )  throw new Exception(" Query  with select('*') with groupby() not support. you have to select at least one field ")  ;
+                }
+             
                 foreach ($groupresult  as $keys => $datas){ 
                     $docs = [] ;
                     foreach($datas as $key => $data){
@@ -755,6 +657,8 @@ trait Commands {
     public function findJoin(array $argv=null ) { 
         $paginate_options = '' ; 
         $paginate_perpage = null ; 
+        $query_random  = null ; 
+        if ( isset($argv['random']) &&  $argv['random'] != null ){ $query_random = $argv['random'] ;} 
         if ( isset($argv['perpage']) &&  $argv['perpage'] != null ){ $paginate_perpage = $argv['perpage'] ;} 
         if ( isset($argv['options']) &&  $argv['options'] != '' ){ $paginate_options = $argv['options'] ;} 
 

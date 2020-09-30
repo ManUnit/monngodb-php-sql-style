@@ -23,7 +23,7 @@ use MongoDB\BSON\Regex;
 class Connection extends Compatible {  //defind the Class to be  master class
 
     // Call trait class
-    use Commands ; 
+    use Addon,Commands ; 
     // Public , Protected  non-static properties  of values $this 
     /*  Static properties of self::$values 
      *
@@ -103,8 +103,6 @@ class Connection extends Compatible {  //defind the Class to be  master class
     }
  
  
-
-    
     public static function collection($coll=''){
         // support defind value with nothing 
         if ($coll == '' ) return (new static)  // get  default collection from model when nothing value in collection()
@@ -267,7 +265,6 @@ class Connection extends Compatible {  //defind the Class to be  master class
         return $conclude->result ;  // no more end output  with get() will use and on the end  
     } 
 
-
     public function select(...$fields){  
 
         $this->initQuerysValues() ; // reset all $this values
@@ -323,6 +320,30 @@ class Connection extends Compatible {  //defind the Class to be  master class
        // return $conclude->result ;
       
     } 
+
+    public function random( int $numRec = 1 ) {    
+
+        $this->getAllwhere() ;  // Intregate where everywhere  
+        if(!null == self::$joincollections){ 
+          // if(env('DEV_DEBUG'))print  (__file__.":".__line__ ." -> find join : <br>\n") ;
+           return $this->findJoin(['random' => $numRec ]) ;
+        }
+        //
+        //@command for group by
+        //
+        if(!null == self::$groupby && null ==  self::$joincollections ){ 
+          // if(env('DEV_DEBUG')) print  ("connection@DEBUG find group : <br>\n") ;
+           return $this->findGroup(['random' => $numRec ]) ; 
+        }else{     // @ normal find 
+          if(env('DEV_DEBUG')) print  (__file__.":".__line__ ."<br> ------> connection@DEBUG find normal : <br>\n") ;
+          throw new Exception(" Error ! request group() function  and order select ()->  group()  and ->random() in order format functions "); 
+          //return  $this->findGroup(['random' => $numRec ]) ;
+        } 
+
+       // return $conclude->result ;
+      
+    } 
+      
        
     public function first (){
         $this->limit(1);
