@@ -446,6 +446,18 @@ class UserModel extends NanModel
        </p>
       </td>
    </tr>
+      <tr><td>random documents</td>
+       <td><p>
+           <code>->random(int $numberDoc) </code><br>
+           <code>->request function groupby()</code><br>
+           </p>
+        </td>
+        <td>
+            <p>
+              <code>->select('id','name')->where("sale" , "=" , 1 )->groupby('$seleted')->random(2) </code><br>
+            </p>
+        </td> 
+   </tr>
        <tr><td>Pagination</td>
    <td>
         <p>
