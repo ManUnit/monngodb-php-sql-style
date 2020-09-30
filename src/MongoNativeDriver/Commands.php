@@ -661,7 +661,8 @@ trait Commands {
         if ( isset($argv['random']) &&  $argv['random'] != null ){ $query_random = $argv['random'] ;} 
         if ( isset($argv['perpage']) &&  $argv['perpage'] != null ){ $paginate_perpage = $argv['perpage'] ;} 
         if ( isset($argv['options']) &&  $argv['options'] != '' ){ $paginate_options = $argv['options'] ;} 
-
+   
+        print (__file__.__line__ . $query_random); 
         $config=new Config ;
         $config->setDb($this->getDbNonstatic()) ;
         $conclude=new BuildConnect; 
@@ -694,6 +695,12 @@ trait Commands {
            }
      }
     }
+
+    foreach ( self::$pipeline as $key => $values ) {
+        if ( isset(self::$pipeline[$key]['$group']["_id"]['*'] ) )  throw new Exception(" Query  with select('*') with groupby() not support. you have to select at least one field ")  ;
+    }
+
+
     $options = [ 'allowDiskUse' => TRUE ]; 
         if(isset($argv['count']) && $argv['count'] == true ){
             $modifyPipeline = self::$pipeline ;
@@ -710,14 +717,18 @@ trait Commands {
         if(!isset($argv['count']) || isset($argv['count']) && $argv['count'] == false){
             if(!null == $paginate_perpage){  //@@ FindJoin as pagination
                 $modifyPipeline = self::$pipeline ;
+                
                 foreach ($modifyPipeline as $key => $values) {
                   if( isset($modifyPipeline[$key]['$skip'])){ unset($modifyPipeline[$key]) ;}
                   if( isset($modifyPipeline[$key]['$limit'])){ unset($modifyPipeline[$key]) ;}
                 }
+               
                 $modifyPipeline = array_merge($modifyPipeline,$paginate_options) ; 
                 $conclude->aggregate($config,$this->collection,$modifyPipeline,$options); 
             }else{
-                $conclude->aggregate($config,$this->collection,self::$pipeline,$options); 
+                $modifyPipeline = self::$pipeline ;
+                $query_random != null ? $modifyPipeline  = array_merge ($modifyPipeline , [ [ '$sample' => [  "size" => $query_random ]  ] ] ) : $modifyPipeline = self::$pipeline  ;  
+                $conclude->aggregate($config,$this->collection,$modifyPipeline,$options); 
             }
             $displayjoin = [] ;
             $joinresult = json_decode( json_encode( $conclude->result ) , true ) ; 
