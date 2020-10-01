@@ -52,7 +52,8 @@ class Tester extends Controller
         //                                               ->orderby('user_id')
         //                                               ->get();
         //
-        // @@ 11 test follow selecting  groupby('$selected')
+        // @@ 11 test follow selecting  groupby('$selected') 
+        // @@ Advance shortcut by copy select to groupby 
         // $test = Products::collection('reviews')->select('user_id as uid' , 'id  as pid')
         //                                               ->where('ratting','>',3)
         //                                               ->groupby('$selected')
@@ -81,3 +82,27 @@ class Tester extends Controller
         //                                               ->orderby('reviews.id','desc')
         //                                               ->groupby('$selected')
         //                                               ->get();
+        //  @@ 15 test getgroup()
+        // $test = Products::collection('reviews')->select('products.id as pid','products.image as pim','reviews.id as rid','reviews.product_id as rpid')
+        //                                               ->where('reviews.product_id','=',15)
+        //                                               ->orderby('reviews.id','desc')
+        //                                               ->groupby('$selected')
+        //                                               ->getGroup() ; 
+        //     
+        //  @@ 16 test random()
+        // $test = Products::collection('users')->select('name')
+        //                                               ->where('sale','=',1)
+        //                                               ->groupby('$selected')
+        //                                               ->random(1) ; 
+        //  @@ 17 test random() with join
+        // $test = Products::collection('reviews')->select('products.id as pid','reviews.product_id as rpid')
+        //                                               ->leftjoin('products','reviews.product_id','products.id')
+        //                                               ->where('reviews.product_id','>',1)
+        //                                               ->orderby('products.id','desc')
+        //                                               ->groupby('$selected')
+        //                                               ->random(1) ; 
+
+
+    }
+
+}

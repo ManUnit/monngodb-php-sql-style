@@ -550,7 +550,7 @@ trait Commands {
                        break ;
                    } ;
            }
-
+           dd(__file__.":".__line__,self::$groupby);
            if ($foundGroup === 'null' ) {
             self::$pipeline = array_merge( self::$pipeline , [self::$groupby] );
            }
@@ -661,8 +661,7 @@ trait Commands {
         if ( isset($argv['random']) &&  $argv['random'] != null ){ $query_random = $argv['random'] ;} 
         if ( isset($argv['perpage']) &&  $argv['perpage'] != null ){ $paginate_perpage = $argv['perpage'] ;} 
         if ( isset($argv['options']) &&  $argv['options'] != '' ){ $paginate_options = $argv['options'] ;} 
-   
-        print (__file__.__line__ . $query_random); 
+
         $config=new Config ;
         $config->setDb($this->getDbNonstatic()) ;
         $conclude=new BuildConnect; 

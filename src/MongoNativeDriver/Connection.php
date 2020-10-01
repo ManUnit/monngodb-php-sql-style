@@ -336,8 +336,8 @@ class Connection extends Compatible {  //defind the Class to be  master class
            return $this->findGroup(['random' => $numRec ]) ; 
         }else{     // @ normal find 
           if(env('DEV_DEBUG')) print  (__file__.":".__line__ ."<br> ------> connection@DEBUG find normal : <br>\n") ;
-          throw new Exception(" Error ! request group() function  and order select ()->  group()  and ->random() in order format functions "); 
-          //return  $this->findGroup(['random' => $numRec ]) ;
+          //throw new Exception(" Error ! request group() function  and and format select ()->  group()  and ->random() in order format functions "); 
+          return  $this->findGroup(['random' => $numRec ]) ;
         } 
 
        // return $conclude->result ;
