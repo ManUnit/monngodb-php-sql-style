@@ -550,7 +550,7 @@ trait Commands {
                        break ;
                    } ;
            }
-           dd(__file__.":".__line__,self::$groupby);
+           // dd(__file__.":".__line__,self::$groupby);
            if ($foundGroup === 'null' ) {
             self::$pipeline = array_merge( self::$pipeline , [self::$groupby] );
            }
