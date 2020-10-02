@@ -35,9 +35,9 @@ trait Commands {
         return $result; 
     }
 
-    public function paginate(int $perpage , string  $viewlinkfile = '') {   
+    public function paginate(int $perpage , string $pageName = '' ,  string  $viewlinkfile = '') {   
         $this->getAllwhere() ;  // Intregate where everywhere         
-        if(!isset($_GET['page'] )){$page=(int) 1 ;}else{  $page= (int) $_GET['page'];}
+       
         $outlet = new Outlet ;
         $outlet->items = $this->pageget($perpage)['items'];
         $outlet->total = $this->pageget($perpage)['totaldocuments'];
@@ -46,7 +46,8 @@ trait Commands {
         $outlet->currentPage = $page  ; 
         $this->getAllwhere()  ;  //@@@ update latest query
         $outlet->query = self::$querys ; 
-        $outlet->pageName = 'page'  ; 
+        $pageName === '' ? $outlet->pageName = 'page'  : $outlet->pageName = $pageName  ;
+        if(!isset($_GET[$outlet->pageName] )){$page=(int) 1 ;}else{  $page= (int) $_GET[$outlet->pageName];}
         $outlet->viewlinkfile = $viewlinkfile;  
         $outlet->links   = $this->pagedrawing($perpage ,$outlet->total,$page ) ;      
         $outlet->options   =   array_merge($outlet->options , [ 'path' => $outlet->path , 'pageName' => $outlet->pageName  ]) ; 
