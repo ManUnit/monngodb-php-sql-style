@@ -434,6 +434,17 @@ class UserModel extends NanModel
             </p>
         </td> 
    </tr>
+      <tr><td>getgroup documents <br>to group request join two collections </td>
+       <td><p>
+           <code>->getgroup(string $group , string $subgroup) </code><br>
+           </p>
+        </td>
+        <td>
+            <p>
+              <code>-->getgroup('gdesc', 'type_desc_en' ) ; </code><br>
+            </p>
+        </td> 
+   </tr>
    <tr><td>get one first document </td>
    <td>
         <p>
@@ -779,6 +790,46 @@ use App\CompanyModel;
                                         ->get(); 
 
 ````
+
+- Getgroup 
+     - Function to support side menu or dropdown menu
+     - request join two table 
+ ```` 
+{
+$test = Shopping::collection('products_group')->select('products_group.cat_id as pgid','products_group.description as gdesc','productstype.type_id as tid','products_type.description as type_desc_en')
+             ->where('products_type.type_id','!=',null)
+             ->leftjoin('products_type','products_group.cat_id','products_type.type_groupid')
+             ->orderby('products_group.description','ASC')
+             ->groupby('$selected')
+             ->getgroup('gdesc', 'type_desc_en' ) ; 
+             
+  return view('test')->with('test',$test) ;   
+  
+ }
+ 
+ Laravel blade file do it same as below : 
+ <!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
+    <body class="antialiased">
+        <h2>==test list by group==</h2>
+
+        @foreach( $test as  $key => $value )
+          
+           {{$key}} : {{  $value['gdesc']   }}  <br> 
+
+           @foreach( $value['type_desc_en'] as  $list ) 
+
+              =====>{{ $list }} <br>
+
+            @endforeach
+             
+        @endforeach  
+    </body>
+    </html>
+ 
+ 
+ ````
  - Paginate 
      - pagination are displays data and page breakedown with data perge  
      - paginate going to don't care function limit() if you have added into order command  
