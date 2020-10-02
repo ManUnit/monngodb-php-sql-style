@@ -111,12 +111,34 @@ trait Addon {
        return $jsondata;
      }
 
-     public function getgroup() {    
-
+     public function getgroup(string $group , string $subgroup ) {    
+    
         $this->getAllwhere() ;  // Intregate where everywhere  
         if(!null == self::$joincollections){ 
-           if(env('DEV_DEBUG'))print  (__file__.":".__line__ ." -> GET Group : <br>\n") ;
-           return $this->findJoin() ;
+           if(env('DEV_DEBUG'))print  (__file__.":".__line__ ." -> GET Group : $group  --> Sub group :  $subgroup  <br>\n") ;
+           $group_type =  $this->findJoin() ;   
+           $i=0;
+           $keyid=NULL;
+           $grouptype_array=array();
+         
+            foreach ($group_type as $index => $value) {
+                if ($keyid !==$value[$group] ) {
+                     $grouptype_array[$i][$group]=$value[$group];
+                     $grouptype_array[$i][$subgroup]=array();
+                     array_push($grouptype_array[$i][$subgroup], $value[$subgroup] );
+                    $last_i=$i; 
+                    $i++;
+                    $keyid=$value[$group] ;
+                }else{ 
+                       if(isset($last_i)) {
+                          array_push($grouptype_array[$last_i][$subgroup], $value[$subgroup] );
+                       }
+                }
+               }
+             
+              //$jsondata=json_decode(json_encode($grouptype_array));
+              //  dd(__file__.":".__line__, $group_type , $grouptype_array ) ;
+              return ($grouptype_array)  ; 
         }else{
   
             throw new Exception("Require Join collections ");   ;        

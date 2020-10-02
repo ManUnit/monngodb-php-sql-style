@@ -83,11 +83,12 @@ class Tester extends Controller
         //                                               ->groupby('$selected')
         //                                               ->get();
         //  @@ 15 test getgroup()
-        // $test = Products::collection('reviews')->select('products.id as pid','products.image as pim','reviews.id as rid','reviews.product_id as rpid')
-        //                                               ->where('reviews.product_id','=',15)
-        //                                               ->orderby('reviews.id','desc')
-        //                                               ->groupby('$selected')
-        //                                               ->getGroup() ; 
+        // $test = Shopping::collection('products_group')->select('products_group.cat_id as pgid','products_group.description as gdesc','productstype.type_id as tid','products_type.description as type_desc_en')
+        // ->where('products_type.type_id','!=',null)
+        // ->leftjoin('products_type','products_group.cat_id','products_type.type_groupid')
+        // ->orderby('products_group.description','ASC')
+        // ->groupby('$selected')
+        // ->getgroup('gdesc', 'type_desc_en' ) ; 
         //     
         //  @@ 16 test random()
         // $test = Products::collection('users')->select('name')
