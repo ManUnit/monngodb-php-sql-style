@@ -795,19 +795,30 @@ use App\CompanyModel;
      - Function to support side menu or dropdown menu
      - request join two table 
  ```` 
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Shopping ;
+
+class Tester extends Controller
 {
+public function index() {
 $test = Shopping::collection('products_group')->select('products_group.cat_id as pgid','products_group.description as gdesc','productstype.type_id as tid','products_type.description as type_desc_en')
              ->where('products_type.type_id','!=',null)
              ->leftjoin('products_type','products_group.cat_id','products_type.type_groupid')
              ->orderby('products_group.description','ASC')
              ->groupby('$selected')
-             ->getgroup('gdesc', 'type_desc_en' ) ; 
-             
-  return view('test')->with('test',$test) ;   
-  
+             ->getgroup('gdesc', 'type_desc_en' ) ;       
+     return view('test')->with('test',$test) ;  
+      }
  }
- 
- Laravel blade file do it same as below : 
+  
+ ````
+ On Laravel blade views file test.blode.php do  getgroup() same as below : 
+  
+ ````
  <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
