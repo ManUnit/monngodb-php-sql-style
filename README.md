@@ -820,8 +820,7 @@ $test = Shopping::collection('products_group')->select('products_group.cat_id as
   
  ````
  <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
+<html>
     <body class="antialiased">
         <h2>==test list by group==</h2>
 
@@ -837,8 +836,41 @@ $test = Shopping::collection('products_group')->select('products_group.cat_id as
              
         @endforeach  
     </body>
-    </html>
- 
+</html>
+
+
+// Display outcome on browser example :
+
+==test list by group==
+0 : Accessory
+=====>3D Printer & Scanner
+1 : Electric
+=====>Electric Tools
+=====>Air-condition
+=====>Liquid Cooling
+=====>Cooling Tower
+2 : Factory
+=====>PHARMACEUTICAL & COSMETIC MACHINERY
+3 : Fashion
+=====>shirt
+=====>Man
+=====>shoes
+=====>Lather
+4 : Gadgets
+=====>Computer
+=====>Smartphone
+=====>Speaker
+=====>In-Ear
+=====>Electronics
+=====>Network Device
+5 : Home
+=====>Kitchen ware
+=====>Cleaning
+6 : Transportation
+=====>trailer
+=====>Forklifts
+7 : Travel and Sport
+=====>Sport 
  
  ````
  - Paginate 
