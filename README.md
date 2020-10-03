@@ -845,35 +845,35 @@ $test = Shopping::collection('products_group')->select('products_group.cat_id as
 // Display outcome on browser example :
 
 ==test list by group==
-0 : Accessory
-=====>3D Printer & Scanner
-1 : Electric
-=====>Electric Tools
-=====>Air-condition
-=====>Liquid Cooling
-=====>Cooling Tower
-2 : Factory
-=====>PHARMACEUTICAL & COSMETIC MACHINERY
-3 : Fashion
-=====>shirt
-=====>Man
-=====>shoes
-=====>Lather
-4 : Gadgets
-=====>Computer
-=====>Smartphone
-=====>Speaker
-=====>In-Ear
-=====>Electronics
-=====>Network Device
-5 : Home
-=====>Kitchen ware
-=====>Cleaning
-6 : Transportation
-=====>trailer
-=====>Forklifts
-7 : Travel and Sport
-=====>Sport 
+0 => group id 17 : Travel and Sport
+--------- >>>> type ID 42 : type descripton Sport
+1 => group id 8 : Transportation
+--------- >>>> type ID 3 : type descripton Forklifts
+--------- >>>> type ID 21 : type descripton trailer
+2 => group id 5 : Home
+--------- >>>> type ID 26 : type descripton Kitchen ware
+--------- >>>> type ID 152 : type descripton Cleaning
+3 => group id 10 : Gadgets
+--------- >>>> type ID 34 : type descripton Computer
+--------- >>>> type ID 22 : type descripton Electronics
+--------- >>>> type ID 41 : type descripton Network Device
+--------- >>>> type ID 36 : type descripton In-Ear
+--------- >>>> type ID 35 : type descripton Speaker
+--------- >>>> type ID 31 : type descripton Smartphone
+4 => group id 2 : Fashion
+--------- >>>> type ID 2 : type descripton shoes
+--------- >>>> type ID 137 : type descripton Lather
+--------- >>>> type ID 4 : type descripton Man
+--------- >>>> type ID 1 : type descripton shirt
+5 => group id 13 : Factory
+--------- >>>> type ID 39 : type descripton PHARMACEUTICAL & COSMETIC MACHINERY
+6 => group id 1 : Electric
+--------- >>>> type ID 20 : type descripton Electric Tools
+--------- >>>> type ID 38 : type descripton Liquid Cooling
+--------- >>>> type ID 25 : type descripton Cooling Tower
+--------- >>>> type ID 37 : type descripton Air-condition
+7 => group id 20 : Accessory
+--------- >>>> type ID 133 : type descripton 3D Printer & Scanner
  
  ````
  - Paginate 
