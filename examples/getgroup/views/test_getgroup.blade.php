@@ -6,14 +6,12 @@
 
         @foreach( $test as  $key => $value )
           
-           {{$key}} : {{  $value['gdesc']   }}  <br> 
+           {{$key}} => group id {{  $value['gid']}} : {{  $value['pdesc']   }}  <br> 
 
-           @foreach( $value['type_desc_en'] as  $list ) 
-
-              =====>{{ $list }} <br>
-
-            @endforeach
-             
+            @foreach($value['products_type'] as  $value )  
+                      --------- >>>>  type ID {{ $value['tid']}}  : type descripton {{ $value['typeDesc_en']}}  <br>
+            @endforeach 
+      
         @endforeach  
     </body>
-    </html>
+</html>

@@ -111,34 +111,76 @@ trait Addon {
        return $jsondata;
      }
 
-     public function getgroup(string $group , string $subgroup ) {    
+     public function getgroup( ) {    
     
         $this->getAllwhere() ;  // Intregate where everywhere  
         if(!null == self::$joincollections){ 
-           if(env('DEV_DEBUG'))print  (__file__.":".__line__ ." -> GET Group : $group  --> Sub group :  $subgroup  <br>\n") ;
-           $group_type =  $this->findJoin() ;   
-           $i=0;
-           $keyid=NULL;
-           $grouptype_array=array();
-         
-            foreach ($group_type as $index => $value) {
-                if ($keyid !==$value[$group] ) {
-                     $grouptype_array[$i][$group]=$value[$group];
-                     $grouptype_array[$i][$subgroup]=array();
-                     array_push($grouptype_array[$i][$subgroup], $value[$subgroup] );
+       //    if(env('DEV_DEBUG'))print  (__file__.":".__line__ ." -> GET Group : $group  --> Sub group :  $subgroup  <br>\n") ; 
+           ksort(self::$mappingAs); 
+           $group_type =  $this->findJoin(['getgroup'=> true]) ;   
+           $local_collection =  null; 
+           $foreign_collection =   null ;
+           $local_collection = array_findget2deep(self::$joincollections,'$project',true,'$$root')[1] ;
+           $foreign_collection = array_findget2deep(self::$joincollections,'$lookup',false,'from')[1] ;
+           $concatjoin=array();
+           // rewrite display concatnate array 
+           foreach ($group_type  as $keys => $datas){ 
+                $eachdoc = [] ;
+                foreach ($datas as $key => $data) {
+                    foreach($data as $in_key => $in_data ){ 
+                    $eachdoc = array_merge($eachdoc , [ self::$mappingAs[$key.".".$in_key] => $in_data ]);
+                    }
+                }
+                    $concatjoin = array_merge( $concatjoin ,[$eachdoc] );
+            }
+            $i=0;
+            $keyid=NULL;
+            $grouptype_array=array();
+            //@@ make sort select
+            $filtered_localCol = array();
+            // find filter 
+            $filtered_foreignCal = array();
+            foreach(  self::$mappingAs as $key =>$value  ){ 
+                 $filter =  explode(".",$key) ; 
+                 if ( $filter[0] === $local_collection  ) {  array_push ( $filtered_localCol , $value  ) ; }
+                 if ( $filter[0] === $foreign_collection  ) {  array_push ( $filtered_foreignCal , $value  ); }
+                 //  print (  __file__.__line__. ":" . $key ." : filter $filter[0] <br>  "   ) ;
+            }
+            //@@ make group with all select  // master is line 142
+            foreach ($concatjoin as $index => $value) { 
+                if ($keyid !==$value[$filtered_localCol[0]] ) {
+                   // print (__file__.__line__ .", ---> KEYID ".$keyid .",". $filtered_localCol[0] ."<br>" ) ; 
+                    
+                    //@@push array of local field 
+                    foreach ( $filtered_localCol as $localField  ){  
+                        if(isset($value[$localField])){ $grouping_array[$i][$localField]=$value[$localField];}
+                    }
+                    
+                    $grouping_array[$i][$foreign_collection]=array();
+                    $prepair_subgroup = array() ; 
+                    foreach ( $filtered_foreignCal as  $foreignField ) { 
+                       if(isset($value[$foreignField])){ $prepair_subgroup = array_merge($prepair_subgroup, [ $foreignField => $value[$foreignField]] );}
+                    }
+                    array_push($grouping_array[$i][$foreign_collection], $prepair_subgroup );
                     $last_i=$i; 
                     $i++;
-                    $keyid=$value[$group] ;
+                    $keyid=$value[$filtered_localCol[0]];
+                    
                 }else{ 
-                       if(isset($last_i)) {
-                          array_push($grouptype_array[$last_i][$subgroup], $value[$subgroup] );
-                       }
+                    if(isset($last_i)) {
+                        $prepair_subgroup = array() ; 
+                        foreach ( $filtered_foreignCal as  $foreignField ) { 
+                        if(isset($value[$foreignField])){ $prepair_subgroup = array_merge($prepair_subgroup, [ $foreignField => $value[$foreignField]] );}
+                        }
+                        array_push($grouping_array[$last_i][$foreign_collection], $prepair_subgroup );
+                    }
                 }
-               }
-             
-              //$jsondata=json_decode(json_encode($grouptype_array));
-              //  dd(__file__.":".__line__, $group_type , $grouptype_array ) ;
-              return ($grouptype_array)  ; 
+            }
+            
+          //  dd(__file__.__line__, 'Out' ,  $grouping_array , "sorted map AS "  , self::$mappingAs, "Fillter" ,$filtered_localCol   , $filtered_foreignCal  , 'out from join' ,  $group_type,'concat join' , $concatjoin ,  self::$joincollections) ; 
+            //$jsondata=json_decode(json_encode($grouping_array));
+            //  dd(__file__.":".__line__, $group_type , $grouping_array ) ;
+            return ($grouping_array)  ; 
         }else{
   
             throw new Exception("Require Join collections ");   ;        

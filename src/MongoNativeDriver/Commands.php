@@ -659,10 +659,12 @@ trait Commands {
         $paginate_options = '' ; 
         $paginate_perpage = null ; 
         $query_random  = null ; 
+        $query_getgroup = false ; 
         if ( isset($argv['random']) &&  $argv['random'] != null ){ $query_random = $argv['random'] ;} 
         if ( isset($argv['perpage']) &&  $argv['perpage'] != null ){ $paginate_perpage = $argv['perpage'] ;} 
         if ( isset($argv['options']) &&  $argv['options'] != '' ){ $paginate_options = $argv['options'] ;} 
-
+        if ( isset($argv['getgroup']) &&  $argv['getgroup'] != false ){ $query_getgroup = $argv['getgroup'] ;} 
+        
         $config=new Config ;
         $config->setDb($this->getDbNonstatic()) ;
         $conclude=new BuildConnect; 
@@ -693,15 +695,15 @@ trait Commands {
            }else{
               self::$pipeline = array_merge(self::$pipeline,[["\$".$mainkey => $mainOption ]]); 
            }
-     }
-    }
+        }
+      }
 
-    foreach ( self::$pipeline as $key => $values ) {
-        if ( isset(self::$pipeline[$key]['$group']["_id"]['*'] ) )  throw new Exception(" Query  with select('*') with groupby() not support. you have to select at least one field ")  ;
-    }
+        foreach ( self::$pipeline as $key => $values ) {
+            if ( isset(self::$pipeline[$key]['$group']["_id"]['*'] ) )  throw new Exception(" Query  with select('*') with groupby() not support. you have to select at least one field ")  ;
+        }
 
 
-    $options = [ 'allowDiskUse' => TRUE ]; 
+        $options = [ 'allowDiskUse' => TRUE ]; 
         if(isset($argv['count']) && $argv['count'] == true ){
             $modifyPipeline = self::$pipeline ;
             foreach ($modifyPipeline as $key => $values) {
@@ -732,17 +734,21 @@ trait Commands {
             }
             $displayjoin = [] ;
             $joinresult = json_decode( json_encode( $conclude->result ) , true ) ; 
-
-            foreach ($joinresult  as $keys => $datas){ 
-                $eachdoc = [] ;
-                foreach ($datas as $key => $data) {
-                    foreach($data as $in_key => $in_data ){ 
-                      $eachdoc = array_merge($eachdoc , [ self::$mappingAs[$key.".".$in_key] => $in_data ]);
+            // @@ 
+            if(!$query_getgroup){
+                foreach ($joinresult  as $keys => $datas){ 
+                    $eachdoc = [] ;
+                    foreach ($datas as $key => $data) {
+                        foreach($data as $in_key => $in_data ){ 
+                        $eachdoc = array_merge($eachdoc , [ self::$mappingAs[$key.".".$in_key] => $in_data ]);
+                        }
                     }
+                    $displayjoin = array_merge( $displayjoin ,[$eachdoc] );
                 }
-                $displayjoin = array_merge( $displayjoin ,[$eachdoc] );
+            }else{
+                   $displayjoin = $joinresult ; 
             }
-   
+          // 
         return  $displayjoin ;
         }
     } //@@end function findJoin

@@ -125,6 +125,32 @@ if (! function_exists('asmap_keys')) {
     }
     return  $letdisplay ;
     }
+
+
+
+if (! function_exists('array_findget2deep')) {
+    function array_findget2deep (array $arr_data , string $key1 , bool $keyOrval  , string $key2 ) { 
+            $result = array();
+            foreach ($arr_data  as $keys => $values ){
+                if( isset($arr_data[$keys][$key1 ] )){
+                    foreach( $arr_data[$keys][$key1 ]  as $key => $value ){  
+                        if($keyOrval ){
+                            if($key2 === strtolower("$value")){ $result = $key ;} 
+                        }elseif(!$keyOrval){
+                            if($key2 === strtolower("$key")){ $result = $value ;} 
+                        }
+                    }
+                } ; 
+            } 
+           if( $result != null){
+                return [ true => $result ]  ;
+            }else{ 
+               return [false => null ] ;
+           } 
+    }
+}
+
+
 }
 
 
