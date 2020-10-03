@@ -436,12 +436,12 @@ class UserModel extends NanModel
    </tr>
       <tr><td>getgroup documents <br>to group request join two collections </td>
        <td><p>
-           <code>->getgroup(string $group , string $subgroup) </code><br>
+           <code>->getgroup(null) </code><br>
            </p>
         </td>
         <td>
             <p>
-              <code>-->getgroup('gdesc', 'type_desc_en' ) ; </code><br>
+              <code>-->getgroup( ) ; </code><br>
             </p>
         </td> 
    </tr>
@@ -810,7 +810,7 @@ $test = Shopping::collection('products_group')->select('products_group.cat_id as
              ->leftjoin('products_type','products_group.cat_id','products_type.type_groupid')
              ->orderby('products_group.description','ASC')
              ->groupby('$selected')
-             ->getgroup('gdesc', 'type_desc_en' ) ;       
+             ->getgroup() ;       
      return view('test')->with('test',$test) ;  
       }
  }
@@ -820,20 +820,23 @@ $test = Shopping::collection('products_group')->select('products_group.cat_id as
   
  ````
  <!DOCTYPE html>
-<html>
-    <body class="antialiased">
+<html">
+
+    <body>
         <h2>==test list by group==</h2>
 
         @foreach( $test as  $key => $value )
           
-           {{$key}} : {{  $value['gdesc']   }}  <br> 
+           {{$key}} => 
+           group id {{  $value['gid']}} : 
+                    {{  $value['pdesc']   }}  <br> 
 
-           @foreach( $value['type_desc_en'] as  $list ) 
-
-              =====>{{ $list }} <br>
-
-            @endforeach
-             
+            @foreach($value['products_type'] as  $value )  
+                      --------- >>>>  type ID {{ $value['tid']}}  : 
+                                      type descripton {{ $value['typeDesc_en']}}
+                                      <br>
+            @endforeach 
+      
         @endforeach  
     </body>
 </html>
