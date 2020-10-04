@@ -585,16 +585,14 @@ trait Commands {
             $options = [
                 'allowDiskUse' => TRUE
             ];
-
+            $options = array_merge($options ,self::$aggregate_options  );
             if(isset($argv['count']) && $argv['count'] == true  ){  
                 $modifyPipeline = self::$pipeline ; 
-               
                 //@@ find where index number  is  $group  and index number $projet  
                  $index_project=0;
                  foreach ( $modifyPipeline as $key => $values) {  // @@ index project finder
                     if(key($values)=='$project'){ $index_project = $key ; } 
                 }
-                
               unset($modifyPipeline[$index_project]['$project']); //@@ remove project
               $modifyPipeline[$index_project] = array_merge($modifyPipeline[$index_project] , $group_count  ) ; 
               // @@ remove limit and skip
@@ -704,6 +702,8 @@ trait Commands {
 
 
         $options = [ 'allowDiskUse' => TRUE ]; 
+        $options = array_merge($options ,self::$aggregate_options  );
+       // dd(__file__.__line__ , $options  , self::$aggregate_options  ); 
         if(isset($argv['count']) && $argv['count'] == true ){
             $modifyPipeline = self::$pipeline ;
             foreach ($modifyPipeline as $key => $values) {

@@ -88,7 +88,7 @@ class Tester extends Controller
         // ->leftjoin('products_type','products_group.cat_id','products_type.type_groupid')
         // ->orderby('products_group.description','ASC')
         // ->groupby('$selected')
-        // ->getgroup('gdesc', 'type_desc_en' ) ; 
+        // ->getgroup() ; 
         //     
         //  @@ 16 test random()
         // $test = Products::collection('users')->select('name')

@@ -60,6 +60,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
         self::$pipeline = [] ;
         self::$orderTerm  = [] ;
         self::$limits  = [] ;
+        self::$aggregate_options = [] ; 
     }
     
     public  function __construct() {  
