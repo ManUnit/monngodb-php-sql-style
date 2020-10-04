@@ -517,7 +517,6 @@ class UserModel extends NanModel
    <td>
       <p>
         <code>->insert(["userid" => 1 , "username" => "Supachai" , "password" => "321PASS" ])</code><br>
-
        </p>
       </td>
    </tr>
