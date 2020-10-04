@@ -21,12 +21,18 @@ function env($key, $default = null)
            }
           
         }
-
         if($found){
-          $result = str_replace("'",'', $result );
-          $result = str_replace("'",'', $result );
-          return $result ; 
-        }
+            $result = str_replace("'",'', $result );
+            $result = str_replace("'",'', $result );
+            $result = str_replace("\r\n",'', $result );
+            $result = str_replace("\n",'', $result );
+            trim($result," \r\n");
+            fclose($envfile) ;
+            return $result ; 
+          }else{
+            fclose($envfile) ;
+            return null ;
+          }
 
        fclose($envfile) ;
 
