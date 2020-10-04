@@ -82,13 +82,14 @@ class Tester extends Controller
         //                                               ->orderby('reviews.id','desc')
         //                                               ->groupby('$selected')
         //                                               ->get();
+        //
         //  @@ 15 test getgroup()
         // $test = Shopping::collection('products_group')->select('products_group.cat_id as pgid','products_group.description as gdesc','productstype.type_id as tid','products_type.description as type_desc_en')
-        // ->where('products_type.type_id','!=',null)
-        // ->leftjoin('products_type','products_group.cat_id','products_type.type_groupid')
-        // ->orderby('products_group.description','ASC')
-        // ->groupby('$selected')
-        // ->getgroup() ; 
+        //                                                  ->where('products_type.type_id','!=',null)
+        //                                                  ->leftjoin('products_type','products_group.cat_id','products_type.type_groupid')
+        //                                                  ->orderby('products_group.description','ASC')
+        //                                                  ->groupby('$selected')
+        //                                                  ->getgroup() ; 
         //     
         //  @@ 16 test random()
         // $test = Products::collection('users')->select('name')
@@ -102,6 +103,15 @@ class Tester extends Controller
         //                                               ->orderby('products.id','desc')
         //                                               ->groupby('$selected')
         //                                               ->random(1) ; 
+        // 
+        //  @@ 18 insert 
+        //
+        //
+        //
+        //
+        //
+        //
+        // @@  Insert get ID 
 
 
     }

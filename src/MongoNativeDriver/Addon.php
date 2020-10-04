@@ -26,23 +26,21 @@ trait Addon {
     
      public function options ( array $arrVal ) {  
         // LanguageCountry support   https://docs.mongodb.com/manual/reference/collation-locales-defaults/#collation-languages-locales 
-        $optionsAble = ['language']; 
-        
-
-        foreach($arrVal as  $key => $val){ 
-            if (array_key_exists($key, $optionsAble)) {
-                echo "The $key element is in the array <br>";
+        $optionsAble = array('language'); 
+        $language  =  ['collation' =>  [ 'locale' =>  'en', 'strength' => 1 ] ] ; 
+        foreach($arrVal as  $key => $val){  
+        //     print ("KEY --->");
+            if (in_array($key,$optionsAble)) {
+                if ( isset($arrVal['language'] ) ){
+                    $language['collation']['locale']  =  $arrVal['language'] ;
+                    self::$aggregate_options = array_merge ( self::$aggregate_options  , $language ) ; 
+                }
             }else{
-                echo "The $key element isn't in the array <br>";
+                   throw new Exception(" Option  $key : $val not support ");     
             }
-            
         }
 
-        $language  =  [   'collation' =>  [ 'locale' =>  'en', 'strength' => 1 ] ] ; 
-          if ( isset($arrVal['language'] ) ){
-                 $language['collation']['locale']  =  $arrVal['language'] ;
-                 self::$aggregate_options = array_merge ( self::$aggregate_options  , $language ) ; 
-          }
+
        return $this ; 
      }
 
@@ -111,7 +109,7 @@ trait Addon {
             return ($grouping_array)  ; 
         }else{
   
-            throw new Exception("Require Join collections ");   ;        
+            throw new Exception("Require Join collections ");         
         }
        
     } 

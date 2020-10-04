@@ -472,15 +472,15 @@ trait Commands {
             $pipeline = [] ;
         }
         
-        if(env("DEV_DEBUG"))  print(  __FILE__. " : " . __LINE__ ." : ---> In find normal <br>\n") ; 
+       // if(env("DEV_DEBUG"))  print(  __FILE__. " : " . __LINE__ ." : ---> In find normal <br>\n") ; 
         $config=new Config ;
         $config->setDb($this->getDbNonstatic()) ;
         $conclude=new BuildConnect;  
-
        if ( isset($argv['count']) && $argv['count'] == true ){ 
             $options = [
                 'allowDiskUse' => true
             ];
+            $options = array_merge($options ,self::$aggregate_options  );
            $conclude->aggregate($config,$this->collection,$pipeline,$options); 
            return $conclude->result ;  //@@ Just find count of document value
        }elseif(!isset($argv['count'])||(isset($argv['count'])&&$argv['count'] == false ) ){
@@ -488,10 +488,13 @@ trait Commands {
             if ($paginate_options != '' ){  // @ Call by paginate 
                         $modify_limit =  self::$options ; 
                         $modify_limit = array_merge($modify_limit,['limit' => $paginate_options[1]['limit'] , 'skip' => $paginate_options[0]['skip']   ]   ) ;
+                         if(!null == self::$aggregate_options){ $modify_limit = array_merge($modify_limit ,self::$aggregate_options  );}
                         $conclude->findDoc($config,$this->collection,self::$querys,$modify_limit); 
                     }else{   // @call findnormal with out paginate 
-
-                        $conclude->findDoc($config,$this->collection,self::$querys,self::$options); 
+                        $modify_options =  self::$options ;
+                        if(!null == self::$aggregate_options){ $modify_options = array_merge($modify_options ,self::$aggregate_options  );}
+                      //  dd(__file__.__line__,$modify_options);
+                        $conclude->findDoc($config,$this->collection,self::$querys,$modify_options); 
                     }
        } 
 
@@ -605,7 +608,7 @@ trait Commands {
               return $conclude->result ;
                
             }elseif( !isset($argv['count']) || isset($argv['count']) && $argv['count'] == false  ) { 
-                if ( env('DEV_DEBUG') ){ print (__file__.":".__line__  ." FIND GROUP<br>\n" ) ; print_r ( self::$pipeline ) ; print ("<br>") ; } 
+              //  if ( env('DEV_DEBUG') ){ print (__file__.":".__line__  ." FIND GROUP<br>\n" ) ; print_r ( self::$pipeline ) ; print ("<br>") ; } 
                 if (!null == $paginate_perpage) { 
                     $modify_pipeline =   self::$pipeline  ; 
                     

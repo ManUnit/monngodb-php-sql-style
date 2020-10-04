@@ -313,7 +313,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
           // if(env('DEV_DEBUG')) print  ("connection@DEBUG find group : <br>\n") ;
            return $this->findGroup() ; 
         }else{     // @ normal find 
-          if(env('DEV_DEBUG')) print  (__file__.":".__line__ ."<br> ------> connection@DEBUG find normal : <br>\n") ;
+        //  if(env('DEV_DEBUG')) print  (__file__.":".__line__ ."<br> ------> connection@DEBUG find normal : <br>\n") ;
          
           return  $this->findNormal() ;
         } 
