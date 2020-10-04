@@ -1,18 +1,35 @@
 <?php
-//namespace Nantaburi\Mongodb\MongoNativeDriver ;
-use Illuminate\Support\Env;
+
+
 
 if (! function_exists('env')) {
-    /**
-     * Gets the value of an environment variable.
-     *
-     * @param  string  $key
-     * @param  mixed  $default
-     * @return mixed
-     */
-    function env($key, $default = null)
+function env($key, $default = null)
     {   
-        return Env::get($key, $default);
+       $reflection = new \ReflectionClass(\Composer\Autoload\ClassLoader::class);
+       $venderDir = dirname(dirname($reflection->getFileName())); 
+       $env = "$venderDir"."/../.env" ; 
+       $envfile = fopen("$env", "r") or die("Unable to open file!");
+       //$lines = fread($envfile,filesize($env));
+       $found = false ;
+       $result = "";
+       while(!feof($envfile)) {
+          $val = explode( "=" ,fgets($envfile) ); 
+           if($key === $val[0]){ 
+               $result = $val[1] ;
+               $found = true ;
+               break ;
+           }
+          
+        }
+
+        if($found){
+          $result = str_replace("'",'', $result );
+          $result = str_replace("'",'', $result );
+          return $result ; 
+        }
+
+       fclose($envfile) ;
+
     }
 }
 
