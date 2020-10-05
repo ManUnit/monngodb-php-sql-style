@@ -24,24 +24,16 @@ Mongodb using SQL style
 
 Run Nantabury/Mongodb standalone without laravel : 
 
-- once you don't have laravel just base on composer package go to create file under directory ./config/database.php and copy all below to database.php
-````
-<?php
+- if you don't have laravel wasn't installed you have only base on composer package go to create file  `.env`  under project's directory and then copy all below to .env
 
-return [
-    'default' => 'mongodb',
-    'connections' => [
-            'mongodb' => [
-                    'driver' => 'mongodb',
-                    'host' => '127.0.0.1',
-                    'port' => 27017,
-                    'database' => 'shopping',
-                    'username' =>  'admin',
-                    'password' =>  'password',
-                    'options' => [],
-            ]
-    ],
-];
+````
+# Nantaburi .env file 
+
+MONGO_DB_HOST='127.0.0.1'
+MONGO_MONGO_DB_PORT='27017'
+MONGO_DB_DATABASE='products'
+MONGO_MONGO_DB_USERNAME='root'
+MONGO_DB_PASSWORD='password'
 
 ````
 __________
@@ -322,7 +314,7 @@ class UserModel extends NanModel
    <tr><td>where and where </td>
    <td>
         <p>
-        <code>->orwhere(String $field ,String $Operator, $values )-></code><br>
+        <code>->andwhere(String $field ,String $Operator, $values )-></code><br>
         </p>
    </td>
    <td>
