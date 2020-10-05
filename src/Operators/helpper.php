@@ -26,12 +26,14 @@ function env($key, $default = null)
             $result = str_replace("'",'', $result );
             $result = str_replace("\r\n",'', $result );
             $result = str_replace("\n",'', $result );
+            $result = str_replace(" ",'', $result );
             trim($result," \r\n");
             fclose($envfile) ;
             return $result ; 
           }else{
+
             fclose($envfile) ;
-            return null ;
+            return $default ;
           }
 
        fclose($envfile) ;
