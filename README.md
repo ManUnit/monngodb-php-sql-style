@@ -656,6 +656,34 @@ class UserModel extends NanModel
    </tbody>
   </table>
   
+  - spacial command on function select()
+ 
+  <table>
+    <thead>
+      <tr>
+        <th> Operator</th>
+        <th> description </th>
+          <th> Example </th>
+     </tr>
+   </thead>
+   <tbody>
+   <tr><td>  count(*) </td>
+        <td>
+            <p>
+              <code>count all documents to be  number </code><br>
+           </p>
+        </td>
+        <td>
+            <p>
+                <code>->select('count(*)')->get() </code><br>
+             </p>
+        </td>
+    </tr>
+    </tbody>
+    </table>
+       
+ 
+ 
  
 - Create Laravel controller 
    - using command `  php artisan make:controller --model=UserDbModel  ` at laravel root project 
