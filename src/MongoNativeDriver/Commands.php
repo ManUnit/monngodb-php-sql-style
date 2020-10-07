@@ -37,20 +37,20 @@ trait Commands {
 
     public function paginate(int $perpage , string $pageName = '' ,  string  $viewlinkfile = '') {   
         $this->getAllwhere() ;  // Intregate where everywhere         
-       
+        //
         $outlet = new Outlet ;
         $outlet->items = $this->pageget($perpage)['items'];
         $outlet->total = $this->pageget($perpage)['totaldocuments'];
         $outlet->perPage = $perpage;
         $outlet->path = 'http'.(empty($_SERVER['HTTPS'])?'':'s').'://'.$_SERVER['HTTP_HOST'].'/'.str_replace ('/','',$_SERVER['REQUEST_URI']);
-        $outlet->currentPage = $page  ; 
         $this->getAllwhere()  ;  //@@@ update latest query
         $outlet->query = self::$querys ; 
         $pageName === '' ? $outlet->pageName = 'page'  : $outlet->pageName = $pageName  ;
         if(!isset($_GET[$outlet->pageName] )){$page=(int) 1 ;}else{  $page= (int) $_GET[$outlet->pageName];}
+        $outlet->currentPage = $page  ; 
         $outlet->viewlinkfile = $viewlinkfile;  
         $outlet->links   = $this->pagedrawing($perpage ,$outlet->total,$page ) ;      
-        $outlet->options   =   array_merge($outlet->options , [ 'path' => $outlet->path , 'pageName' => $outlet->pageName  ]) ; 
+        $outlet->options =  array_merge($outlet->options , [ 'path' => $outlet->path , 'pageName' => $outlet->pageName  ]) ; 
         return $outlet ;
     }
 
@@ -300,6 +300,32 @@ trait Commands {
         }
     }
 
+    private function execFunctions(string $command , string  $qyeryStyle ){
+        if ($command ==='count' && $qyeryStyle ==='join' ){
+            if (self::$specialOperator['count']==='*'){ 
+               
+                if ( !isset($this->findJoin(['count' => true ])[0]) ) { return 0 ;} else {  return  $this->findJoin(['count' => true ])[0]->count ; }
+                // return $this->findJoin(['count' => true ])[0]->count ;
+            }elseif(isset(self::$specialOperator['count'])&&self::$specialOperator['count']!=='*'){
+                throw new Exception("ERROR ! function argument dose not support : 'count(".self::$specialOperator['count'].")' try change to 'count(*)' ");
+            }
+        }elseif($command ==='count' && $qyeryStyle ==='group'){
+            if (self::$specialOperator['count']==='*'){
+                if ( !isset($this->findGroup(['count' => true ])[0]) ) { return 0 ;} else {  return  $this->findGroup(['count' => true ])[0]->count ; }
+                //return  $this->findGroup(['count' => true ])[0]->count;
+            }elseif(isset(self::$specialOperator['count'])&&self::$specialOperator['count']!=='*'){
+                throw new Exception("ERROR ! function argument dose not support : 'count(".self::$specialOperator['count'].")' try change to 'count(*)' ");
+            }
+        }elseif($command ==='count' && $qyeryStyle ==='find'){
+            if (self::$specialOperator['count']==='*'){
+                if ( !isset($this->findNormal(['count' => true ])[0]) ) { return 0 ;} else {  return  $this->findNormal(['count' => true ])[0]->count ; }
+               // return  $this->findNormal(['count' => true ])[0]->count;
+            }elseif(isset(self::$specialOperator['count'])&&self::$specialOperator['count']!=='*'){
+                throw new Exception("ERROR ! function argument dose not support : 'count(".self::$specialOperator['count'].")' try change to 'count(*)' ");
+            }
+        }
+    }
+    
     private function findCreateIndexMany(String $IndexMany){ 
         $config = new Config ;
         $config->setDb( $this->getDbNonstatic() ) ;
@@ -463,7 +489,9 @@ trait Commands {
         if ( isset($argv['perpage']) &&  $argv['perpage'] != null ){ $paginate_perpage = $argv['perpage'] ;} 
         if ( isset($argv['options']) &&  $argv['options'] != '' ){ $paginate_options = $argv['options'] ;} 
         if ( isset($argv['count']) && $argv['count'] == true ){  
-            $pipeline = [   ['$match' =>  self::$querys  ],
+            
+            $pipeline =  [  
+                            ['$match' =>  self::$querys  ] ,
                             ['$group' => [ '_id' => [],  'COUNT(*)' => [ '$sum' => 1 ]  ] ],
                             ['$project' => [ 'count' => '$COUNT(*)', '_id' => 0  ]
                         ]
@@ -472,15 +500,19 @@ trait Commands {
             $pipeline = [] ;
         }
         
-       // if(env("DEV_DEBUG"))  print(  __FILE__. " : " . __LINE__ ." : ---> In find normal <br>\n") ; 
+        if( null == self::$querys ){$pipeline =  arrFindKeyRemove($pipeline,'$match');}
+
+        //if(env("DEV_DEBUG"))  print(  __FILE__. " : " . __LINE__ ." : ---> In find normal <br>\n") ; 
+       // if(env("DEV_DEBUG"))  dd(__file__.__line__,self::$querys ,$pipeline ) ; 
         $config=new Config ;
         $config->setDb($this->getDbNonstatic()) ;
         $conclude=new BuildConnect;  
-       if ( isset($argv['count']) && $argv['count'] == true ){ 
+        if ( isset($argv['count']) && $argv['count'] == true ){ 
+            //if(env("DEV_DEBUG"))  print(  __FILE__. " : " . __LINE__ ." : ---> In  count : ".$argv['count']." <br>\n") ; 
             $options = [
                 'allowDiskUse' => true
             ];
-            $options = array_merge($options ,self::$aggregate_options  );
+           $options = array_merge($options ,self::$aggregate_options  );
            $conclude->aggregate($config,$this->collection,$pipeline,$options); 
            return $conclude->result ;  //@@ Just find count of document value
        }elseif(!isset($argv['count'])||(isset($argv['count'])&&$argv['count'] == false ) ){
@@ -517,98 +549,105 @@ trait Commands {
             }
    } 
     public function findGroup (array $argv = null ) {  
-           //  if(env('DEV_DEBUG'))  dd( __file__ ." : ". __line__,$argv['count']) ; 
-           // findGroup([ 'count' => false  , 'options' => $options ,'perpage'=> $perpage ])  
-        
-           $paginate_options = '' ; 
-           $paginate_perpage = null ; 
-           $query_random  = null ; 
-           if ( isset($argv['random']) &&  $argv['random'] != null ){ $query_random = (int) $argv['random'] ;} 
-           if ( isset($argv['perpage']) &&  $argv['perpage'] != null ){ $paginate_perpage = $argv['perpage'] ;} 
-           if ( isset($argv['options']) &&  $argv['options'] != '' ){ $paginate_options = $argv['options'] ;} 
-  
-            $config=new Config ;
-            $config->setDb($this->getDbNonstatic()) ;
-            $conclude=new BuildConnect; 
-            $findMatch = 'null'  ;
-            $group_count = [ '$count' => "count" ] ;
-            foreach( self::$pipeline as $key => $dat  ){
-                if ( isset(self::$pipeline[$key]['$match'])){ $findMatch = $key ; break ;}
-            }
-          
-            if ( $findMatch === 'null' && !null ==  self::$querys ){ 
-               // dd(__file__.":".__line__ , " No match "  ,self::$pipeline ,self::$querys ) ;
-                $swap = [] ;
-                $swap = self::$pipeline ;
-                // $group_project = [ '$project' => [ 'count' => '$COUNT(*)','_id' => 0 ]  ] ; 
-                self::$pipeline = [] ;
-                self::$pipeline = array_merge(self::$pipeline,[ ['$match' => self::$querys] ]);
-                self::$pipeline = array_merge(self::$pipeline,$swap);
-               
-           }
-
-           $foundGroup = 'null' ;
-           foreach(self::$pipeline as $key => $values) {
-                   if( isset(self::$pipeline[$key]['$group'])  ){
-                    $foundGroup = $key ;
-                       break ;
-                   } ;
-           }
-           // dd(__file__.":".__line__,self::$groupby);
-           if ($foundGroup === 'null' ) {
-            self::$pipeline = array_merge( self::$pipeline , [self::$groupby] );
-           }
-           // @@ End add $match 
-           //@@  search $project in pipeline 
-            $foundProject = 'null' ;
-            foreach(self::$pipeline as $key => $values) {
-                    if( isset(self::$pipeline[$key]['$project'])  ){
-                        $foundProject = $key ;
-                        break ;
-                    } ;
-            }
-            if( $foundProject === 'null' ) { 
-                foreach (self::$options as $mainkey => $mainOption){
-                        if('projection'===$mainkey){   
-                            $project['$project'] = [];
-                            foreach (self::$options['projection'] as $key => $option ){ 
-                                substr($option,0,1) === "$" ?     
-                                        $option = substr($option,1) :
-                                        $option = substr($option,0) ;
-                                if ($key !== '_id') $project['$project'] = array_merge( $project['$project'] , [ $key => "\$_id.$option" ]); 
-                            }
-                            $project['$project']= array_merge( $project['$project'],[ '_id' =>  0]); 
-                            self::$pipeline = array_merge(self::$pipeline,[$project]); 
-                        }else{
-                            self::$pipeline = array_merge(self::$pipeline,[["\$".$mainkey => $mainOption ]]); 
-                        }
-                }
-
-            }
-            $options = [
-                'allowDiskUse' => TRUE
-            ];
-            $options = array_merge($options ,self::$aggregate_options  );
-            if(isset($argv['count']) && $argv['count'] == true  ){  
-                $modifyPipeline = self::$pipeline ; 
-                //@@ find where index number  is  $group  and index number $projet  
-                 $index_project=0;
-                 foreach ( $modifyPipeline as $key => $values) {  // @@ index project finder
-                    if(key($values)=='$project'){ $index_project = $key ; } 
-                }
-              unset($modifyPipeline[$index_project]['$project']); //@@ remove project
-              $modifyPipeline[$index_project] = array_merge($modifyPipeline[$index_project] , $group_count  ) ; 
-              // @@ remove limit and skip
-              foreach ($modifyPipeline as $key => $values) {
-                     if( isset($modifyPipeline[$key]['$skip'])){ unset($modifyPipeline[$key]) ;}
-                     if( isset($modifyPipeline[$key]['$limit'])){ unset($modifyPipeline[$key]) ;}
-              }
+        // findGroup([ 'count' => false  , 'options' => $options ,'perpage'=> $perpage ])  
+        $paginate_options = '' ; 
+        $paginate_perpage = null ; 
+        $query_random  = null ; 
+        if ( isset($argv['random']) &&  $argv['random'] != null ){ $query_random = (int) $argv['random'] ;} 
+        if ( isset($argv['perpage']) &&  $argv['perpage'] != null ){ $paginate_perpage = $argv['perpage'] ;} 
+        if ( isset($argv['options']) &&  $argv['options'] != '' ){ $paginate_options = $argv['options'] ;} 
+        $config=new Config ;
+        $config->setDb($this->getDbNonstatic()) ;
+        $conclude=new BuildConnect; 
+        $findMatch = 'null'  ;
+        $group_count = [ '$count' => "count" ] ;
+        foreach( self::$pipeline as $key => $dat  ){
+            if ( isset(self::$pipeline[$key]['$match'])){ $findMatch = $key ; break ;}
+        }
+        if ( $findMatch === 'null' && !null ==  self::$querys ){ 
+            // dd(__file__.":".__line__ , " No match "  ,self::$pipeline ,self::$querys ) ;
+            $swap = [] ;
+            $swap = self::$pipeline ;
+            // $group_project = [ '$project' => [ 'count' => '$COUNT(*)','_id' => 0 ]  ] ; 
+            self::$pipeline = [] ;
+            self::$pipeline = array_merge(self::$pipeline,[ ['$match' => self::$querys] ]);
+            self::$pipeline = array_merge(self::$pipeline,$swap);
             
-              $conclude->aggregate($config,$this->collection,$modifyPipeline,$options);
-              return $conclude->result ;
+        }
+        $foundGroup = 'null' ;
+        foreach(self::$pipeline as $key => $values) {
+            if( isset(self::$pipeline[$key]['$group'])  ){
+                $foundGroup = $key ;
+                break ;
+            } ;
+        }
+        // dd(__file__.":".__line__,self::$groupby);
+        if ($foundGroup === 'null' ) {
+            self::$pipeline = array_merge( self::$pipeline , [self::$groupby] );
+        }
+        //@@ End add $match 
+        //@@  search $project in pipeline 
+        $foundProject = 'null' ;
+        foreach(self::$pipeline as $key => $values) {
+            if( isset(self::$pipeline[$key]['$project'])  ){
+                $foundProject = $key ;
+                break ;
+            } ;
+        }
+        if( $foundProject === 'null' ) { 
+            foreach (self::$options as $mainkey => $mainOption){
+                if('projection'===$mainkey){   
+                    $project['$project'] = [];
+                    foreach (self::$options['projection'] as $key => $option ){ 
+                        substr($option,0,1) === "$" ?     
+                        $option = substr($option,1) :
+                        $option = substr($option,0) ;
+                        if ($key !== '_id') $project['$project'] = array_merge( $project['$project'] , [ $key => "\$_id.$option" ]); 
+                    }
+                    $project['$project']= array_merge( $project['$project'],[ '_id' =>  0]); 
+                    self::$pipeline = array_merge(self::$pipeline,[$project]); 
+                }else{
+                    self::$pipeline = array_merge(self::$pipeline,[["\$".$mainkey => $mainOption ]]); 
+                }
+            }
+            
+        }
+        $options = [
+            'allowDiskUse' => TRUE
+        ];
+        $options = array_merge($options ,self::$aggregate_options  );
+        if(isset($argv['count']) && $argv['count'] == true  ){  
+            $modifyPipeline = self::$pipeline ; 
+            //@@ find where index number  is  $group  and index number $projet  
+            $index_project=0;
+            $findFound = '$Null';
+            foreach ( $modifyPipeline as $key => $values) {  // @@ index project finder
+               // if(key($values)=='$project'){ $index_project = $key ;  } 
+               if(isset($modifyPipeline[$key]['$project'])){ unset($modifyPipeline[$key]['$project']); $findFound = $key ; break ;};
+            }
+          //  print(__file__.__line__." Index : $index_project");
+             //@@ remove project 
+            if($findFound !== '$Null'){
+                 $modifyPipeline[$findFound] = array_merge($modifyPipeline[$findFound],$group_count); 
+            }elseif($findFound ==='$Null'  && isset(self::$specialOperator['count'] )){
+                array_push($modifyPipeline , $group_count );
+            }
+            // @@ remove limit and skip
+            foreach ($modifyPipeline as $key => $values) {
+                if( isset($modifyPipeline[$key]['$skip'])){ unset($modifyPipeline[$key]) ;}
+                if( isset($modifyPipeline[$key]['$limit'])){ unset($modifyPipeline[$key]) ;}
+            }
+            $modifyPipeline =  array_reindex($modifyPipeline);
+            // if(env('DEV_DEBUG')){
+            //     print_r( __file__ ." : ". __line__ . $argv['count'] ) ;
+            //     print_r(self::$pipeline ) ; print ( "Modify pipeline" ) ; print_r ( $modifyPipeline  ) ; print ("<br><br><br><br><br>"); 
+            // }
+             //dd(__file__ ." : ". __line__  ,$modifyPipeline  );
+            $conclude->aggregate($config,$this->collection,$modifyPipeline,$options);
+            return $conclude->result ;
                
-            }elseif( !isset($argv['count']) || isset($argv['count']) && $argv['count'] == false  ) { 
-              //  if ( env('DEV_DEBUG') ){ print (__file__.":".__line__  ." FIND GROUP<br>\n" ) ; print_r ( self::$pipeline ) ; print ("<br>") ; } 
+        }elseif( !isset($argv['count']) || isset($argv['count']) && $argv['count'] == false ) { 
+               if ( env('DEV_DEBUG') ){ print (__file__.":".__line__  ."  argv " . " ==> <br>\n" ) ; } 
                 if (!null == $paginate_perpage) { 
                     $modify_pipeline =   self::$pipeline  ; 
                     
@@ -634,12 +673,11 @@ trait Commands {
                 }else{ 
                     $modify_pipeline = self::$pipeline ;
                     $query_random != null ? $modify_pipeline  = array_merge ($modify_pipeline , [ [ '$sample' => [  "size" => $query_random ]  ] ] ) : $modify_pipeline = self::$pipeline  ;  
-                     // dd(__file__ . __line__ , $modify_pipeline) ; 
                     $conclude->aggregate($config,$this->collection,$modify_pipeline,$options); 
                 } 
 
                 $renewdisplay = [] ;
-                $groupresult = json_decode(json_encode( $conclude->result ) , true ) ; 
+                $groupresult = json_decode(json_encode($conclude->result),true); 
                 foreach ( self::$pipeline as $key => $values ) {
                      if ( isset(self::$pipeline[$key]['$group']["_id"]['*'] ) )  throw new Exception(" Query  with select('*') with groupby() not support. you have to select at least one field ")  ;
                 }
@@ -652,8 +690,8 @@ trait Commands {
                     $renewdisplay = array_merge($renewdisplay, [$docs]  );
                 }
                 return $renewdisplay ;
-            }
-            return [] ; // @@ Nothong 
+        }
+        return [] ; // @@ return Nothing 
     } 
 
     public function findJoin(array $argv=null ) { 

@@ -47,7 +47,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
     private static $groupby = array();
     private static $pre_groupby = array();
     private static $mappingAs = array(); 
-
+    private static $specialOperator = array();
     
     public function  initQuerysValues() {
         self::$pre_groupby = [] ;
@@ -61,6 +61,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
         self::$orderTerm  = [] ;
         self::$limits  = [] ;
         self::$aggregate_options = [] ; 
+        self::$specialOperator = [] ;
     }
     
     public  function __construct() {  
@@ -82,25 +83,23 @@ class Connection extends Compatible {  //defind the Class to be  master class
     }
 
     public static function __callStatic($method, $parameters){
-     //   return (new static)->$method(...$parameters);
-         if ( $method === "database" ){ 
-             if(count($parameters) == 0) {
-                     return (new static)->setDatabaseCollection((new static)->database , (new static)->collection);
-             }elseif ( count($parameters) == 1 ){
-                     return (new static)->setDatabase("$parameters[0]");
-             }elseif(count($parameters) == 2){
-                     return (new static)->setDatabaseCollection("$parameters[0]" , "$parameters[1]" );
-             }
-         }elseif($method === "DB" ) {
-            if(count($parameters) == 0) {
-                return (new static)->setDatabaseCollection((new static)->database , (new static)->collection);
-            }elseif ( count($parameters) == 1 ){
-                    return (new static)->setDatabase("$parameters[0]");
-            }elseif(count($parameters) == 2){
-                    return (new static)->setDatabaseCollection("$parameters[0]" , "$parameters[1]" );
-            }
-
-         }
+        //  if ( $method === "database" ){ 
+        //      if(count($parameters) == 0) {
+        //              return (new static)->setDatabaseCollection((new static)->database , (new static)->collection);
+        //      }elseif ( count($parameters) == 1 ){
+        //              return (new static)->setDatabase("$parameters[0]");
+        //      }elseif(count($parameters) == 2){
+        //              return (new static)->setDatabaseCollection("$parameters[0]" , "$parameters[1]" );
+        //      }
+        //  }elseif($method === "DB" ) {
+        //     if(count($parameters) == 0) {
+        //         return (new static)->setDatabaseCollection((new static)->database , (new static)->collection);
+        //     }elseif ( count($parameters) == 1 ){
+        //             return (new static)->setDatabase("$parameters[0]");
+        //     }elseif(count($parameters) == 2){
+        //             return (new static)->setDatabaseCollection("$parameters[0]" , "$parameters[1]" );
+        //     }
+        //  }
     }
  
  
@@ -268,10 +267,26 @@ class Connection extends Compatible {  //defind the Class to be  master class
 
     public function select(...$fields){  
 
-        $this->initQuerysValues() ; // reset all $this values
+        $this->initQuerysValues() ; // reset all of $this values
        
         self::$pre_groupby = array_merge(['$selected'=>true], removeAs($fields)  ); 
-        if(count($fields)== 1 && $fields[0] === '*'  )return $this;
+        $selectCommand=trim($fields[0]);
+        $selectCommand=str_replace(" ","",$selectCommand);
+       // $selectCommand= ;
+        //$getSelectCommand =  preg_match("/^count\(+[*a-zA-Z0-9._-]+\)/",$selectCommand) ;
+       // dd(__file__.__line__,self::$specialOperator,$selectCommand);
+        if(count($fields)== 1 && $selectCommand === '*'  ){
+            return $this;
+        }elseif( count($fields)== 1 && true == preg_match("/^count\(+[*a-zA-Z0-9._-]+\)/" , $selectCommand)){ 
+            self::$specialOperator =  commandTranslate($selectCommand)  ; 
+           // dd(__file__.__line__,self::$specialOperator , $selectCommand);
+            return $this ; 
+        }elseif( count($fields)== 1 && true == preg_match("/^sum\(+[*a-zA-Z0-9._-]+\)/" , $selectCommand)){ 
+            self::$specialOperator =  commandTranslate($selectCommand)  ; 
+           // dd(__file__.__line__,self::$specialOperator , $selectCommand);
+            return $this ; 
+        }
+
         if (!isset ( self::$options['projection'])){self::$options['projection'] = [] ; }
         self::$mappingAs = asmap($fields) ;
 
@@ -297,29 +312,29 @@ class Connection extends Compatible {  //defind the Class to be  master class
         self::$groupby = $groupby;
         return $this ;
     }
-
     
-    public function get() {    
 
+    public function get() {    
         $this->getAllwhere() ;  // Intregate where everywhere  
         if(!null == self::$joincollections){ 
-          // if(env('DEV_DEBUG'))print  (__file__.":".__line__ ." -> find join : <br>\n") ;
+            if(env('DEV_DEBUG'))print  (__file__.":".__line__ ." -> find join : <br>\n") ;
+            if (isset(self::$specialOperator['count'])){ return  $this->execFunctions('count','join') ;}
+          
            return $this->findJoin() ;
         }
         //
         //@command for group by
         //
         if(!null == self::$groupby && null ==  self::$joincollections ){ 
-          // if(env('DEV_DEBUG')) print  ("connection@DEBUG find group : <br>\n") ;
-           return $this->findGroup() ; 
+          //  if(env('DEV_DEBUG')) print  ("connection@DEBUG find group : <br>\n") ;
+            if (isset(self::$specialOperator['count'])){ return  $this->execFunctions('count','group') ;}
+            if(env('DEV_DEVBUG')== true )print(__file__.__line__." AFTER CAL FUNCTION <br>") ;
+            return $this->findGroup() ; 
         }else{     // @ normal find 
-        //  if(env('DEV_DEBUG')) print  (__file__.":".__line__ ."<br> ------> connection@DEBUG find normal : <br>\n") ;
-         
+            if(env('DEV_DEBUG')) print  (__file__.":".__line__ ."<br> ------> connection@DEBUG find normal : <br>\n") ;
+            if (isset(self::$specialOperator['count'])){ return $this->execFunctions('count','find') ;}
           return  $this->findNormal() ;
         } 
-
-       // return $conclude->result ;
-      
     } 
 
     public function random( int $numRec = 1 ) {    
@@ -340,8 +355,6 @@ class Connection extends Compatible {  //defind the Class to be  master class
           //throw new Exception(" Error ! request group() function  and and format select ()->  group()  and ->random() in order format functions "); 
           return  $this->findGroup(['random' => $numRec ]) ;
         } 
-
-       // return $conclude->result ;
       
     } 
       
@@ -363,7 +376,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
             self::$options = array_merge( self::$options , [ 'sort' => [ $parameters[0]=> 1 ] ]); 
             return $this ;
         }elseif($argcount > 1){
-            //checker : Engagement ASC DESC with pair parameters  
+            //@@checker : Engagement ASC DESC with pair parameters  
              $engagementMap = ['sort'=>[]] ;
              $leftParameter = '' ;  
              $countParam = 0 ;  

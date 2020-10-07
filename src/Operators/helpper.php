@@ -1,7 +1,12 @@
 <?php
 
-
-
+if (! function_exists('commandTranslate')) {
+    function commandTranslate(string $command){
+           $command =  str_replace(")","" ,$command);
+           $command =  explode("(", $command);
+           return [ $command[0] => $command[1] ] ;
+    }
+}
 if (! function_exists('env')) {
 function env($key, $default = null)
     {   
@@ -22,12 +27,13 @@ function env($key, $default = null)
           
         }
         if($found){
-            $result = str_replace("'",'', $result );
-            $result = str_replace("'",'', $result );
-            $result = str_replace("\r\n",'', $result );
-            $result = str_replace("\n",'', $result );
-            $result = str_replace(" ",'', $result );
-            trim($result," \r\n");
+            $result=trim($result);
+            $result=str_replace("'",'', $result );
+            $result=str_replace("'",'', $result );
+            $result=str_replace("\r\n",'', $result );
+            $result=str_replace("\n",'', $result );
+            $result=str_replace(" ",'', $result );
+            $result=trim($result," \r\n");
             fclose($envfile) ;
             return $result ; 
           }else{
@@ -50,7 +56,7 @@ if (! function_exists('dotter')) {
 
 if (! function_exists('makeProject')) {
        function  makeProject(array $Arr){
-            $projects = [ '$project' =>   array() ] ;
+            $projects=[ '$project' =>   array() ] ;
             foreach($Arr as $selection  ){
                 $projects['$project'] = array_merge($projects['$project'],[$selection => '$'.$selection  ] );
             }
@@ -154,14 +160,14 @@ if (! function_exists('asmap_keys')) {
 
 
 if (! function_exists('array_findget2deep')) {
-    function array_findget2deep (array $arr_data , string $key1 , bool $keyOrval  , string $key2 ) { 
+    function array_findget2deep (array $arr_data , string $key1 , bool $isKey  , string $key2 ) { 
             $result = array();
             foreach ($arr_data  as $keys => $values ){
                 if( isset($arr_data[$keys][$key1 ] )){
                     foreach( $arr_data[$keys][$key1 ]  as $key => $value ){  
-                        if($keyOrval ){
+                        if($isKey ){
                             if($key2 === strtolower("$value")){ $result = $key ;} 
-                        }elseif(!$keyOrval){
+                        }elseif(!$isKey){
                             if($key2 === strtolower("$key")){ $result = $value ;} 
                         }
                     }
@@ -172,6 +178,29 @@ if (! function_exists('array_findget2deep')) {
             }else{ 
                return [false => null ] ;
            } 
+    }
+}
+
+if (!function_exists('array_reindex')){
+    function array_reindex (array  $arr ) {
+        $result = [] ;
+        foreach($arr as $key => $value ){
+            $result = array_merge($result , [ $key => $value ]);
+        }
+        return $result ;
+    }
+}
+
+if (!function_exists('arrFindKeyRemove')){
+    function arrFindKeyRemove(array $arr , string  $findkey){
+     $reindex = [] ;
+     foreach ($arr as $key => $val ){
+         if(isset($arr[$key][$findkey])){ unset($arr[$key]) ; break ;}
+     }
+     foreach($arr as $key => $val ){
+        $reindex = array_merge($reindex,[$key=>$val]); 
+     }
+     return $reindex ; 
     }
 }
 
