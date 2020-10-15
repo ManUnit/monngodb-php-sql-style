@@ -681,10 +681,6 @@ class UserModel extends NanModel
     </tr>
     </tbody>
     </table>
-       
- Shopping::getSequence('id','customers')
- 
-  
   - spacial  functions
  
   <table>
