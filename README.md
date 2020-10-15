@@ -682,8 +682,35 @@ class UserModel extends NanModel
     </tbody>
     </table>
        
+ Shopping::getSequence('id','customers')
  
+  
+  - spacial  functions
  
+  <table>
+    <thead>
+      <tr>
+        <th> class function() </th>
+        <th> description </th>
+          <th> Example </th>
+     </tr>
+   </thead>
+   <tbody>
+   <tr><td>  [ClassName]::getSequence([Auto Increase field],[Collection]) </td>
+        <td>
+            <p>
+              <code>to auto increase number </code><br>
+           </p>
+        </td>
+        <td>
+            <p>
+                <code> ConpanyDB::getSequence('id','customer')</code><br>
+                <code> ConpanyDB::collection("customers")->insert(["id" => ConpanyDB::getSequence('id','customers') , "description" => "Elon mask"]) ; </code><br>
+             </p>
+        </td>
+    </tr>
+    </tbody>
+    </table>
  
 - Create Laravel controller 
    - using command `  php artisan make:controller --model=UserDbModel  ` at laravel root project 
