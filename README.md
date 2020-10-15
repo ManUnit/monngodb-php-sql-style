@@ -700,7 +700,6 @@ class UserModel extends NanModel
         </td>
         <td>
             <p>
-             
                 <code> ModelDB::collection("customers")->insert(["id" => ModelDB::getSequence('id','customers') , "description" => "Elon mask"]) ; </code><br>
              </p>
         </td>
