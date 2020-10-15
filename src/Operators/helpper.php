@@ -41,7 +41,10 @@ if (! function_exists('dataTypemapping')) {
                         $getdate= ( $orig_date->getTimestamp() + $offset )  * 1000  ;
                     }else{
                         $orig_date = new DateTime($value);
-                        $getdate=$orig_date->getTimestamp() * 1000 ;
+                        $tz = new DateTimeZone($timezone) ; 
+                        $orig_date->setTimeZone($tz) ;
+                        $offset = $orig_date->getOffset() ; 
+                        $getdate=($orig_date->getTimestamp() + $offset )  * 1000 ;
                     }
                     
                     $newtype = new BSONDatetime($getdate); 
