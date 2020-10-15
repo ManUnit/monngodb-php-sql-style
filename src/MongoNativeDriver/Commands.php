@@ -19,9 +19,6 @@ use MongoDB\BSON\Regex;
 trait Commands {    
     use Classifier ;  
     
-   
-
-
     public static function InitIndexAutoInc () { 
         $this->fillable( (array) [] );
     }
@@ -34,6 +31,27 @@ trait Commands {
         $result = $conclude->getModifySequence($config,$this->getCollectNonstatic(),$autoIncName); 
         return $result; 
     }
+
+    public static function getSequence(String $autoIncName , String $collection = null ) { 
+        (new static)->fillable( (array) [] , [ "forceCollection" => $collection ] );  // Pre scan schema to create all first since empty indecies and counter collection 
+        if (!null == $collection  ){
+            self::$SequenceCollection = $collection  ;
+        }
+        $config = new Config;
+        $config->setDb((new static)->getDbNonstatic());
+        $conclude = new BuildConnect;
+        if($collection == null) {
+           $result = $conclude->getModifySequence($config,(new static)->getCollectNonstatic(),$autoIncName); 
+        }else{  
+            if( (new static)->isin_schema("$collection")){  
+               $result = $conclude->getModifySequence($config,$collection,$autoIncName);
+            }else{
+               throw new Exception( "Error ! collection $collection isn't schema ") ;
+            }
+        }
+        return $result; 
+    }
+
 
     public function paginate(int $perpage , string $pageName = '' ,  string  $viewlinkfile = '') {   
         $this->getAllwhere() ;  // Intregate where everywhere         
@@ -253,6 +271,7 @@ trait Commands {
 
     private function setCollection($collection){
         $this->collection = $collection ;
+       
         return $this ; 
     }
 
@@ -371,8 +390,6 @@ trait Commands {
                 ];
         $result =  $conclude->getIndex($config , $this->getCollectNonstatic() , $index['name'] );
          if ( !$result ) { 
-              print(__file__ .":".__line__ . " Try create  <br>" . " ". $this->getCollectNonstatic()  . "<br> " )  ; 
-              print_r($index) ; 
               $reactionInsert = $conclude->createIndex($config , $this->getCollectNonstatic() , $index  );
           }else{
               $reactionInsert = false ;
@@ -400,53 +417,71 @@ trait Commands {
          return  $reactionInsert  ; 
     }
 
-    private  function findCreateAutoInc(String $fieldNameToInc , int $StartSeq  ) {
+    private  function findCreateAutoInc(String $fieldNameToInc , int $StartSeq , string $forceCollection = null  ) {
         $config = new Config ;
         $config->setDb( $this->getDbNonstatic() ) ;
         $conclude = new BuildConnect ; 
+        $countCollection = null ; 
         $collection_counter  = $this->getDbNonstatic().'_counters' ; 
-        $this->findCreateIndexAutoInc( $fieldNameToInc, $this->getCollectNonstatic() ) ; // Magic create index 
+        if($forceCollection == null){
+            $countCollection = $this->getCollectNonstatic() ; 
+        }else{
+            $countCollection = $forceCollection ;
+        }
+        $this->findCreateIndexAutoInc( $fieldNameToInc,$countCollection); // Magic create index 
        // dd(__file__.":".__line__ );
-        $query = [  'inc_field' => $fieldNameToInc , 'collection' => $this->getCollectNonstatic() ]  ;
-       //  dd(__file__."".__line__ , $config , $collection_counter ,$query ) ;
+        $query = [  'inc_field' => $fieldNameToInc , 'collection' => $countCollection];
+       //  dd(__file__."".__line__ , $config , $collection_counter ,$query ) ; 
         $conclude->findDoc($config , $collection_counter ,$query ) ; 
          if ( null == $conclude->result ) {
-           
             $reactionInsert = $conclude->insertDoc($config ,$collection_counter ,[
                                                      	'inc_field' => $fieldNameToInc ,
-						                            	'collection'=> $this->getCollectNonstatic(),
+						                            	'collection'=> $countCollection ,
                                                         'sequence_value' => 0.0 + $StartSeq ]) ; // conversion datatype to be double
          }  
-        
         return $conclude->result ; 
     } 
 
-    private function fillable(array $arrVals , $option = [] ) { 
+    private function isin_schema(string $findCollection  ) { 
       
+        foreach ( array_keys( $this->schema ) as $each_coll  ) {  
+            if ( (String) $each_coll === $findCollection )return true ; 
+        }
+        return false ; 
+    }
+
+
+    private function fillable(array $arrVals , $option = [] ) { 
         $collections=[];
         $fillables=[];
-        $updateProtected=[];
+        $updateProtected=[]; 
+        $forceCollection = null ;
+        if(isset($option['forceCollection'])){ 
+             $forceCollection =  $option['forceCollection']  ;
+        }else{
+            $forceCollection = $this->collection  ;
+        }  
         foreach ( array_keys( $this->schema ) as $each_coll  ) { 
             array_push($collections,$each_coll) ; 
         }
 
-        if( !in_array( $this->collection , $collections)  ){
-             return [0 , "Error ! collection:$this->collection aren't in member of schema check your Model class ".get_class($this) ] ;
+        if( !in_array( $forceCollection , $collections)  ){
+             return [0 , "Error ! collection:$forceCollection aren't in member of schema check your Model class ".get_class($this) ] ;
              
         }else{ 
-             foreach (  $this->schema[ $this->collection]  as $keys =>  $values ) { 
+             foreach (  $this->schema[ $forceCollection]  as $keys =>  $values ) { 
                
                 if ( is_array($values) ){
                      
-                    if(isset($this->schema[$this->collection][$keys]['AutoIncStartwith'])){ 
-                        $startseq = $this->schema[$this->collection][$keys]['AutoIncStartwith'] ; 
+                    if(isset($this->schema[$forceCollection][$keys]['AutoIncStartwith'])){ 
+                        $startseq = $this->schema[$forceCollection][$keys]['AutoIncStartwith'] ; 
                     }else{
                         $startseq = 0 ;
                     }
                     
                     foreach ( $values  as $key => $value  ) { 
                        
-                        if ( $key === "AutoInc"  &&  $value === true )   $this->findCreateAutoInc($keys, $startseq )  ; 
+                        if ( $key === "AutoInc"  &&  $value === true )   $this->findCreateAutoInc($keys,$startseq,$forceCollection)  ; 
                      
                      //   if (env('DEV_DEBUG')){ print ( __file__.":".__line__ ."  fillable  , key : $keys => $value <br>"  );  }
                        
@@ -456,8 +491,6 @@ trait Commands {
                         }
                             
                     } 
-
-                    
                     $findmultiIndex = substr( $keys  , 0, strlen( "\$__MULTIPLE_INDEX")  );
                     if ( "\$__MULTIPLE_INDEX" === $findmultiIndex ){ 
                              $this->findCreateIndexMany($keys) ;  
@@ -473,9 +506,9 @@ trait Commands {
        
         foreach ( array_keys($arrVals) as $key  ) {  
   
-            if (  !in_array( $key , $fillables ) ) { return  [  0 , "ERROR ! input fail -> field name:".$key. " aren't  member in schema check your Model ".get_class($this) ]; } 
+            if (  !in_array( $key , $fillables ) ) { return  [  0 , "ERROR ! input fail Collection: $forceCollection -> field name:".$key. " aren't  member in schema check your Model ".get_class($this) ]; } 
             if( isset($option['update']) ){ 
-                if (  in_array( $key,$updateProtected)  &&  $option['update'] == true  ){    return  [  0 , "ERROR ! update collection:". $this->collection."->feild:".$key. " has protected in ".get_class($this) ];  }
+                if (  in_array( $key,$updateProtected)  &&  $option['update'] == true  ){    return  [  0 , "ERROR ! update collection:". $forceCollection."->feild:".$key. " has protected in ".get_class($this) ];  }
             }
         }
         return [1,"fillable OK good luck my friend ! "] ;
@@ -502,13 +535,10 @@ trait Commands {
         
         if( null == self::$querys ){$pipeline =  arrFindKeyRemove($pipeline,'$match');}
 
-        //if(env("DEV_DEBUG"))  print(  __FILE__. " : " . __LINE__ ." : ---> In find normal <br>\n") ; 
-       // if(env("DEV_DEBUG"))  dd(__file__.__line__,self::$querys ,$pipeline ) ; 
         $config=new Config ;
         $config->setDb($this->getDbNonstatic()) ;
         $conclude=new BuildConnect;  
         if ( isset($argv['count']) && $argv['count'] == true ){ 
-            //if(env("DEV_DEBUG"))  print(  __FILE__. " : " . __LINE__ ." : ---> In  count : ".$argv['count']." <br>\n") ; 
             $options = [
                 'allowDiskUse' => true
             ];
@@ -525,7 +555,6 @@ trait Commands {
                     }else{   // @call findnormal with out paginate 
                         $modify_options =  self::$options ;
                         if(!null == self::$aggregate_options){ $modify_options = array_merge($modify_options ,self::$aggregate_options  );}
-                      //  dd(__file__.__line__,$modify_options);
                         $conclude->findDoc($config,$this->collection,self::$querys,$modify_options); 
                     }
        } 
@@ -542,14 +571,12 @@ trait Commands {
                             }
                                 $renewdisplay = array_merge($renewdisplay, [$docs]  );
                             }
-                           // dd($renewdisplay);
                             return $renewdisplay ;
             }else{
                 return $groupresult ;
             }
    } 
     public function findGroup (array $argv = null ) {  
-        // findGroup([ 'count' => false  , 'options' => $options ,'perpage'=> $perpage ])  
         $paginate_options = '' ; 
         $paginate_perpage = null ; 
         $query_random  = null ; 
@@ -565,10 +592,8 @@ trait Commands {
             if ( isset(self::$pipeline[$key]['$match'])){ $findMatch = $key ; break ;}
         }
         if ( $findMatch === 'null' && !null ==  self::$querys ){ 
-            // dd(__file__.":".__line__ , " No match "  ,self::$pipeline ,self::$querys ) ;
             $swap = [] ;
             $swap = self::$pipeline ;
-            // $group_project = [ '$project' => [ 'count' => '$COUNT(*)','_id' => 0 ]  ] ; 
             self::$pipeline = [] ;
             self::$pipeline = array_merge(self::$pipeline,[ ['$match' => self::$querys] ]);
             self::$pipeline = array_merge(self::$pipeline,$swap);
@@ -581,7 +606,6 @@ trait Commands {
                 break ;
             } ;
         }
-        // dd(__file__.":".__line__,self::$groupby);
         if ($foundGroup === 'null' ) {
             self::$pipeline = array_merge( self::$pipeline , [self::$groupby] );
         }
@@ -622,10 +646,8 @@ trait Commands {
             $index_project=0;
             $findFound = '$Null';
             foreach ( $modifyPipeline as $key => $values) {  // @@ index project finder
-               // if(key($values)=='$project'){ $index_project = $key ;  } 
                if(isset($modifyPipeline[$key]['$project'])){ unset($modifyPipeline[$key]['$project']); $findFound = $key ; break ;};
             }
-          //  print(__file__.__line__." Index : $index_project");
              //@@ remove project 
             if($findFound !== '$Null'){
                  $modifyPipeline[$findFound] = array_merge($modifyPipeline[$findFound],$group_count); 
@@ -638,11 +660,7 @@ trait Commands {
                 if( isset($modifyPipeline[$key]['$limit'])){ unset($modifyPipeline[$key]) ;}
             }
             $modifyPipeline =  array_reindex($modifyPipeline);
-            // if(env('DEV_DEBUG')){
-            //     print_r( __file__ ." : ". __line__ . $argv['count'] ) ;
-            //     print_r(self::$pipeline ) ; print ( "Modify pipeline" ) ; print_r ( $modifyPipeline  ) ; print ("<br><br><br><br><br>"); 
-            // }
-             //dd(__file__ ." : ". __line__  ,$modifyPipeline  );
+
             $conclude->aggregate($config,$this->collection,$modifyPipeline,$options);
             return $conclude->result ;
                
@@ -744,7 +762,6 @@ trait Commands {
 
         $options = [ 'allowDiskUse' => TRUE ]; 
         $options = array_merge($options ,self::$aggregate_options  );
-       // dd(__file__.__line__ , $options  , self::$aggregate_options  ); 
         if(isset($argv['count']) && $argv['count'] == true ){
             $modifyPipeline = self::$pipeline ;
             foreach ($modifyPipeline as $key => $values) {

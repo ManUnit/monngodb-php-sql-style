@@ -22,18 +22,17 @@ use MongoDB\BSON\Regex;
 
 class Connection extends Compatible {  //defind the Class to be  master class
 
-    // Call trait class
+    //@@ Call trait class
     use Addon,Commands ; 
-    // Public , Protected  non-static properties  of values $this 
-    /*  Static properties of self::$values 
-     *
-     */
 
-    //
+    //@@ Public , Protected  non-static properties  of values $this 
+    //@@  Static properties of self::$values 
+ 
     protected $collection = 'dummyString';
     protected $database = 'dummyString' ;
+    protected $timezone = 'UTC' ;
     protected $fillable = array();    
-     // Private properties 
+     //@@ Private properties 
     private static $ClassError = array();
     private static $querys = array();
     private static $combind = array();
@@ -48,10 +47,10 @@ class Connection extends Compatible {  //defind the Class to be  master class
     private static $pre_groupby = array();
     private static $mappingAs = array(); 
     private static $specialOperator = array();
+    private static $SequenceCollection = null ;
     
     public function  initQuerysValues() {
         self::$pre_groupby = [] ;
-       // self::$combind  = [] ;
         self::$groupby = [] ;
         self::$mappingAs = [] ;
         self::$options = [] ;
@@ -62,6 +61,15 @@ class Connection extends Compatible {  //defind the Class to be  master class
         self::$limits  = [] ;
         self::$aggregate_options = [] ; 
         self::$specialOperator = [] ;
+    }
+
+    public function initQuery () {
+        self::$querys = [] ;
+        self::$orderTerm  = [] ;
+    }
+
+    public function resetStaticInsert(){
+        self:: $SequenceCollection = null ;
     }
     
     public  function __construct() {  
@@ -103,12 +111,13 @@ class Connection extends Compatible {  //defind the Class to be  master class
     }
  
  
-    public static function collection($coll=''){
+    public static function collection(string $coll=''){
         // support defind value with nothing 
-        if ($coll == '' ) return (new static)  // get  default collection from model when nothing value in collection()
+        if ($coll === '' ) return (new static)  // get  default collection from model when nothing value in collection()
                          ->setCollection(
                               (new static)->getCollectNonstatic()
                          ) ;
+        
         return  (new static)->setCollection($coll); 
     }
 
@@ -172,21 +181,25 @@ class Connection extends Compatible {  //defind the Class to be  master class
         return   $this ;  
     } 
 
-    public static function update(...$param ){ 
-        $this->initQuerysValues() ; 
+    public  function update(...$param ){ 
         if (self::$querys == null ){ return [0,"Error missing where query document require method  where() before andupdate() or update() example where(...)->andupdate()->update() "] ;}
+        
         if( count($param) == 1 && is_array($param[0]) ){ 
-            $canfill =  (new static)->fillable( $param[0] , ['update' => true] ) ; 
+            $canfill =  $this->fillable( $param[0] , ['update' => true] ) ; 
             if( $canfill[0] == 0){  return  $canfill ;}
-            self::$updates = [ '$set' => [ $param ] ] ;
+            $dataTypesMapping = dataTypemapping( $this->schema[$this->getCollectNonstatic()] , $param , $this->timezone ) ;  
+            self::$updates = [ '$set' => [ $dataTypesMapping ] ] ;
             }elseif(count($param) == 2){
-            $canfill =  (new static)->fillable([$param[0]=>$param[1]] , ['update' => true]  ); 
+            $canfill =  $this->fillable([$param[0]=>$param[1]] , ['update' => true]  ); 
             if( $canfill[0] == 0){  return  $canfill ;}
-            self::$updates = [ '$set' => [ $param[0] => $param[1]] ];
+            $dataTypesMapping = dataTypemapping( $this->schema[$this->getCollectNonstatic()] , [$param[0] => $param[1] ] , $this->timezone ) ;  
+          //  dd(__file__.__line__,$dataTypesMapping , $this->getCollectNonstatic());
+            self::$updates = [ '$set' => $dataTypesMapping ];
         }elseif(count($param) == 3  && $param[1] === '=' ){
-            $canfill =  (new static)->fillable([$param[0]=>$param[2]] , ['update' => true]   ); 
+            $canfill =  $this->fillable([$param[0]=>$param[2]] , ['update' => true]   ); 
             if( $canfill[0] == 0){  return  $canfill ;}
-            self::$updates = [ '$set' => [ $param[0] => $param[2]] ];
+            $dataTypesMapping = dataTypemapping( $this->schema[$this->getCollectNonstatic()] , [$param[0] => $param[2] ] , $this->timezone ) ; 
+            self::$updates = [ '$set' => $dataTypesMapping ];
         }elseif(count($param) > 3){
             return [0,"update format expect 3 argement you put " . count($param) ];
         }else{
@@ -194,13 +207,13 @@ class Connection extends Compatible {  //defind the Class to be  master class
             and you can multiply field with array update([ 'name' => 'Supachai' ,'lastname' => 'W.','address' => 'Pangpoi city' ]" ] ;
         }
         $config=new Config ;
-        $config->setDb((new static)->getDbNonstatic()) ;
+        $config->setDb($this->getDbNonstatic()) ;
         $conclude = new BuildConnect ;
         if (!isset(self::$updates['$set'])&&self::$andupdates==!null)self::$updates=['$set'=>[]];
-        $canfill =  (new static)->fillable(self::$andupdates ,  ['update' => true]   ); 
+        $canfill =  $this->fillable(self::$andupdates ,  ['update' => true]   ); 
         if( $canfill[0] == 0){  return  $canfill ;}
         self::$updates['$set'] = array_merge(  self::$updates['$set'], self::$andupdates );
-        $updateresult = $conclude->updateDoc( $config ,(new static)->getCollectNonstatic() ,self::$querys , self::$updates  ) ; 
+        $updateresult = $conclude->updateDoc( $config ,$this->getCollectNonstatic() ,self::$querys , self::$updates  ) ; 
         return $updateresult ;  // no more end of output with get()   
     }
     
@@ -395,26 +408,26 @@ class Connection extends Compatible {  //defind the Class to be  master class
              return $this ;   
     }  
 
-    public  function insert( array $arrVals ) {    // non static method  display output use after where,orwhere operation
-        $canfill =  $this->fillable( $arrVals , ['insert'=> true] ) ;  // this method going to reject insert once unmatch schema and fillable 
+    public  function insert( array $arrVals ) {    // non static method  display output use after where,orwhere operation 
+         if (null == self::$SequenceCollection ){ 
+             $canfill =  $this->fillable( $arrVals , ['insert'=> true] ) ;  // this method going to reject insert once unmatch schema and fillable 
+          }else{
+             $canfill =  $this->fillable( $arrVals , ['insert'=> true , 'forceCollection' => self::$SequenceCollection ] ) ;  // this method going to reject insert once unmatch schema and fillable 
+         }
+         $dataTypesMapping = dataTypemapping( $this->schema[$this->getCollectNonstatic()] , $arrVals , $this->timezone ) ;  
         if( $canfill[0] == 1 ){  
             $config = new Config ;
             $config->setDb($this->getDbNonstatic()) ;
             $conclude = new BuildConnect ; 
-            $reactionInsert = $conclude->insertDoc($config ,$this->getCollectNonstatic(),$arrVals ) ; 
-            if ($reactionInsert[0]) {   
-                  return  [ true ,$reactionInsert  ] ; 
-            }else{
-                return $reactionInsert ;
-            }
+            $reactionInsert = $conclude->insertDoc($config ,$this->getCollectNonstatic(),$dataTypesMapping) ; 
+            $this->resetStaticInsert() ; // @@ reset static values for static function getSequence() reset self::$SequenceCollection to null
+            return $reactionInsert ;
          }else{
             return  [ 0 ,$canfill[1]  ] ; 
          }
     } 
 
-
-    
-    public  function insertGetId( array $arrVals , string $key_return  = '' ) {    // non static method  display output use after where,orwhere operation
+    public  function insertGetId( array $arrVals , string $key_return  = null ) {    // non static method  display output use after where,orwhere operation
         
         $canfill =  $this->fillable( $arrVals , ['insert'=> true] ) ;  // this method going to reject insert once unmatch schema and fillable 
         if( $canfill[0] == 1 ){  

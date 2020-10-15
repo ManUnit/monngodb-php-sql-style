@@ -17,7 +17,7 @@ abstract class Compatible {  // Method compatible control class
    abstract  public function where(String $Key='',String $Operation ='', $Value , $boolean = 'mostleft' );
    abstract  public function orwhere(String $Key ,String $Operation ,String $Value);
    abstract  public function andwhere(String $Key ,String $Operation ,String $Value);
-   abstract  public static function update(...$param ) ;
+   abstract  public function update(...$param ) ;
    abstract  public function andupdate(...$param) ; 
   // Middle Function 
 

@@ -1,5 +1,10 @@
 <?php
 
+use MongoDB\BSON\Decimal128 ; 
+use MongoDB\BSON\UTCDateTime as BSONDatetime ; 
+use MongoDB\BSON\Timestamp  as BSONTimestamp ; 
+
+
 if (! function_exists('commandTranslate')) {
     function commandTranslate(string $command){
            $command =  str_replace(")","" ,$command);
@@ -7,6 +12,57 @@ if (! function_exists('commandTranslate')) {
            return [ $command[0] => $command[1] ] ;
     }
 }
+
+if (! function_exists('dataTypemapping')) {
+    function dataTypemapping (array $schema , array $datas , string $timezone ) { 
+        ini_set('mongo.native_long', 1);
+        $newData = [] ; 
+        foreach( $datas as $key => $value) { 
+            //@ type convert
+            if(isset($schema[$key]['DataType'])){ 
+                if( $schema[$key]['DataType'] === 'Double' ) {
+                  if (is_numeric( $value )) { $newtype = (double) $value + 0.0 ; }else{ throw new Exception( " Error Value : $value is not number" )  ; } 
+                //$newtype = (double) $value ; 
+                }elseif($schema[$key]['DataType'] === 'Decimal128') {
+                    $newtype = new Decimal128($value); 
+                   
+                }elseif($schema[$key]['DataType'] === 'Integer32') {
+                    if (is_numeric( $value )) { $newtype = (int) $value ; }else{ throw new Exception( " Error Value : $value is not number" )  ; } 
+               
+                }elseif($schema[$key]['DataType'] === 'String'){
+                    $newtype = (string) $value ;
+                }elseif($schema[$key]['DataType'] === 'Date'){
+
+                    if ( $value === "now"){
+                        $orig_date = new DateTime("now");
+                        $tz = new DateTimeZone($timezone) ; 
+                        $orig_date->setTimeZone($tz) ;
+                        $offset = $orig_date->getOffset() ; 
+                        $getdate= ( $orig_date->getTimestamp() + $offset )  * 1000  ;
+                    }else{
+                        $orig_date = new DateTime($value);
+                        $getdate=$orig_date->getTimestamp() * 1000 ;
+                    }
+                    
+                    $newtype = new BSONDatetime($getdate); 
+
+                }elseif($schema[$key]['DataType'] === 'Auto'){
+                    $newtype = $value ;
+                }else{
+                    throw new Exception( " Error DataType : ".$schema[$key]['DataType'] ." => $value is not support " )  ;
+                }
+            }else{
+                $newtype = $value ;
+            }
+            $newData =  array_merge($newData , [ $key => $newtype ] );
+            // $start = new UTCDateTime(strtotime("2010-01-15 00:00:00"));
+           //  dd($schema ,$datas , $newtype ) ; 
+        } 
+      
+        return  $newData ;
+    }
+}
+
 if (! function_exists('env')) {
 function env($key, $default = null)
     {   

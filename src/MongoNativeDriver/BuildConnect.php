@@ -107,11 +107,10 @@ class BuildConnect {
         }
         unset($connection) ;
         unset($client) ;
-        return [ true , $insertOneResult ] ;  
+        return [ true ,[ 'getInsertedCount' => $insertOneResult->getInsertedCount() ], $insertOneResult ] ;  
     }
 
     public function  updateDoc($config ,$reqCollection , $query , $values ) {
-  
         $connection =  'mongodb://'.$config->getUser() 
                                    .":".$config->getPassword()
                                    .'@'.$config->getHost()
@@ -124,24 +123,21 @@ class BuildConnect {
             echo $error->getMessage(); die(1);
             exit ; 
         }
-        $updateData = array_merge ( $query ,[ $values ]  ) ;
-        // $result = $collection->updateMany($updateData);
-        $result = $collection->updateMany($query, [ $values ]  , []);
+            $collection =  $db->selectCollection($reqCollection); 
+        $result =  $collection->updateMany($query, [ $values ]  , []);
         unset($connection) ;
         unset($client) ;
-         // dd("update", $updateData ,"Query :", $query,"Value", $values , "Result", $result);
-        return $result;
+        return  [ $result->getModifiedCount()   ,$result ];
     }
 
     public function  deleteDoc($config ,$reqCollection , $query ) {
-  
         $connection =  'mongodb://'.$config->getUser() 
                                    .":".$config->getPassword()
                                    .'@'.$config->getHost()
                                    .':'.$config->getPort() ;
-                                   try {
-                                               $client = new Client($connection);
-        $db = $client->selectDatabase($config->getDb());
+        try {
+               $client = new Client($connection);
+               $db = $client->selectDatabase($config->getDb());
         }catch (Exception $error) {
             echo $error->getMessage(); die(1);
             exit ; 
@@ -218,10 +214,8 @@ class BuildConnect {
                 $collection =  $db->selectCollection($reqCollection); 
                 $found = 0 ; 
                 foreach ($collection->listIndexes() as $index) {  
-                //    if(env("DEV_DEBUG")) { print ( __file__.":".__line__ ." -----> $reqCollection Index Name : " . $index['name']  ) ; print ("<br>") ; } 
                     if ( $index['name'] === $index_name   ) { $found++ ;  break ;  } 
                 }
-              //  if(env("DEV_DEBUG")) { print ( __file__.":".__line__ ." Found : $found  , collection :  $reqCollection   ,indexname : $index_name " ) ; print ("<br>") ; } 
                 if ( $found > 0 ){
                     return true;
                 }else{
