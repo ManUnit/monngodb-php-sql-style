@@ -94,19 +94,21 @@ class UserModel extends NanModel
                                                     'AutoInc' => true ,
                                                     'AutoIncStartwith' => 10,
                                                     'Index' => true,
-                                                    'Unique' => true
+                                                    'Unique' => true ,
+                                                    'DataType => 'Double'
                                                   ],
                                             'productid'=>[ 
                                                     'AutoInc' => true ,
                                                     'AutoIncStartwith' => 1000001,
                                                     'Index' => true,
-                                                    'Unique' => false
+                                                    'Unique' => false,
+                                                    'DataType => 'Double'
                                                   ],
                                             'service_name',
                                             'price' =>[
                                                   'UpdateProtected'=>true
                                             ],
-                                            'description' ,
+                                            'description' => [ 'DataType => 'String'] ,
                                             '$__MULTIPLE_INDEX_01'=>[
                                                                   'name' => 'indexSidPid',
                                                                   'key' => [ 'sid' => 1 , 'productid' => 1  ],
