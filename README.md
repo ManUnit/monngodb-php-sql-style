@@ -700,8 +700,8 @@ class UserModel extends NanModel
         </td>
         <td>
             <p>
-                <code> ConpanyDB::getSequence('id','customer')</code><br>
-                <code> ConpanyDB::collection("customers")->insert(["id" => ConpanyDB::getSequence('id','customers') , "description" => "Elon mask"]) ; </code><br>
+                <code> ModelDB::getSequence('id','customer')</code><br>
+                <code> ModelDB::collection("customers")->insert(["id" => ModelDB::getSequence('id','customers') , "description" => "Elon mask"]) ; </code><br>
              </p>
         </td>
     </tr>
