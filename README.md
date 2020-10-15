@@ -76,6 +76,9 @@ class UserModel extends NanModel
 
    protected  $collection = "users" ;   // prepare for default collection you can use mode of Model::collection("change new collection later")
    protected  $database = "companydata" ;  
+   protected $timezone = "Asia/Bangkok" ;  // default UTC offset + 0:00  list support timezone https://www.php.net/manual/en/timezones.php
+   //Schema Datatype  Double , Decimal128 , Integer32 , String  , Date ,  Auto  
+   // DataType Date support "now" 
    /*
    * protected  $fillable = [ "username","email","first_name","last_name","password",
    *                         "plan","services","server-reference","client-address",
