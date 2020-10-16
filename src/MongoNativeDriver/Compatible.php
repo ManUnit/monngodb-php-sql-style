@@ -6,7 +6,9 @@ abstract class Compatible {  // Method compatible control class
    protected $collection = 'dummyString';
    protected $database = 'dummyString' ;
    protected $schema = array() ;
-    // Head function 
+   protected $timezone = 'Asia/Bangkok' ; 
+   protected $dateformat = 'Y-m-d H:i:s.u' ;
+   // Head function 
   
   // abstract  public static  function update(); //
 
@@ -19,6 +21,7 @@ abstract class Compatible {  // Method compatible control class
    abstract  public function andwhere(String $Key ,String $Operation ,String $Value);
    abstract  public function update(...$param ) ;
    abstract  public function andupdate(...$param) ; 
+   
   // Middle Function 
 
    abstract  public function join(String $collection , String $localField , String  $foreignField , String $as = "" );  // <--

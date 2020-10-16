@@ -43,12 +43,20 @@ trait Addon {
 
        return $this ; 
      }
+    
+     public function getTimeZone(){
+        return $this->timezone; 
+     }
 
+     public function getDateFormat(){
+        return $this->dateformat; 
+     }
+   
      public function getgroup( ) {    
     
         $this->getAllwhere() ;  // Intregate where everywhere  
         if(!null == self::$joincollections){ 
-       //    if(env('DEV_DEBUG'))print  (__file__.":".__line__ ." -> GET Group : $group  --> Sub group :  $subgroup  <br>\n") ; 
+           //    if(env('DEV_DEBUG'))print  (__file__.":".__line__ ." -> GET Group : $group  --> Sub group :  $subgroup  <br>\n") ; 
            //@@ Make sort select
            ksort(self::$mappingAs); 
            $group_type =  $this->findJoin(['getgroup'=> true]) ;   

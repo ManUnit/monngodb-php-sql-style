@@ -51,8 +51,8 @@ trait Commands {
         }
         return $result; 
     }
-
-
+   
+    
     public function paginate(int $perpage , string $pageName = '' ,  string  $viewlinkfile = '') {   
         $this->getAllwhere() ;  // Intregate where everywhere         
         //

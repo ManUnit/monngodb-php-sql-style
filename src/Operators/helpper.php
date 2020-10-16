@@ -13,10 +13,31 @@ if (! function_exists('commandTranslate')) {
     }
 }
 
+if (! function_exists('isoDateTime')) {
+    function isoDateTime(string $dataTime,string $Dateformat=null,string $timezone=null ){
+        ($Dateformat==null)?$Dateformat='Y-m-d H:i:s.u':null ;
+        ($timezone==null)?$timezone='UTC':null ; 
+        $tz=new DateTimeZone($timezone);
+        $dt=DateTime::createFromFormat($Dateformat,$dataTime,$tz);
+        $orig_date=new DateTime("now");
+        $orig_date->setTimeZone($tz);
+        $offset=$orig_date->getOffset();
+        if ( gettype($dt) === 'object' ){ 
+           $Unixtime = $dt->getTimestamp() ;
+        }else{
+            throw new  Exception("Convert Date $dataTime  with \$dateformat  '$Dateformat' error ") ;
+        }
+        $getdate=( $Unixtime  + $offset ) * 1000;
+        return $getdate; 
+    }
+}
+
+
 if (! function_exists('dataTypemapping')) {
-    function dataTypemapping (array $schema , array $datas , string $timezone ) { 
+    function dataTypemapping (array $schema , array $datas , string $timezone , string $Dateformat = null ) { 
         ini_set('mongo.native_long', 1);
         $newData = [] ; 
+         (null==$Dateformat)? $Dateformat='Y-m-d H:i:s' : null; 
         foreach( $datas as $key => $value) { 
             //@ type convert
             if(isset($schema[$key]['DataType'])){ 
@@ -40,11 +61,17 @@ if (! function_exists('dataTypemapping')) {
                         $offset = $orig_date->getOffset() ; 
                         $getdate= ( $orig_date->getTimestamp() + $offset )  * 1000  ;
                     }else{
-                        $orig_date = new DateTime($value);
-                        $tz = new DateTimeZone($timezone) ; 
-                        $orig_date->setTimeZone($tz) ;
-                        $offset = $orig_date->getOffset() ; 
-                        $getdate=($orig_date->getTimestamp() + $offset )  * 1000 ;
+                            $tz = new DateTimeZone($timezone);
+                            $dt = DateTime::createFromFormat( $Dateformat, $value, $tz);
+                            $orig_date = new DateTime("now");
+                            $orig_date->setTimeZone($tz) ;
+                            $offset = $orig_date->getOffset() ;
+                            if ( gettype($dt) === 'object' ) { 
+                               $Unixtime = $dt->getTimestamp() ;
+                            }else{
+                                throw new  Exception("Convert Date $value with \$dateformat  '$Dateformat' error ") ;
+                            }
+                            $getdate=( $Unixtime  + $offset ) * 1000;
                     }
                     
                     $newtype = new BSONDatetime($getdate); 

@@ -11,7 +11,6 @@
  */
 
 namespace Nantaburi\Mongodb\MongoNativeDriver ;
-require  __DIR__."/../Operators/AdvanceOps.php" ;  // get myown global function
 require  __DIR__."/../Operators/helpper.php" ;
 use Nantaburi\Mongodb\MongoNativeDriver\Config ;
 use Nantaburi\Mongodb\MongoNativeDriver\BuildConnect ;
@@ -187,18 +186,18 @@ class Connection extends Compatible {  //defind the Class to be  master class
         if( count($param) == 1 && is_array($param[0]) ){ 
             $canfill =  $this->fillable( $param[0] , ['update' => true] ) ; 
             if( $canfill[0] == 0){  return  $canfill ;}
-            $dataTypesMapping = dataTypemapping( $this->schema[$this->getCollectNonstatic()] , $param , $this->timezone ) ;  
+            $dataTypesMapping = dataTypemapping( $this->schema[$this->getCollectNonstatic()] , $param , $this->timezone , $this->dateformat) ;  
             self::$updates = [ '$set' => [ $dataTypesMapping ] ] ;
             }elseif(count($param) == 2){
             $canfill =  $this->fillable([$param[0]=>$param[1]] , ['update' => true]  ); 
             if( $canfill[0] == 0){  return  $canfill ;}
-            $dataTypesMapping = dataTypemapping( $this->schema[$this->getCollectNonstatic()] , [$param[0] => $param[1] ] , $this->timezone ) ;  
+            $dataTypesMapping = dataTypemapping( $this->schema[$this->getCollectNonstatic()] , [$param[0] => $param[1] ] , $this->timezone , $this->dateformat ) ;  
           //  dd(__file__.__line__,$dataTypesMapping , $this->getCollectNonstatic());
             self::$updates = [ '$set' => $dataTypesMapping ];
         }elseif(count($param) == 3  && $param[1] === '=' ){
             $canfill =  $this->fillable([$param[0]=>$param[2]] , ['update' => true]   ); 
             if( $canfill[0] == 0){  return  $canfill ;}
-            $dataTypesMapping = dataTypemapping( $this->schema[$this->getCollectNonstatic()] , [$param[0] => $param[2] ] , $this->timezone ) ; 
+            $dataTypesMapping = dataTypemapping( $this->schema[$this->getCollectNonstatic()] , [$param[0] => $param[2] ] , $this->timezone , $this->dateformat ) ; 
             self::$updates = [ '$set' => $dataTypesMapping ];
         }elseif(count($param) > 3){
             return [0,"update format expect 3 argement you put " . count($param) ];
@@ -414,7 +413,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
           }else{
              $canfill =  $this->fillable( $arrVals , ['insert'=> true , 'forceCollection' => self::$SequenceCollection ] ) ;  // this method going to reject insert once unmatch schema and fillable 
          }
-         $dataTypesMapping = dataTypemapping( $this->schema[$this->getCollectNonstatic()] , $arrVals , $this->timezone ) ;  
+         $dataTypesMapping = dataTypemapping( $this->schema[$this->getCollectNonstatic()] , $arrVals , $this->timezone , $this->dateformat ) ;  
         if( $canfill[0] == 1 ){  
             $config = new Config ;
             $config->setDb($this->getDbNonstatic()) ;
@@ -430,6 +429,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
     public  function insertGetId( array $arrVals , string $key_return  = null ) {    // non static method  display output use after where,orwhere operation
         
         $canfill =  $this->fillable( $arrVals , ['insert'=> true] ) ;  // this method going to reject insert once unmatch schema and fillable 
+        $dataTypesMapping = dataTypemapping( $this->schema[$this->getCollectNonstatic()] , $arrVals , $this->timezone , $this->dateformat ) ;  
         if( $canfill[0] == 1 ){  
             $config = new Config ;
             $config->setDb($this->getDbNonstatic()) ;
@@ -439,11 +439,11 @@ class Connection extends Compatible {  //defind the Class to be  master class
                 $inOrderArray = array_merge($inOrderArray , [$arr]) ;  
             }
           
-             $reactionInsert = $conclude->insertDoc($config ,$this->getCollectNonstatic(),$arrVals ) ; 
+             $reactionInsert = $conclude->insertDoc($config ,$this->getCollectNonstatic(),$dataTypesMapping) ; 
              
             if ($reactionInsert[0]) {   
                 if ( !null == $key_return  ) {
-                  return  [ true ,$reactionInsert , $arrVals[$key_return]  ] ; 
+                  return  [ true ,$reactionInsert , $dataTypesMapping[$key_return]  ] ; 
                 }else{
                   return  [ true ,$reactionInsert , $inOrderArray[0]  ] ; 
                 }

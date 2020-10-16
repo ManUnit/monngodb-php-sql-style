@@ -10,6 +10,7 @@ class Shopping extends NanModel
     protected $database = "shopping" ; 
     protected $collection ="products" ;  // default collection
     protected $timezone = "Asia/Bangkok" ;  // default UTC offset + 0:00  list support timezone https://www.php.net/manual/en/timezones.php
+    protected $dateformat = 'Y-m-d H:i:s.u' ; //  "2020-10-14 18:59:20.000000"  ref : https://www.php.net/manual/en/datetime.createfromformat.php
     //Schema Datatype  Double , Decimal128 , Integer32 , String  , Date ,  Auto  
     // DataType Date support "now" 
     protected $schema = [ 
