@@ -48,7 +48,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
     private static $specialOperator = array();
     private static $SequenceCollection = null ;
     
-    public function  initQuerysValues() {
+    protected function  initQuerysValues() {
         self::$pre_groupby = [] ;
         self::$groupby = [] ;
         self::$mappingAs = [] ;
@@ -62,12 +62,12 @@ class Connection extends Compatible {  //defind the Class to be  master class
         self::$specialOperator = [] ;
     }
 
-    public function initQuery () {
+    protected function initQuery () {
         self::$querys = [] ;
         self::$orderTerm  = [] ;
     }
 
-    public function resetStaticInsert(){
+    protected function resetStaticInsert(){
         self:: $SequenceCollection = null ;
     }
     
@@ -157,13 +157,13 @@ class Connection extends Compatible {  //defind the Class to be  master class
         return $this ;
     }
 
-    public function getCollectNonstatic(){
+    protected function getCollectNonstatic(){
         return $this->collection ; 
      }
-    public function getDbNonstatic(){
+     protected function getDbNonstatic(){
        return $this->database ; 
     }
-    public function newQuery() {
+    protected function newQuery() {
         return $this ;
     }
     
