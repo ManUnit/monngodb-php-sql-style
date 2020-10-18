@@ -278,15 +278,12 @@ class Connection extends Compatible {  //defind the Class to be  master class
     } 
 
     public function select(...$fields){  
-
-        $this->initQuerysValues() ; // reset all of $this values
-       
+        $this->initQuerysValues() ; // reset all of $this values 
+        
         self::$pre_groupby = array_merge(['$selected'=>true], removeAs($fields)  ); 
         $selectCommand=trim($fields[0]);
         $selectCommand=str_replace(" ","",$selectCommand);
-       // $selectCommand= ;
-        //$getSelectCommand =  preg_match("/^count\(+[*a-zA-Z0-9._-]+\)/",$selectCommand) ;
-       // dd(__file__.__line__,self::$specialOperator,$selectCommand);
+  
         if(count($fields)== 1 && $selectCommand === '*'  ){
             return $this;
         }elseif( count($fields)== 1 && true == preg_match("/^count\(+[*a-zA-Z0-9._-]+\)/" , $selectCommand)){ 
@@ -295,7 +292,7 @@ class Connection extends Compatible {  //defind the Class to be  master class
             return $this ; 
         }elseif( count($fields)== 1 && true == preg_match("/^sum\(+[*a-zA-Z0-9._-]+\)/" , $selectCommand)){ 
             self::$specialOperator =  commandTranslate($selectCommand)  ; 
-           // dd(__file__.__line__,self::$specialOperator , $selectCommand);
+            dd(__file__.__line__,self::$specialOperator , $selectCommand);
             return $this ; 
         }
 
@@ -331,21 +328,21 @@ class Connection extends Compatible {  //defind the Class to be  master class
         if(!null == self::$joincollections){ 
             if(env('DEV_DEBUG'))print  (__file__.":".__line__ ." -> find join : <br>\n") ;
             if (isset(self::$specialOperator['count'])){ return  $this->execFunctions('count','join') ;}
-          
-           return $this->findJoin() ;
+            
+            return $this->findJoin() ;
         }
         //
         //@command for group by
         //
         if(!null == self::$groupby && null ==  self::$joincollections ){ 
           //  if(env('DEV_DEBUG')) print  ("connection@DEBUG find group : <br>\n") ;
-            if (isset(self::$specialOperator['count'])){ return  $this->execFunctions('count','group') ;}
+            if(isset(self::$specialOperator['count'])){ return  $this->execFunctions('count','group') ;}
             if(env('DEV_DEVBUG')== true )print(__file__.__line__." AFTER CAL FUNCTION <br>") ;
             return $this->findGroup() ; 
         }else{     // @ normal find 
-            if(env('DEV_DEBUG')) print  (__file__.":".__line__ ."<br> ------> connection@DEBUG find normal : <br>\n") ;
-            if (isset(self::$specialOperator['count'])){ return $this->execFunctions('count','find') ;}
-          return  $this->findNormal() ;
+            // if(env('DEV_DEBUG')) print  (__file__.":".__line__ ."<br> ------> connection@DEBUG find normal : <br>\n") ;
+            // if (isset(self::$specialOperator['count'])){ return $this->execFunctions('count','find') ;}
+            return  $this->findNormal() ;
         } 
     } 
 
@@ -369,7 +366,26 @@ class Connection extends Compatible {  //defind the Class to be  master class
         } 
       
     } 
-      
+    
+    public function  rawAggregate(array $Array , array $option ){
+        // aggregate($config ,$reqCollection , $pipeline , $options = [] )
+        $config = new Config ;
+        $config->setDb($this->getDbNonstatic()) ;
+        $conclude = new BuildConnect ; 
+        $reactionInsert = $conclude->aggregate($config ,$this->getCollectNonstatic(),$Array , $option  ) ; 
+        return $conclude->result ;
+    }
+
+    public function  rawFind(array $Array , array $option = null ){
+        // aggregate($config ,$reqCollection , $pipeline , $options = [] )
+
+        if($option==null){$options=[];}else{$options=$option ;}  
+        $config = new Config ;
+        $config->setDb($this->getDbNonstatic()) ;
+        $conclude = new BuildConnect ; 
+        $reactionInsert = $conclude->findDoc($config ,$this->getCollectNonstatic(),$Array , $options  ) ; 
+        return $conclude->result ;
+    }
        
     public function first (){
         $this->limit(1);

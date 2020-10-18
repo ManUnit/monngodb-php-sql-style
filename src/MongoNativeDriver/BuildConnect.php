@@ -14,8 +14,6 @@
    *
    */
 
-
-
 namespace Nantaburi\Mongodb\MongoNativeDriver;
 use MongoDB\Client;
 use MongoDB\BSON\Regex; 
@@ -23,11 +21,8 @@ use MongoDB\Driver\Manager ;
 use MongoDB\Driver\Command ; 
 use MongoDB\Driver\Exception\BulkWriteException ;
 class BuildConnect {
-
-
     public   $result = array() ;
-
-      public function __construct( ) { 
+    public function __construct( ) { 
           // plan for more advance later
        }
 
@@ -51,6 +46,7 @@ class BuildConnect {
         }
         $collection =  $db->selectCollection($reqCollection); 
        //  $options = [];
+        // dd(__file__.__line__,'query',$query,$options);
         $cursor = $collection->find($query, $options);
         foreach ( $cursor  as $document) {
             array_push ( $this->result ,json_decode(json_encode($document))  ) ; 
@@ -60,8 +56,6 @@ class BuildConnect {
         unset($client) ;
     }
    // $deleteResult = $collection->deleteMany(['state' => 'ny']);
-   
-    
     public function aggregate($config ,$reqCollection , $pipeline , $options = [] ) {
         $connection = $this->preparecons($config);  
         try {
@@ -72,14 +66,10 @@ class BuildConnect {
             exit ; 
         }
         $collection =  $db->selectCollection($reqCollection); 
-      //  $options = [] ;
-
         $cursor = $collection->aggregate($pipeline , $options);
-     //   dd($pipeline, $options) ;
         foreach ( $cursor  as $document) {
             array_push ( $this->result ,json_decode(json_encode($document))  ) ; 
         }
- 
         unset($connection) ;
         unset($client) ;
     }
@@ -264,7 +254,7 @@ class BuildConnect {
             return [ 0, $error->getMessage() ] ;
         }
        
-        dd( get_class_methods($db) );
+      
 
         try { 
             $response = $db->execute($command) ;
