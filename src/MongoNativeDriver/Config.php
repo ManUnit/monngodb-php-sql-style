@@ -25,6 +25,11 @@ class Config {
        self::$connection['config']['username'] = $databaseConfig['connections']['mongodb']['username']  ;
        self::$connection['config']['password'] = $databaseConfig['connections']['mongodb']['password']  ;
        self::$connection['config']['database'] = $databaseConfig['connections']['mongodb']['database']  ;
+       if(isset($databaseConfig['connections']['mongodb']['options']['database'])){
+           self::$connection['config']['authendatabase'] = $databaseConfig['connections']['mongodb']['options']['authen_db'] ;
+       }else{
+           self::$connection['config']['authendatabase'] = 'admin' ;
+       }
   }
    
   public static function getDb(){
@@ -52,6 +57,10 @@ class Config {
   public static  function getPassword(){
    return self::$connection['config']['password']  ;
   }  
- 
+
+  public static  function getAuthDb(){
+   return self::$connection['config']['authendatabase']  ;
+  }  
+
  
 }

@@ -30,7 +30,8 @@ class BuildConnect {
         $connection =  'mongodb://'.$config->getUser() 
                                    .":".$config->getPassword()
                                    .'@'.$config->getHost()
-                                   .':'.$config->getPort() ;
+				   .':'.$config->getPort()
+				   .'/?authSource='.$config->getAuthDb();
         return $connection ; 
     
     } 
@@ -79,7 +80,8 @@ class BuildConnect {
         $connection =  'mongodb://'.$config->getUser() 
                                    .":".$config->getPassword()
                                    .'@'.$config->getHost()
-                                   .':'.$config->getPort() ;
+                                   .':'.$config->getPort()
+                                   .'/?authSource='.$config->getAuthDb() ;
         try {
             $client = new Client($connection);
             $db = $client->selectDatabase($config->getDb() );
@@ -104,7 +106,8 @@ class BuildConnect {
         $connection =  'mongodb://'.$config->getUser() 
                                    .":".$config->getPassword()
                                    .'@'.$config->getHost()
-                                   .':'.$config->getPort() ;
+                                   .':'.$config->getPort()
+                                   .'/?authSource='.$config->getAuthDb() ;
         try {
             $client = new Client($connection);
             $db = $client->selectDatabase($config->getDb() );
@@ -124,7 +127,8 @@ class BuildConnect {
         $connection =  'mongodb://'.$config->getUser() 
                                    .":".$config->getPassword()
                                    .'@'.$config->getHost()
-                                   .':'.$config->getPort() ;
+                                   .':'.$config->getPort() 
+                                   .'/?authSource='.$config->getAuthDb() ;
         try {
                $client = new Client($connection);
                $db = $client->selectDatabase($config->getDb());
@@ -145,7 +149,8 @@ class BuildConnect {
         $connection =  'mongodb://'.$config->getUser() 
                                    .":".$config->getPassword()
                                    .'@'.$config->getHost()
-                                   .':'.$config->getPort() ;
+                                   .':'.$config->getPort()
+                                   .'/?authSource='.$config->getAuthDb() ;
         try {
              $client = new Client($connection);
              $db = $client->selectDatabase($config->getDb() );
@@ -169,7 +174,8 @@ class BuildConnect {
         $connect = new Manager('mongodb://'.$config->getUser() 
                                                         .":".$config->getPassword()
                                                         .'@'.$config->getHost()
-                                                        .':'.$config->getPort() 
+                                                        .':'.$config->getPort()
+                                                        .'/?authSource='.$config->getAuthDb()  
                                             );
         $command = new Command([ "createIndexes" => $collection  ,
                                  "indexes"       => [ $Indexs ],
@@ -184,7 +190,8 @@ class BuildConnect {
             $connection =  'mongodb://'.$config->getUser() 
                                                             .":".$config->getPassword()
                                                             .'@'.$config->getHost()
-                                                            .':'.$config->getPort(); 
+                                                            .':'.$config->getPort()
+                                                            .'/?authSource='.$config->getAuthDb() ; 
             try {
                 $client = new Client($connection);
                 $db = $client->selectDatabase($config->getDb());
@@ -198,6 +205,7 @@ class BuildConnect {
             .":".$config->getPassword()
             .'@'.$config->getHost()
             .':'.$config->getPort() 
+            .'/?authSource='.$config->getAuthDb() ;
             );
             // $reqCollection = 'Abpon_counters' ;
                 
@@ -218,7 +226,8 @@ class BuildConnect {
         $connection =  'mongodb://'.$config->getUser() 
         .":".$config->getPassword()
         .'@'.$config->getHost()
-        .':'.$config->getPort() ;
+        .':'.$config->getPort()
+        .'/?authSource='.$config->getAuthDb() ;
         try {
             $client = new Client($connection);
             $db = $client->selectDatabase($config->getDb() );
@@ -246,7 +255,8 @@ class BuildConnect {
         $connection =  'mongodb://'.$config->getUser() 
         .":".$config->getPassword()
         .'@'.$config->getHost()
-        .':'.$config->getPort() ;
+        .':'.$config->getPort()
+        .'/?authSource='.$config->getAuthDb() ; ;
         try {
             $client = new Client($connection);
             $db = $client->selectDatabase($config->getDb() );
