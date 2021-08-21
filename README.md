@@ -41,7 +41,7 @@ __________
 - Using Laravel for SQL query style  example below 
     - Create Model - using command `  php artisan make:model UserDbModel ` at laravel root project 
       and insert ` use Nantaburi\Mongodb\MongoNativeDriver\Model   ` on top 
-      - ex-fillable use to be `protected $fillable = ["useid","username","lastname","password"] ` will replace with $schema as example below
+      - ex-fillable used to be `protected $fillable = ["useid","username","lastname","password"] ` will replace with $schema as example below
       - Example : `protected $schema [ "userscollection" , ["useid","username","lastname","password"] ] ` 
       - Magic create index with two ways
          - first way :  add array with key [ Index => true ] if you want to add option Unique just add more key [ 'Index' => true , 'Unique' =>  true ] 
