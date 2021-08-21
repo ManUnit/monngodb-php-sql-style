@@ -6,7 +6,7 @@ composer require nantaburi/mongodb-sql-model
 ````
 Mongodb using SQL style 
 - Configuraton  add setting in config/database.php of laravel 
-
+- Authorization Database default as admin if no value [options][authen_db]
 ````
 'mongodb' => [
     'driver' => 'mongodb',
