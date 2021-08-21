@@ -6,7 +6,7 @@ composer require nantaburi/mongodb-sql-model
 ````
 Mongodb using SQL style 
 - Configuraton  add setting in config/database.php of laravel 
-
+- Authorization Database default as admin if no value [options][authen_db]
 ````
 'mongodb' => [
     'driver' => 'mongodb',
@@ -16,7 +16,7 @@ Mongodb using SQL style
     'username' => env('MONGO_MONGO_DB_USERNAME', 'maradmin'),
     'password' => env('MONGO_DB_PASSWORD', 'password'),
     'options' => [     
-        'database' => env('DB_AUTHENTICATION_DATABASE', 'admin'),
+        'authen_db' => env('DB_AUTHENTICATION_DATABASE', 'admin'),
     ],
 ],
 
@@ -212,31 +212,6 @@ class UserModel extends NanModel
    </thead>
    <tbody>
    <tr><td>set database</td>
-        <td>
-            <p>
-              <code>[DBModel]::database(string $dbname[, string $collectionName])</code><br>
-           </p>
-        </td>
-        <td>
-            <p>
-              <code>[DBModel]::database('companyDb')-> </code><br>
-              <code>[DBModel]::database('companyDb','Products')-> </code><br> 
-             </p>
-        </td>
-    </tr>
-   <tr><td>set database</td>
-       <td><p>
-           <code>[DBModel]::DB(string $dbname[,string $collectionName])</code><br>
-           </p>
-        </td>
-        <td>
-            <p>
-              <code>[DBModel]::DB('companyDb')-></code><br>
-              <code>[DBModel]::DB('companyDb','Products')-></code><br>    
-            </p>
-        </td> 
-   </tr>
-   <tr><td>set database</td>
    <td>
         <p>
         <code>[DBModel]::collection(string $collectionName)</code><br>
@@ -245,7 +220,6 @@ class UserModel extends NanModel
    <td>
       <p>
         <code>[DBModel]::collection('Products')-></code><br>
-        <code>[DBModel]::database('companyDb')->collection('Products')-></code><br>
        </p>
       </td>
    </tr>
