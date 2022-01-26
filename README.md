@@ -30,9 +30,9 @@ Run Nantabury/Mongodb standalone without laravel :
 # Nantaburi .env file 
 
 MONGO_DB_HOST='127.0.0.1'
-MONGO_MONGO_DB_PORT='27017'
+MONGO_DB_PORT='27017'
 MONGO_DB_DATABASE='products'
-MONGO_MONGO_DB_USERNAME='root'
+MONGO_DB_USERNAME='root'
 MONGO_DB_PASSWORD='password'
 
 ````
