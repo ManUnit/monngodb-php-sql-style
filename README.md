@@ -11,9 +11,9 @@ Mongodb using SQL style
 'mongodb' => [
     'driver' => 'mongodb',
     'host' => env('MONGO_DB_HOST', '127.0.0.1'),
-    'port' => env('MONGO_MONGO_DB_PORT', 27017),
+    'port' => env('MONGO_DB_PORT', 27017),
     'database' => env('MONGO_DB_DATABASE', 'marcompany'),
-    'username' => env('MONGO_MONGO_DB_USERNAME', 'maradmin'),
+    'username' => env('MONGO_DB_USERNAME', 'maradmin'),
     'password' => env('MONGO_DB_PASSWORD', 'password'),
     'options' => [     
         'authen_db' => env('DB_AUTHENTICATION_DATABASE', 'admin'),
